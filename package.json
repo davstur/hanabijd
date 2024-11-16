@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "cross-env NODE_OPTIONS='--openssl-legacy-provider' next dev",
     "build": "cross-env NODE_OPTIONS='--openssl-legacy-provider' next build",
-    "start": "cross-env NODE_OPTIONS='--openssl-legacy-provider' next start",
+    "export": "next export",
+    "start": "cross-env NODE_OPTIONS='--openssl-legacy-provider' next start -p $PORT",
     "lint": "eslint '**/*.{ts,tsx}'"
   },
   "dependencies": {

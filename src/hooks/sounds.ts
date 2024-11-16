@@ -40,8 +40,8 @@ export function useSoundEffects() {
   useEffect(() => {
     if (!selfPlayer?.notified) return;
 
-    playSound(`/static/sounds/bell.mp3`);
-    vibrate(200);
+    // playSound(`/static/sounds/bell.mp3`);
+    // vibrate(200);
     const timeout = setTimeout(() => setNotification(game, selfPlayer, false), 10000);
 
     return () => clearTimeout(timeout);
@@ -85,6 +85,6 @@ export function useSoundEffects() {
     if (!namedEvent) return;
     const soundFile = SoundsForAction[namedEvent];
 
-    playSound(soundFile);
+    // playSound(soundFile);
   }, [turnsCount, previousTurnsCount, turn, userPreferences.soundOnStrike, isReplaying]);
 }

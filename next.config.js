@@ -5,7 +5,23 @@ const webpack = require("webpack");
 const { withSentryConfig } = require("@sentry/nextjs");
 
 const moduleExports = {
-  // next config
+  images: {
+    domains: ["cdn.buymeacoffee.com", "localhost"],
+  },
+  // Keep your existing webpack config
+  webpack: (config, { isServer, buildId }) => {
+    config.plugins.push(
+      new webpack.DefinePlugin({
+        "process.env.SENTRY_RELEASE": JSON.stringify(buildId),
+      })
+    );
+
+    if (!isServer) {
+      config.resolve.alias["@sentry/node"] = "@sentry/browser";
+    }
+
+    return config;
+  }
 };
 
 const sentryWebpackPluginOptions = {
@@ -27,10 +43,10 @@ module.exports = async (phase, { defaultConfig }) => {
     images: {
       domains: ["cdn.buymeacoffee.com", "localhost"],
     },
-    i18n: {
-      locales: ["en", "fr", "es", "it", "nl", "ru", "pt", "de", "sk", "zh"],
-      defaultLocale: "en",
-    },
+    // i18n: {
+    //   locales: ['en'],
+    //   defaultLocale: 'en',
+    // },
     webpack: (config, { isServer, buildId }) => {
       config.plugins.push(
         new webpack.DefinePlugin({

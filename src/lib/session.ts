@@ -3,10 +3,10 @@ import { ID, uniqueId } from "~/lib/id";
 
 export default function withSession(handler) {
   return withIronSession(handler, {
-    password: process.env.COOKIE_PASSWORD,
-    cookieName: "hanab.cards",
+    password: "8asduz83890asdf09asdi393hasdfiausdf390asdf9asdie",
+    cookieName: "hanabi_session",
     cookieOptions: {
-      secure: process.env.NODE_ENV === "production" ? true : false,
+      secure: process.env.NODE_ENV === "production",
     },
   });
 }
