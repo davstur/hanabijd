@@ -15,6 +15,7 @@ import {
 import IGameState, { IGameStatus } from "~/lib/state";
 import { getScore } from "~/lib/actions";
 import { uniqueId } from "~/lib/id";
+import { getNotificationPermission, isPushSupported, subscribeToPush } from "~/lib/notifications";
 
 const NAME_KEY = "name";
 const ROOM_KEY = "currentRoom";
@@ -84,6 +85,20 @@ export default function RoomPage() {
   const [games, setGames] = useState<IGameState[]>([]);
   const [, setCurrentRoom] = useLocalStorage<string | null>(ROOM_KEY, null);
   const [loading, setLoading] = useState(true);
+  const [notifPermission, setNotifPermission] = useState<NotificationPermission | "unsupported">("unsupported");
+
+  useEffect(() => {
+    setNotifPermission(getNotificationPermission());
+  }, []);
+
+  async function handleEnableNotifications() {
+    const success = await subscribeToPush();
+    if (success) {
+      setNotifPermission("granted");
+    } else {
+      setNotifPermission(getNotificationPermission());
+    }
+  }
 
   // Subscribe to room data
   useEffect(() => {
@@ -183,6 +198,26 @@ export default function RoomPage() {
         </div>
         <Button outlined size={ButtonSize.TINY} text={t("leaveRoom", "Leave room")} onClick={handleLeaveRoom} />
       </div>
+
+      {/* Notification prompt */}
+      {isPushSupported() && notifPermission === "default" && (
+        <div className="flex items-center justify-between mb4 pa2 br2" style={{ background: "rgba(255,255,255,0.08)" }}>
+          <Txt
+            size={TxtSize.SMALL}
+            value={t("enableNotifications", "Enable notifications to know when it's your turn")}
+          />
+          <Button size={ButtonSize.TINY} text={t("enable", "Enable")} onClick={handleEnableNotifications} />
+        </div>
+      )}
+      {isPushSupported() && notifPermission === "granted" && (
+        <div className="flex items-center mb4 pa2 br2" style={{ background: "rgba(255,255,255,0.05)" }}>
+          <Txt
+            className="light-green"
+            size={TxtSize.SMALL}
+            value={t("notificationsEnabled", "Notifications enabled")}
+          />
+        </div>
+      )}
 
       {/* Members */}
       <div className="mb4">

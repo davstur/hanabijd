@@ -11,6 +11,7 @@ import { initAnalytics, logPageView } from "~/lib/analytics";
 import { i18n } from "~/lib/i18n";
 import "../styles/style.css";
 import { logFailedPromise } from "~/lib/errors";
+import { registerServiceWorker } from "~/lib/notifications";
 import { TutorialProvider } from "~/components/tutorial";
 
 Sentry.init({
@@ -39,6 +40,7 @@ Router.events.on("routeChangeError", () => {
 export default function App(props: AppProps) {
   useEffect(() => {
     initAnalytics();
+    registerServiceWorker();
   }, []);
 
   return (
