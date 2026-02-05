@@ -5,6 +5,9 @@
 
     "games": {
       ".indexOn": ["createdAt"]
+    },
+    "rooms": {
+      ".indexOn": ["createdAt"]
     }
   }
 }

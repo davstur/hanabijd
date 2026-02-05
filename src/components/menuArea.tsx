@@ -1,40 +1,57 @@
 import { useRouter } from "next/router";
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import LanguageSelector from "~/components/languageSelector";
 import Rules from "~/components/rules";
-import { TutorialContext } from "~/components/tutorial";
 import Button, { ButtonSize } from "~/components/ui/button";
 import { Modal } from "~/components/ui/modal";
 import Txt, { TxtSize } from "~/components/ui/txt";
 import UserPreferencesDialog from "~/components/userPreferencesDialog";
 import { UserPreferences, useUserPreferences } from "~/hooks/userPreferences";
-import { logFailedPromise } from "~/lib/errors";
 
 interface Props {
   onCloseArea: () => void;
+}
+
+function getCurrentRoom(): string | null {
+  if (typeof window === "undefined") return null;
+  const stored = localStorage.getItem("currentRoom");
+  if (stored) {
+    try {
+      return JSON.parse(stored);
+    } catch {
+      return stored;
+    }
+  }
+  return null;
 }
 
 export default function MenuArea(props: Props) {
   const { onCloseArea } = props;
 
   const [showRules, setShowRules] = useState(false);
-  const { reset } = useContext(TutorialContext);
   const router = useRouter();
   const { t } = useTranslation();
   const [showUserPreferences, setShowUserPreferences] = useState(false);
   const [userPreferences, setUserPreferences] = useUserPreferences();
 
+  const currentRoom = getCurrentRoom();
+
   function onPrefClick() {
     setShowUserPreferences(true);
   }
-  function onMenuClick() {
-    router.push("/").catch(logFailedPromise);
+
+  function onNewGameClick() {
+    const roomParam = currentRoom ? `?room=${currentRoom}` : "";
+    router.push(`/new-game${roomParam}`);
   }
 
-  function onTutorialClick() {
-    reset();
-    onCloseArea();
+  function onBackToRoomClick() {
+    if (currentRoom) {
+      router.push(`/rooms/${currentRoom}`);
+    } else {
+      router.push("/");
+    }
   }
 
   if (showUserPreferences) {
@@ -61,9 +78,22 @@ export default function MenuArea(props: Props) {
             <div className="mb4 mb5-l">
               <LanguageSelector />
             </div>
+            <Button
+              primary
+              className="mb3 w-100"
+              size={ButtonSize.MEDIUM}
+              text={t("newGame", "New game")}
+              onClick={onNewGameClick}
+            />
+            {currentRoom && (
+              <Button
+                className="mb3 w-100"
+                size={ButtonSize.MEDIUM}
+                text={t("backToRoom", "Back to room")}
+                onClick={onBackToRoomClick}
+              />
+            )}
             <Button className="mb3 w-100" size={ButtonSize.MEDIUM} text={t("userPreferences")} onClick={onPrefClick} />
-            <Button className="mb3 w-100" size={ButtonSize.MEDIUM} text={t("menu")} onClick={onMenuClick} />
-            <Button className="mb3 w-100" size={ButtonSize.MEDIUM} text={t("tutorial")} onClick={onTutorialClick} />
             <Button
               className="mb3 w-100"
               size={ButtonSize.MEDIUM}

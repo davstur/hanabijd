@@ -20,7 +20,6 @@ import useLocalStorage from "~/hooks/localStorage";
 import { useNotifications } from "~/hooks/notifications";
 import { useReplay } from "~/hooks/replay";
 import { useSession } from "~/hooks/session";
-import { useSoundEffects } from "~/hooks/sounds";
 import { useUserPreferences } from "~/hooks/userPreferences";
 import { commitAction, getMaximumPossibleScore, getScore, joinGame, newGame, recreateGame } from "~/lib/actions";
 import { play } from "~/lib/ai";
@@ -59,7 +58,6 @@ export function Game(props: Props) {
   const tutorial = useContext(TutorialContext);
   const [userPreferences] = useUserPreferences();
   useNotifications();
-  useSoundEffects();
 
   /**
    * Resets the selected area when a player plays.

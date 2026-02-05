@@ -1,7 +1,6 @@
 import React, { useContext } from "react";
 
 export interface UserPreferences {
-  soundOnStrike?: boolean;
   showFireworksAtGameEnd?: boolean;
   codedHintMarkers?: boolean;
 }
@@ -9,7 +8,6 @@ export interface UserPreferences {
 type ValueAndSetter<T> = [T, (newValue: T) => void];
 
 const DefaultPreferences: UserPreferences = {
-  soundOnStrike: true,
   showFireworksAtGameEnd: true,
   codedHintMarkers: false,
 };
