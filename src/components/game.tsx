@@ -20,13 +20,12 @@ import useLocalStorage from "~/hooks/localStorage";
 import { useNotifications } from "~/hooks/notifications";
 import { useReplay } from "~/hooks/replay";
 import { useSession } from "~/hooks/session";
-import { useSoundEffects } from "~/hooks/sounds";
 import { useUserPreferences } from "~/hooks/userPreferences";
 import { commitAction, getMaximumPossibleScore, getScore, joinGame, newGame, recreateGame } from "~/lib/actions";
 import { play } from "~/lib/ai";
 import { cheat } from "~/lib/ai-cheater";
 import { logEvent } from "~/lib/analytics";
-import { loadGame, setNotification, setReaction, updateGame } from "~/lib/firebase";
+import { setNotification, setReaction, updateGame } from "~/lib/firebase";
 import { uniqueId } from "~/lib/id";
 import IGameState, { GameMode, IAction, IGameHintsLevel, IGameStatus, IPlayer } from "~/lib/state";
 import { logFailedPromise } from "~/lib/errors";
@@ -59,7 +58,6 @@ export function Game(props: Props) {
   const tutorial = useContext(TutorialContext);
   const [userPreferences] = useUserPreferences();
   useNotifications();
-  useSoundEffects();
 
   /**
    * Resets the selected area when a player plays.
@@ -218,14 +216,11 @@ export function Game(props: Props) {
   }, [fillBots, startTutorial, game.players.length, game.options.tutorial, game.status, game.options.playersCount]);
 
   function changeToNextGame() {
-    const nextGameId = liveGame().nextGameId;
     onStopReplay();
+    const nextGameId = liveGame().nextGameId;
     setDisplayStats(false);
-    router.push(`/${nextGameId}`).then(() => {
-      loadGame(nextGameId).then((newGame) => {
-        props.onGameChange(newGame);
-      });
-    });
+    const newUrl = `/${nextGameId}`;
+    location.assign(newUrl);
   }
 
   /**
@@ -413,17 +408,22 @@ export function Game(props: Props) {
   }, [replay.cursor, game, onReplay, onReplayCursorChange, onStopReplay]);
 
   async function onRestartGame() {
-    const nextGame = recreateGame(liveGame());
-
-    const updatedGame = { ...liveGame(), nextGameId: nextGame.id };
+    function log(message: string) {
+      console.debug(`${Date.now()}: ${message}`);
+    }
     onStopReplay();
-    await updateGame(updatedGame);
-
+    const finishedGame = liveGame();
+    const nextGame = recreateGame(finishedGame);
     await updateGame(nextGame);
+    log("Next Game Persisted");
+    const updatedGame = { ...finishedGame, nextGameId: nextGame.id };
+    await updateGame(updatedGame);
+    log("Link to nextGame updated");
     onGameChange(nextGame);
-
-    logEvent("Game", "Game recreated");
+    log(`GameChange fired for ${nextGame.id}`);
+    logEvent("Game", "Next Game Created");
     await router.push(`/${nextGame.id}`);
+    log("Router updated with new link");
   }
   function liveGame() {
     return game.originalGame || game;

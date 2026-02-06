@@ -2,10 +2,19 @@ import React, { useContext } from "react";
 import { useReplay } from "~/hooks/replay";
 import { useSession } from "~/hooks/session";
 import { getStateAtTurn } from "~/lib/actions";
-import IGameState, { fillEmptyValues, GameMode } from "~/lib/state";
+import IGameState, { fillEmptyValues, GameMode, IPlayer } from "~/lib/state";
+import useLocalStorage from "~/hooks/localStorage";
 
 export const GameContext = React.createContext<IGameState>(null);
 
+export function useColorBlindMode() {
+  const game = useGame();
+  const [persistedColorBlindMode] = useLocalStorage("colorBlindMode", false);
+  if (game) {
+    return game.options.colorBlindMode;
+  }
+  return persistedColorBlindMode;
+}
 export function useGame() {
   const game = useContext<IGameState>(GameContext);
   const replay = useReplay();
@@ -14,6 +23,7 @@ export function useGame() {
     return {
       ...fillEmptyValues(getStateAtTurn(game, replay.cursor)),
       originalGame: game,
+      reviewComments: [...game.reviewComments],
     };
   }
 
@@ -28,12 +38,12 @@ export function useCurrentPlayer(game: IGameState) {
   return game.players[game.currentPlayer];
 }
 
-export function useSelfPlayer(game: IGameState) {
+export function useSelfPlayer(game: IGameState): IPlayer | undefined {
   const { playerId } = useSession();
   const currentPlayer = useCurrentPlayer(game);
 
   if (!game) {
-    return null;
+    return undefined;
   }
 
   if (game.options.gameMode === GameMode.NETWORK) {

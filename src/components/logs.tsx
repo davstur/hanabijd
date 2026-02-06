@@ -1,6 +1,7 @@
 import React from "react";
 import { Trans, useTranslation } from "react-i18next";
 import posed, { PoseGroup } from "react-pose";
+import { ReviewCommentPopover } from "~/components/reviewComments";
 import Turn from "~/components/turn";
 import Tutorial, { ITutorialStep } from "~/components/tutorial";
 import Txt, { TxtSize } from "~/components/ui/txt";
@@ -51,7 +52,9 @@ export default function Logs(props: Props) {
           return <Message key={message.id} message={message} />;
         })}
 
-        <Tutorial placement="below" step={ITutorialStep.WELCOME}>
+        <Tutorial placement="bottom" step={ITutorialStep.WELCOME}>
+          <ReviewCommentPopover showAlways={false} turnNumber={0} />
+          &nbsp;
           <Txt
             className="lavender"
             size={TxtSize.SMALL}

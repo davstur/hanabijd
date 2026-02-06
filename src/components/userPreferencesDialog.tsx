@@ -13,10 +13,6 @@ interface Props {
 
 export default function UserPreferencesDialog({ onCloseArea, userPreferences, saveUserPreferences }: Props) {
   const { t } = useTranslation();
-  function toggleSoundOnStrike() {
-    const modifiedPreferences = { ...userPreferences, soundOnStrike: !userPreferences.soundOnStrike };
-    saveUserPreferences(modifiedPreferences);
-  }
   function toggleShowFireworksAtGameEnd() {
     const modifiedPreferences = { ...userPreferences, showFireworksAtGameEnd: !userPreferences.showFireworksAtGameEnd };
     saveUserPreferences(modifiedPreferences);
@@ -33,11 +29,6 @@ export default function UserPreferencesDialog({ onCloseArea, userPreferences, sa
           <Txt className="ttu txt-yellow mb4 mb5-l" size={TxtSize.MEDIUM} value={t("userPreferences")} />
 
           <div className="mb4 mb5-l">
-            <div className="flex flex-row justify-start-l items-center">
-              <Checkbox checked={userPreferences.soundOnStrike} onChange={() => toggleSoundOnStrike()} />
-              &nbsp;
-              <Txt value={t("soundOnStrike")} />
-            </div>
             <div className="flex flex-row justify-start-l items-center">
               <Checkbox
                 checked={userPreferences.showFireworksAtGameEnd}

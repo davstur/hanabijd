@@ -2,14 +2,13 @@ import classnames from "classnames";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import HomeButton from "~/components/homeButton";
 import Button, { ButtonSize } from "~/components/ui/button";
 import { Checkbox, Field, Select, TextInput } from "~/components/ui/forms";
 import Txt, { TxtSize } from "~/components/ui/txt";
 import useLocalStorage from "~/hooks/localStorage";
 import { newGame } from "~/lib/actions";
 import { logEvent } from "~/lib/analytics";
-import { updateGame } from "~/lib/firebase";
+import { addGameToRoom, updateGame } from "~/lib/firebase";
 import { generateShuffleSeed, readableUniqueId } from "~/lib/id";
 import { GameMode, GameVariant, IGameHintsLevel } from "~/lib/state";
 
@@ -47,6 +46,7 @@ const BotsSpeeds = {
 export default function NewGame() {
   const router = useRouter();
   const { t } = useTranslation();
+  const roomId = (router.query.room as string) || null;
 
   const [offline, setOffline] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -55,7 +55,6 @@ export default function NewGame() {
   const [variant, setVariant] = useState(GameVariant.CLASSIC);
   const [allowRollback, setAllowRollback] = useState(true);
   const [preventLoss, setPreventLoss] = useState(false);
-  const [private_, setPrivate] = useState(false);
   const [hintsLevel, setHintsLevel] = useState(IGameHintsLevel.DIRECT);
   const [turnsHistory] = useState(true);
   const [colorBlindMode, setColorBlindMode] = useLocalStorage("colorBlindMode", false);
@@ -63,9 +62,6 @@ export default function NewGame() {
 
   const [creatingGame, setCreatingGame] = useState(false);
 
-  /**
-   * Initialise seed on first render
-   */
   useEffect(() => {
     setSeed(generateShuffleSeed());
   }, []);
@@ -83,7 +79,7 @@ export default function NewGame() {
         seed,
         allowRollback,
         preventLoss,
-        private: private_,
+        private: true,
         hintsLevel,
         turnsHistory,
         botsWait,
@@ -92,14 +88,32 @@ export default function NewGame() {
       })
     );
 
+    if (roomId) {
+      await addGameToRoom(roomId, gameId);
+    }
+
     logEvent("Game", "Game created");
 
     await router.push(`/${gameId}`);
   }
 
+  function onBack() {
+    if (roomId) {
+      router.push(`/rooms/${roomId}`);
+    } else {
+      router.push("/");
+    }
+  }
+
   return (
     <div className="w-100 h-100 overflow-y-scroll pv4 flex items-center pv6-l relative bg-main-dark ph2 ph3-l shadow-5 br3">
-      <HomeButton className="absolute top-1 right-1" />
+      <Button
+        void
+        className="absolute top-1 left-1"
+        size={ButtonSize.TINY}
+        text={`< ${t("back", "Back")}`}
+        onClick={onBack}
+      />
       <div className="flex flex-column w-75-m w-70-l w-80" style={{ margin: "auto" }}>
         <div className="flex justify-between ph1 items-center pb4 mb4 bb b--yellow-light">
           <Txt size={TxtSize.MEDIUM} value={t("players", "Players")} />
@@ -180,14 +194,6 @@ export default function NewGame() {
               <Checkbox checked={colorBlindMode} onChange={(e) => setColorBlindMode(e.target.checked)} />
             </Field>
 
-            <Field
-              className="pb3 mb3 bb b--yellow-light"
-              label={t("private", "Private")}
-              subText={t("privateSubtext", "Your game won't be visible in the 'Join Room' section")}
-            >
-              <Checkbox checked={private_} onChange={(e) => setPrivate(e.target.checked)} />
-            </Field>
-
             <Field className="pb3 mb3 bb b--yellow-light" label={t("seed", "Seed")}>
               <TextInput className="w3 tr" id="seed" value={seed} onChange={(e) => setSeed(e.target.value)} />
             </Field>
@@ -209,11 +215,6 @@ export default function NewGame() {
                 onChange={(e) => setHintsLevel(e.target.value as IGameHintsLevel)}
               />
             </Field>
-
-            {/* TODO remove dead code
-            <Field className="pb2 mb2 bb b--yellow-light" label="Turns history">
-              <Checkbox checked={turnsHistory} onChange={e => setTurnsHistory(e.target.checked)} />
-            </Field> */}
 
             <Field label={t("botSpeed", "Bots speed")}>
               <Select

@@ -16,6 +16,10 @@ export default function Document() {
       <Head>
         {/* this font is used by the BuymeacoffeeButton component*/}
         <link href="https://fonts.googleapis.com/css?family=Cookie&display=optional" rel="stylesheet" />
+        {/* iOS PWA support */}
+        <meta content="yes" name="apple-mobile-web-app-capable" />
+        <meta content="black-translucent" name="apple-mobile-web-app-status-bar-style" />
+        <meta content="Hanab" name="apple-mobile-web-app-title" />
       </Head>
       <body>
         <Main />

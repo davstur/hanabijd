@@ -1,8 +1,7 @@
 import firebase from "firebase/app";
 import "firebase/database";
 import { cloneDeep } from "lodash";
-import IGameState, { cleanState, fillEmptyValues, GameMode, IGameStatus, IPlayer, rebuildGame } from "~/lib/state";
-import { logFailedPromise } from "~/lib/errors";
+import IGameState, { cleanState, fillEmptyValues, IPlayer, rebuildGame } from "~/lib/state";
 
 function database() {
   if (!firebase.apps.length) {
@@ -25,46 +24,6 @@ function database() {
   }
 
   return firebase.database();
-}
-
-export function loadPublicGames() {
-  const ref = database()
-    .ref("/games")
-    // Only games created less than 10 minutes ago
-    .orderByChild("createdAt")
-    .startAt(Date.now() - 10 * 60 * 1000);
-
-  return new Promise((resolve) => {
-    ref
-      .once("value", (event) => {
-        const games = Object.values(event.val() || {})
-          .map(fillEmptyValues)
-          // Game is public
-          .filter(gameIsPublic);
-
-        resolve(games);
-      })
-      .catch(logFailedPromise);
-  });
-}
-
-export function subscribeToPublicGames(callback: (games: IGameState[]) => void) {
-  const ref = database()
-    .ref("/games")
-    // Only games created less than 10 minutes ago
-    .orderByChild("createdAt")
-    .startAt(Date.now() - 10 * 60 * 1000);
-
-  ref.on("value", (event) => {
-    const games = Object.values(event.val() || {})
-      .map(fillEmptyValues)
-      // Game is public
-      .filter(gameIsPublic);
-
-    callback(games);
-  });
-
-  return () => ref.off();
 }
 
 export async function loadGame(gameId: string) {
@@ -106,12 +65,97 @@ export async function setNotification(game: IGameState, player: IPlayer, notifie
   await database().ref(`/games/${game.id}/players/${player.index}/notified`).set(notified);
 }
 
-function gameIsPublic(game: IGameState) {
-  return (
-    !game.options.private &&
-    game.status === IGameStatus.LOBBY &&
-    game.options.gameMode === GameMode.NETWORK &&
-    game.players.length &&
-    game.players.length < game.options.playersCount
+// --- Rooms ---
+
+export interface IRoomMember {
+  id: string;
+  name: string;
+  joinedAt: number;
+}
+
+export interface IRoom {
+  id: string;
+  createdAt: number;
+  members: { [memberId: string]: IRoomMember };
+  gameIds: string[];
+}
+
+export async function createRoom(roomId: string, member: IRoomMember) {
+  const room: IRoom = {
+    id: roomId,
+    createdAt: Date.now(),
+    members: { [member.id]: member },
+    gameIds: [],
+  };
+  await database().ref(`/rooms/${roomId}`).set(room);
+  return room;
+}
+
+export async function loadRoom(roomId: string): Promise<IRoom | null> {
+  const ref = database().ref(`/rooms/${roomId}`);
+  return new Promise((resolve) => {
+    ref.once("value", (event) => {
+      resolve(event.val() as IRoom | null);
+    });
+  });
+}
+
+export function subscribeToRoom(roomId: string, callback: (room: IRoom | null) => void) {
+  const ref = database().ref(`/rooms/${roomId}`);
+
+  ref.on("value", (event) => {
+    callback(event.val() as IRoom | null);
+  });
+
+  return () => ref.off();
+}
+
+export async function joinRoom(roomId: string, member: IRoomMember) {
+  await database().ref(`/rooms/${roomId}/members/${member.id}`).set(member);
+}
+
+export async function leaveRoom(roomId: string, memberId: string) {
+  await database().ref(`/rooms/${roomId}/members/${memberId}`).remove();
+}
+
+export async function addGameToRoom(roomId: string, gameId: string) {
+  const ref = database().ref(`/rooms/${roomId}/gameIds`);
+  const snapshot = await ref.once("value");
+  const gameIds: string[] = snapshot.val() || [];
+  gameIds.push(gameId);
+  await ref.set(gameIds);
+}
+
+export async function loadRoomGames(gameIds: string[]): Promise<IGameState[]> {
+  const games = await Promise.all(
+    gameIds.map(async (gameId) => {
+      try {
+        return await loadGame(gameId);
+      } catch {
+        return null;
+      }
+    })
   );
+  return games.filter(Boolean) as IGameState[];
+}
+
+export function subscribeToRoomGames(gameIds: string[], callback: (games: IGameState[]) => void) {
+  const unsubscribers: (() => void)[] = [];
+  const gamesMap: { [id: string]: IGameState } = {};
+
+  gameIds.forEach((gameId) => {
+    const unsub = subscribeToGame(gameId, (game) => {
+      if (game) {
+        gamesMap[gameId] = game;
+      }
+      const allGames = gameIds
+        .map((id) => gamesMap[id])
+        .filter(Boolean)
+        .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+      callback(allGames);
+    });
+    unsubscribers.push(unsub);
+  });
+
+  return () => unsubscribers.forEach((unsub) => unsub());
 }
