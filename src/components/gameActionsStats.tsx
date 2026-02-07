@@ -37,9 +37,9 @@ export default function GameActionsStats() {
     <div className="flex flex-column items-center">
       {playsCount > 0 && (
         <Txt size={TxtSize.MEDIUM}>
-          <Trans i18nKey="playHints">
-            Plays per hint:
-            <span className="txt-yellow">{{ playsPerHint }}</span>
+          <Trans i18nKey="playHints" values={{ playsPerHint }}>
+            {"Plays per hint: "}
+            <span className="txt-yellow">{"{{playsPerHint}}"}</span>
           </Trans>
         </Txt>
       )}

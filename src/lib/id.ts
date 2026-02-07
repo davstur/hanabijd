@@ -1,4 +1,3 @@
-import shortid from "shortid";
 import { adjectives, animals, colors, uniqueNamesGenerator } from "unique-names-generator";
 
 export type ID = string;
@@ -23,7 +22,7 @@ export function nextGameId(existingId: string) {
 }
 
 export function uniqueId(): ID {
-  return shortid();
+  return crypto.randomUUID();
 }
 
 export function readableRoomId(): ID {

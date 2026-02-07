@@ -26,7 +26,7 @@ cd functions && npm run serve   # local emulator
 cd functions && npm run deploy  # deploy to Firebase
 ```
 
-Note: `--openssl-legacy-provider` is required for Node 22 compatibility and is already configured in the npm scripts via `cross-env`.
+Note: No special Node.js flags are needed. Next.js 15 runs natively on Node 24.
 
 ## Environment Setup
 
@@ -35,7 +35,8 @@ Copy `.env.sample` to `.env` and configure Firebase credentials. A Firebase Real
 ## Architecture
 
 ### Tech Stack
-- **Framework**: Next.js 13 (Pages Router) with TypeScript
+- **Framework**: Next.js 15 (Pages Router) with TypeScript
+- **Animations**: Motion (framer-motion successor) for enter/exit animations
 - **Database**: Firebase Realtime Database (real-time sync via subscriptions)
 - **Push Notifications**: Firebase Cloud Functions + Web Push (VAPID)
 - **CSS**: Tachyons (functional CSS utility classes) with custom overrides in `src/styles/`
