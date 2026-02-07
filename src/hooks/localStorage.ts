@@ -1,5 +1,5 @@
 import { isString } from "lodash";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 export default function useLocalStorage<T>(key: string, initialValue: T): [T, (value: T) => void] {
   function isServerSide() {
@@ -32,25 +32,24 @@ export default function useLocalStorage<T>(key: string, initialValue: T): [T, (v
       return initialValue;
     }
   });
-  if (typeof window === "undefined") {
-    return [
-      initialValue,
-      () => {
-        /* No op */
-      },
-    ];
-  }
 
-  const setValue = (value: T) => {
-    try {
-      setStoredValue(value);
-      if (!isServerSide()) {
-        window.localStorage.setItem(key, JSON.stringify(value));
+  const setValue = useCallback(
+    (value: T) => {
+      try {
+        setStoredValue(value);
+        if (!isServerSide()) {
+          window.localStorage.setItem(key, JSON.stringify(value));
+        }
+      } catch (error) {
+        console.error(error);
       }
-    } catch (error) {
-      console.error(error);
-    }
-  };
+    },
+    [key]
+  );
+
+  if (typeof window === "undefined") {
+    return [initialValue, setValue];
+  }
 
   return [storedValue, setValue];
 }

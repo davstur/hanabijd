@@ -22,6 +22,7 @@ export default function Home() {
   const [needsName, setNeedsName] = useState(false);
   const [pendingAction, setPendingAction] = useState<"create" | "join" | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [showJoinForm, setShowJoinForm] = useState(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -45,7 +46,7 @@ export default function Home() {
         setPlayerName(storedName);
       }
     }
-  }, []);
+  }, [router]);
 
   function getPlayerId(): string {
     if (typeof window === "undefined") return uniqueId();

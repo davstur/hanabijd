@@ -97,7 +97,7 @@ export default function Lobby(props: Props) {
       autoJoined.current = true;
       onJoinGame({ name: parsed, bot: false });
     }
-  }, [game.players.length, game.options.gameMode, canJoin]);
+  }, [game.players.length, game.options.gameMode, canJoin, onJoinGame]);
 
   function onJoinGameSubmit(e: FormEvent) {
     e.preventDefault();

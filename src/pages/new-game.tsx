@@ -83,7 +83,7 @@ export default function NewGame() {
       }
       setLoadingRoomConfig(false);
     });
-  }, [roomId]);
+  }, [roomId, setColorBlindMode]);
 
   async function onCreateGame() {
     const gameId = readableUniqueId();
