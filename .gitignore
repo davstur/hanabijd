@@ -10,3 +10,4 @@ node_modules
 Notes
 
 tsconfig.tsbuildinfo
+.env*.local

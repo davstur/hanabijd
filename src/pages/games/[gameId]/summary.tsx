@@ -11,7 +11,7 @@ import Button, { ButtonSize } from "~/components/ui/button";
 import Txt, { TxtSize } from "~/components/ui/txt";
 import { GameContext } from "~/hooks/game";
 import { newGame } from "~/lib/actions";
-import { loadGame, subscribeToGame, updateGame } from "~/lib/firebase";
+import { subscribeToGame, updateGame } from "~/lib/firebase";
 import { uniqueId } from "~/lib/id";
 import IGameState, { GameVariant } from "~/lib/state";
 import { logFailedPromise } from "~/lib/errors";
@@ -48,39 +48,26 @@ function formatDuration(start: number, end: number) {
   return [hours, minutes, seconds].map((n) => String(n).padStart(2, "0")).join(":");
 }
 
-export const getServerSideProps = async function ({ params }) {
-  const game = await loadGame(params.gameId);
-
-  return {
-    props: {
-      game,
-    },
-  };
-};
-
-interface Props {
-  game: IGameState;
-}
-
-export default function Summary(props: Props) {
-  const { game: initialGame } = props;
-
+export default function Summary() {
   const router = useRouter();
-  const [game, setGame] = useState<IGameState>(initialGame);
+  const gameId = router.query.gameId as string;
+  const [game, setGame] = useState<IGameState | null>(null);
   const { t } = useTranslation();
 
   /**
    * Load game from database
    */
   useEffect(() => {
-    return subscribeToGame(game.id as string, (game) => {
+    if (!gameId) return;
+
+    return subscribeToGame(gameId, (game) => {
       if (!game) {
         return router.push("/404");
       }
 
       setGame(game);
     });
-  }, [game.id, router]);
+  }, [gameId, router]);
 
   function onBackClick() {
     router.push(`/games/${game.id}`).catch(logFailedPromise);

@@ -1,69 +1,45 @@
+import { useRouter } from "next/router";
 import React, { useMemo, useState } from "react";
 import GameIndex from "~/components/GameIndex";
 import { TutorialProvider } from "~/components/tutorial";
 import { ReplayContext } from "~/hooks/replay";
 import { Session, SessionContext } from "~/hooks/session";
-import { loadGame } from "~/lib/firebase";
-import withSession, { getPlayerIdFromSession } from "~/lib/session";
-import IGameState from "~/lib/state";
+import { uniqueId } from "~/lib/id";
 
-export const getServerSideProps = withSession(async function ({ req, params }) {
-  const game = await loadGame(params.gameId);
-  const playerId = await getPlayerIdFromSession(req);
-
-  const protocol = process.env.NODE_ENV === "development" ? "http:" : "https:";
-  const { host } = req.headers;
-
-  return {
-    props: {
-      session: {
-        playerId,
-      },
-      game,
-      host: `${protocol}//${host}`,
-    },
-  };
-});
-
-interface Props {
-  game: IGameState;
-  session: Session;
-  host: string;
-}
-
-function getLocalPlayerId(): string | null {
-  if (typeof window === "undefined") return null;
-  const stored = localStorage.getItem("playerId");
-  if (!stored) return null;
-  try {
-    return JSON.parse(stored);
-  } catch {
-    return stored;
+function getLocalPlayerId(): string {
+  if (typeof window === "undefined") return uniqueId();
+  let id = localStorage.getItem("playerId");
+  if (id) {
+    try {
+      return JSON.parse(id);
+    } catch {
+      return id;
+    }
   }
+  id = uniqueId();
+  localStorage.setItem("playerId", JSON.stringify(id));
+  return id;
 }
 
-export default function Play(props: Props) {
-  const { game: initialGame, session, host } = props;
+export default function Play() {
+  const router = useRouter();
+  const gameId = router.query.gameId as string;
 
   const [replayCursor, setReplayCursor] = useState<number>(null);
 
-  // Prefer localStorage playerId so game pages use the same ID as room pages.
-  // Falls back to the iron-session ID for users arriving via a direct game link.
-  const effectiveSession = useMemo<Session>(() => {
-    const localId = getLocalPlayerId();
-    if (localId) return { playerId: localId };
-    if (typeof window !== "undefined" && session.playerId) {
-      localStorage.setItem("playerId", JSON.stringify(session.playerId));
-    }
-    return session;
-  }, [session]);
+  const session = useMemo<Session>(() => {
+    return { playerId: getLocalPlayerId() };
+  }, []);
+
+  const host = typeof window !== "undefined" ? window.location.origin : "";
+
+  if (!gameId) return null;
 
   return (
-    // eslint-disable-next-line react/jsx-no-undef
     <TutorialProvider>
-      <SessionContext.Provider value={effectiveSession}>
+      <SessionContext.Provider value={session}>
         <ReplayContext.Provider value={{ cursor: replayCursor, moveCursor: setReplayCursor }}>
-          <GameIndex game={initialGame} host={host}></GameIndex>
+          <GameIndex gameId={gameId} host={host} />
         </ReplayContext.Provider>
       </SessionContext.Provider>
     </TutorialProvider>

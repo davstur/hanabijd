@@ -36,12 +36,8 @@ function database() {
 
 export async function loadGame(gameId: string) {
   const ref = database().ref(`/games/${gameId}`);
-
-  return new Promise<IGameState>((resolve) => {
-    ref.once("value", (event) => {
-      resolve(rebuildGame(fillEmptyValues(event.val())));
-    });
-  });
+  const event = await ref.once("value");
+  return rebuildGame(fillEmptyValues(event.val() as IGameState));
 }
 
 export function subscribeToGame(gameId: string, callback: (game: IGameState) => void) {
@@ -60,7 +56,7 @@ export async function updateGame(game: IGameState) {
   try {
     await database().ref(`/games/${game.id}`).set(cleanState(game));
   } catch (e) {
-    console.debug(`DB Error: updateGame\n ${e}`);
+    console.error(`DB Error: updateGame\n ${e}`);
     throw e;
   }
 }
