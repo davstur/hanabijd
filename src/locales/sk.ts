@@ -168,8 +168,6 @@ export const sk = {
   rulesContact: "✉️ <1>Napíšte nám</1>, ak máte akekoľvek otázky či návrhy.",
   rulesContributeRepo: "💻 Taktiež máme <1>verejný Github repozitár</1>, ak by ste sa chceli pridať.",
   rulesDiscordServer: "🗣 Pripojte sa k diskusii o zlepšeniach na našom Discord serveri.",
-  rulesBuymeacoffee:
-    "🙇‍♀️ Taktiež môžete podporiť našu iniciatívu a pomôcť nám pokryť prevádzkové náklady tým, že nám kúpite kávu.",
   noRoom: "Žiadna voľná miestnosť",
   faster: "Najrýchlejšie",
   fast: "Rýchlo",
@@ -244,7 +242,6 @@ export const sk = {
   colorBlindModeSubtext: "Zobrazí špeciálny symbol na vrchu každej karty, ktorý ti pomôže rozoznať farby.",
   pageNotFound: "Stránka sa nenašla",
   contributeLanguage: "Pomôž nám!",
-  buymeacoffeePostGame: "Podpor nás tak, že nám <2>kúpiš kávu</2>.",
   next: "Ďalej",
   new: "Novinka",
   learnHanab: "Nauč sa hrať",

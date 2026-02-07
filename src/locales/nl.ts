@@ -164,8 +164,6 @@ export const nl = {
   rulesContact: "✉️ Aarzel niet om<1>contact met ons op te nemen</1> ials je vragen of suggesties hebt",
   rulesContributeRepo: "💻 We hebben ook een <1>openbare GitHub-repository</1> als je een bijdrage wilt leveren.",
   rulesDiscordServer: "🗣 Word lid van onze Discord-server om potentiële nieuwe functies of verbeteringen te bespreken",
-  rulesBuymeacoffee:
-    "🙇‍♀️ En u kunt ook ons initiatief steunen en helpen de kosten van de server te dekken door een koffie voor ons te kopen.",
   noRoom: "Geen kamers beschikbaar",
   faster: "Sneller",
   fast: "Snel",
@@ -225,7 +223,6 @@ export const nl = {
   colorBlindMode: "Kleurenblinde modus",
   colorBlindModeSubtext: "Toon symbolen boven op de kaarten om de kleuren te helpen onderscheiden",
   contributeLanguage: "Bijdragen!",
-  buymeacoffeePostGame: "Steun het spel, <2>koop ons een koffie</2>",
   next: "Volgende",
   new: "Nieuw",
   learnHanab: "Leer",

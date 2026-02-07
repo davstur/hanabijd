@@ -171,7 +171,6 @@ export const de = {
   rulesContributeRepo: "💻 Wir haben auch ein <1>öffentliches Github Repository</1> falls du beitragen möchtest.",
   rulesDiscordServer:
     "🗣 Triff uns auf unserem Discord Server um mögliche neue Features und Verbesserungen zu diskutieren",
-  rulesBuymeacoffee: "🙇‍♀️ Und du kannst unsere Initiative auch unterstützen indem du uns einen Kaffee kaufst",
   noRoom: "Kein Raum verfügbar",
   faster: "Schneller",
   fast: "Schnell",
@@ -233,7 +232,6 @@ export const de = {
   colorBlindModeSubtext: "Zeige Symbole auf den Karten um Farben besser erkennen zu können",
   pageNotFound: "Seite nicht gefunden",
   contributeLanguage: "Beitragen!",
-  buymeacoffeePostGame: "Unterstütze das Spiel, <2>kauf uns einen Kaffee</2>",
   next: "Weiter",
   new: "Neu",
   learnHanab: "Lernen",

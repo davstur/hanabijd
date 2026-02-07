@@ -164,7 +164,6 @@ export const zh = {
   rulesContact: "✉️ 如果你有任何问题或建议，<1>联系我们</1>",
   rulesContributeRepo: "💻 如果你想要为本项目贡献，我们也有<1>公共Github仓库</1>。",
   rulesDiscordServer: "🗣 加入我们的Discord服务器来讨论新的功能和改进",
-  rulesBuymeacoffee: "🙇‍♀️ 你也可以“给我们买杯咖啡”，支持我们并承担一部分服务器费用",
   noRoom: "没有可用房间",
   faster: "很快",
   fast: "快",
@@ -229,7 +228,6 @@ export const zh = {
   colorBlindModeSubtext: "在卡牌上显示图形以辅助辨别颜色",
   pageNotFound: "找不到网页",
   contributeLanguage: "为项目贡献！",
-  buymeacoffeePostGame: "支持本游戏。<2>给我们买杯咖啡</2>",
   next: "下一步",
   new: "New", // Natural to use in Chinese UI
   learnHanab: "了解规则",

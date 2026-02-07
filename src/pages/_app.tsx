@@ -1,25 +1,16 @@
-import * as Sentry from "@sentry/react";
 import { AppProps } from "next/app";
 import Head from "next/head";
-import Router, { useRouter } from "next/router";
+import Router from "next/router";
 import NProgress from "nprogress";
 import React, { useEffect, useState } from "react";
 import { I18nextProvider, useTranslation } from "react-i18next";
+import AppHeader from "~/components/appHeader";
 import Txt, { TxtSize } from "~/components/ui/txt";
 import useConnectivity from "~/hooks/connectivity";
-import { initAnalytics, logPageView } from "~/lib/analytics";
 import { i18n } from "~/lib/i18n";
 import "../styles/style.css";
-import { logFailedPromise } from "~/lib/errors";
 import { registerServiceWorker } from "~/lib/notifications";
 import { TutorialProvider } from "~/components/tutorial";
-
-Sentry.init({
-  dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
-  environment: process.env.NODE_ENV,
-});
-
-Router.events.on("routeChangeComplete", () => logPageView());
 
 let nprogressTimeout: NodeJS.Timeout = null;
 
@@ -39,24 +30,14 @@ Router.events.on("routeChangeError", () => {
 
 export default function App(props: AppProps) {
   useEffect(() => {
-    initAnalytics();
     registerServiceWorker();
   }, []);
 
-  return (
-    <Sentry.ErrorBoundary>
-      <Hanab {...props} />;
-    </Sentry.ErrorBoundary>
-  );
+  return <Hanab {...props} />;
 }
 
 function Hanab({ Component, pageProps }: AppProps) {
   const { t } = useTranslation();
-  const router = useRouter();
-
-  useEffect(() => {
-    i18n.changeLanguage(router.locale).catch(logFailedPromise);
-  }, [router.locale]);
 
   const [showOffline, setShowOffline] = useState(true);
   const online = useConnectivity();
@@ -67,7 +48,7 @@ function Hanab({ Component, pageProps }: AppProps) {
         <TutorialProvider>
           <Meta />
 
-          <div className="aspect-ratio--object">
+          <div className="aspect-ratio--object flex flex-column">
             {/* Offline indicator */}
             {!online && showOffline && (
               <div className="relative flex items-center justify-center bg-red shadow-4 b--red ba pa2 z-99">
@@ -77,7 +58,10 @@ function Hanab({ Component, pageProps }: AppProps) {
                 </a>
               </div>
             )}
-            <Component {...pageProps} />
+            <AppHeader />
+            <div className="flex-1" style={{ minHeight: 0 }}>
+              <Component {...pageProps} />
+            </div>
           </div>
         </TutorialProvider>
       </I18nextProvider>

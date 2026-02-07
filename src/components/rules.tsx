@@ -1,7 +1,6 @@
 import Image from "next/legacy/image";
 import React from "react";
 import { Trans, useTranslation } from "react-i18next";
-import BuymeacoffeeButton from "~/components/buymeacoffeeButton";
 import DiscordButton from "~/components/discordButton";
 import Button, { ButtonSize } from "~/components/ui/button";
 import Txt, { TxtSize } from "~/components/ui/txt";
@@ -114,13 +113,6 @@ export default function Rules(props: Props) {
           <Paragraph className="tl">
             {t("rulesDiscordServer", "Join our Discord server to discuss potential new features or improvements")}
             <DiscordButton />
-          </Paragraph>
-          <Paragraph className="tl">
-            {t(
-              "rulesBuymeacoffee",
-              "🙇‍♀️ And you can also support our initiative and help cover the server costs by buying us a coffee"
-            )}
-            <BuymeacoffeeButton className="ml4 mt2 pointer tl" />
           </Paragraph>
         </div>
       </div>

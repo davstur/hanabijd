@@ -7,7 +7,6 @@ import LanguageSelector, { Languages } from "~/components/languageSelector";
 import Button, { ButtonSize } from "~/components/ui/button";
 import { TextInput } from "~/components/ui/forms";
 import Txt, { TxtSize } from "~/components/ui/txt";
-import useLocalStorage from "~/hooks/localStorage";
 import { createRoom, joinRoom as joinRoomDb, loadRoom, IRoomMember } from "~/lib/firebase";
 import { readableRoomId, uniqueId } from "~/lib/id";
 
@@ -17,7 +16,7 @@ const ROOM_KEY = "currentRoom";
 export default function Home() {
   const router = useRouter();
   const { t } = useTranslation();
-  const [currentRoom] = useLocalStorage<string | null>(ROOM_KEY, null);
+  const [currentRoom, setCurrentRoom] = useState<string | null>(null);
   const [joinCode, setJoinCode] = useState("");
   const [playerName, setPlayerName] = useState("");
   const [needsName, setNeedsName] = useState(false);
@@ -25,20 +24,25 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (currentRoom) {
-      router.replace(`/rooms/${currentRoom}`);
-    }
-  }, [currentRoom, router]);
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const storedName = localStorage.getItem(NAME_KEY);
-      if (storedName) {
-        try {
-          setPlayerName(JSON.parse(storedName));
-        } catch {
-          setPlayerName(storedName);
+    if (typeof window === "undefined") return;
+    const storedRoom = localStorage.getItem(ROOM_KEY);
+    if (storedRoom) {
+      try {
+        const room = JSON.parse(storedRoom);
+        if (room) {
+          setCurrentRoom(room);
+          router.replace(`/rooms/${room}`);
         }
+      } catch {
+        // invalid stored value, ignore
+      }
+    }
+    const storedName = localStorage.getItem(NAME_KEY);
+    if (storedName) {
+      try {
+        setPlayerName(JSON.parse(storedName));
+      } catch {
+        setPlayerName(storedName);
       }
     }
   }, []);
@@ -112,7 +116,6 @@ export default function Home() {
   function handleNameSubmit(e: FormEvent) {
     e.preventDefault();
     if (!playerName.trim()) return;
-    setNeedsName(false);
     if (pendingAction === "create") {
       handleCreateRoom();
     } else if (pendingAction === "join") {
@@ -199,6 +202,20 @@ export default function Home() {
             </form>
           </main>
         )}
+      </div>
+      <div className="absolute bottom-1 tc w-100">
+        <span className="lavender f7">
+          {"This builds on "}
+          <a
+            className="lavender underline"
+            href="https://github.com/bstnfrmry/hanabi"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            github.com/bstnfrmry/hanabi
+          </a>
+          {" \ud83d\ude4f"}
+        </span>
       </div>
     </div>
   );

@@ -13,7 +13,6 @@ import Button, { ButtonSize } from "~/components/ui/button";
 import Txt, { TxtSize } from "~/components/ui/txt";
 import { GameContext } from "~/hooks/game";
 import { newGame } from "~/lib/actions";
-import { logEvent } from "~/lib/analytics";
 import { loadGame, subscribeToGame, updateGame } from "~/lib/firebase";
 import IGameState, { GameVariant } from "~/lib/state";
 import { logFailedPromise } from "~/lib/errors";
@@ -81,7 +80,7 @@ export default function Summary(props: Props) {
   }, [game.id, router]);
 
   function onBackClick() {
-    router.push(`/${game.id}`).catch(logFailedPromise);
+    router.push(`/games/${game.id}`).catch(logFailedPromise);
   }
 
   function gameVariantToText(gameVariant: GameVariant) {
@@ -177,9 +176,7 @@ export default function Summary(props: Props) {
                 await updateGame(nextGame);
                 await updateGame({ ...game, nextGameId: nextGameId });
 
-                logEvent("Game", "Game created");
-
-                await router.push(`/play?gameId=${nextGame.id}`);
+                await router.push(`/games/${nextGame.id}`);
               }}
             />
           </div>

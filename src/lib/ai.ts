@@ -274,12 +274,12 @@ function findGivableHint(hand: ICard[], pIndex: number, state: IGameState): IHin
       lastCard.number === 5 && lastCard.hint.number[lastCard.number] < 2
         ? "number"
         : // if it's a multicolor and the color hint is not given
-        lastCard.color === "multicolor" && lastCard.hint.color[lastCard.color] < 2
-        ? "color"
-        : // otherwise give a non given hint
-        lastCard.hint.number[lastCard.number] < 2
-        ? "number"
-        : "color";
+          lastCard.color === "multicolor" && lastCard.hint.color[lastCard.color] < 2
+          ? "color"
+          : // otherwise give a non given hint
+            lastCard.hint.number[lastCard.number] < 2
+            ? "number"
+            : "color";
     return {
       action: "hint",
       from: state.currentPlayer,

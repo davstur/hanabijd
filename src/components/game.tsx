@@ -1,7 +1,7 @@
 import Fireworks from "fireworks-canvas";
 import { useRouter } from "next/router";
 import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
-import { Trans, useTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next";
 import { ActionAreaType, ISelectedArea } from "~/components/actionArea";
 import DiscardArea from "~/components/discardArea";
 import GameBoard from "~/components/gameBoard";
@@ -24,7 +24,6 @@ import { useUserPreferences } from "~/hooks/userPreferences";
 import { commitAction, getMaximumPossibleScore, getScore, joinGame, newGame, recreateGame } from "~/lib/actions";
 import { play } from "~/lib/ai";
 import { cheat } from "~/lib/ai-cheater";
-import { logEvent } from "~/lib/analytics";
 import { setNotification, setReaction, updateGame } from "~/lib/firebase";
 import { uniqueId } from "~/lib/id";
 import IGameState, { GameMode, IAction, IGameHintsLevel, IGameStatus, IPlayer } from "~/lib/state";
@@ -159,15 +158,6 @@ export function Game(props: Props) {
   }, [game]);
 
   /**
-   * Track when the game ends
-   */
-  useEffect(() => {
-    if (game.status !== IGameStatus.OVER) return;
-
-    logEvent("Game", "Game over");
-  }, [game.status]);
-
-  /**
    * Display fireworks animation when game ends
    */
   useEffect(() => {
@@ -199,9 +189,7 @@ export function Game(props: Props) {
       startedAt: Date.now(),
     };
 
-    updateGame(newState).then(() => {
-      logEvent("Game", "Tutorial started");
-    });
+    updateGame(newState).catch(logFailedPromise);
   }, [game]);
 
   useEffect(() => {
@@ -219,7 +207,7 @@ export function Game(props: Props) {
     onStopReplay();
     const nextGameId = liveGame().nextGameId;
     setDisplayStats(false);
-    const newUrl = `/${nextGameId}`;
+    const newUrl = `/games/${nextGameId}`;
     location.assign(newUrl);
   }
 
@@ -238,8 +226,6 @@ export function Game(props: Props) {
     onGameChange({ ...newState, synced: false });
     updateGame(newState).catch(logFailedPromise);
 
-    logEvent("Game", "Player joined");
-
     setGameId(game.id);
   }
 
@@ -254,8 +240,6 @@ export function Game(props: Props) {
 
     onGameChange({ ...newState, synced: false });
     updateGame(newState).catch(logFailedPromise);
-
-    logEvent("Game", "Bot added");
   }
 
   async function onStartGame() {
@@ -267,8 +251,6 @@ export function Game(props: Props) {
 
     onGameChange({ ...newState, synced: false });
     await updateGame(newState);
-
-    logEvent("Game", "Game started");
   }
 
   async function onCommitAction(action: IAction) {
@@ -287,8 +269,6 @@ export function Game(props: Props) {
 
     onGameChange({ ...newState, synced: false });
     await updateGame(newState);
-
-    logEvent("Game", "Turn played");
   }
 
   function onCloseArea() {
@@ -303,8 +283,6 @@ export function Game(props: Props) {
       id: "rollback",
       type: ActionAreaType.ROLLBACK,
     });
-
-    logEvent("Game", "Game rolled back");
   }
 
   async function onNotifyPlayer(player: IPlayer) {
@@ -351,8 +329,6 @@ export function Game(props: Props) {
   const onReplay = useCallback(() => {
     setDisplayStats(false);
     replay.moveCursor(game.turnsHistory.length);
-
-    logEvent("Game", "Replay opened");
   }, [replay, game.turnsHistory.length]);
 
   const onReplayCursorChange = useCallback(
@@ -421,8 +397,7 @@ export function Game(props: Props) {
     log("Link to nextGame updated");
     onGameChange(nextGame);
     log(`GameChange fired for ${nextGame.id}`);
-    logEvent("Game", "Next Game Created");
-    await router.push(`/${nextGame.id}`);
+    await router.push(`/games/${nextGame.id}`);
     log("Router updated with new link");
   }
   function liveGame() {
@@ -559,25 +534,12 @@ export function Game(props: Props) {
                       size={ButtonSize.TINY}
                       text={t("summary")}
                       onClick={() => {
-                        router.push(`/${game.id}/summary`).catch(logFailedPromise);
+                        router.push(`/games/${game.id}/summary`).catch(logFailedPromise);
                       }}
                     />
                   </div>
                 </div>
               </div>
-              <Txt className="db tc" size={TxtSize.SMALL}>
-                <Trans i18nKey="buymeacoffeePostGame">
-                  Support the game,{" "}
-                  <a
-                    className="lavender"
-                    href="https://www.buymeacoffee.com/hanabicards"
-                    rel="noopener noreferrer"
-                    target="_blank"
-                  >
-                    buy us a coffee
-                  </a>
-                </Trans>
-              </Txt>
             </div>
           </div>
         )}

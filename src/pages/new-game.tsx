@@ -7,7 +7,6 @@ import { Checkbox, Field, Select, TextInput } from "~/components/ui/forms";
 import Txt, { TxtSize } from "~/components/ui/txt";
 import useLocalStorage from "~/hooks/localStorage";
 import { newGame } from "~/lib/actions";
-import { logEvent } from "~/lib/analytics";
 import { addGameToRoom, IRoomGameConfig, loadRoom, saveRoomGameConfig, updateGame } from "~/lib/firebase";
 import { generateShuffleSeed, readableUniqueId } from "~/lib/id";
 import { GameMode, GameVariant, IGameHintsLevel } from "~/lib/state";
@@ -123,9 +122,7 @@ export default function NewGame() {
       saveRoomGameConfig(roomId, config);
     }
 
-    logEvent("Game", "Game created");
-
-    await router.push(`/${gameId}`);
+    await router.push(`/games/${gameId}`);
   }
 
   function onBack() {

@@ -169,8 +169,6 @@ export const fr = {
   rulesContact: "✉️ <1>Contactez-nous</1> si vous avez une question ou suggestion !",
   rulesContributeRepo: "💻 Nous avons aussi un <1>repo public sur Github</1> si vous souhaitez contribuer au site.",
   rulesDiscordServer: "🗣 Rejoignez notre serveur Discord pour discuter du site et de ses avancées",
-  rulesBuymeacoffee:
-    "🙇‍♀️ Et vous pouvez également supporter notre travail et nous aider à couvrir les coûts des serveurs sur buymeacoffee.com",
   noRoom: "Aucune partie n'est accessible",
   faster: "Très rapide",
   fast: "Rapide",
@@ -234,7 +232,6 @@ export const fr = {
   colorBlindModeSubtext: "Affiche des symboles sur les cartes pour aider à distinguer les couleurs",
   pageNotFound: "Pagina niet gevonden",
   contributeLanguage: "Contribuer !",
-  buymeacoffeePostGame: "Soutenez le jeu, <2>offrez-nous un café</2>",
   new: "Nouveau",
   learnHanab: "Apprendre",
   learnHanabTime: "~5 min",

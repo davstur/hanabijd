@@ -1,7 +1,7 @@
-import { useRouter } from "next/router";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { Select } from "~/components/ui/forms";
+import { i18n } from "~/lib/i18n";
 import { logFailedPromise } from "~/lib/errors";
 
 export const Languages = {
@@ -23,7 +23,6 @@ interface Props {
 
 export default function LanguageSelector(props: Props) {
   const { outlined = false } = props;
-  const router = useRouter();
 
   const { t } = useTranslation();
 
@@ -37,14 +36,14 @@ export default function LanguageSelector(props: Props) {
       <Select
         options={languages}
         outlined={outlined}
-        value={router.locale}
+        value={i18n.language}
         onChange={(e) => {
           if (e.target.value === "new") {
             window.open("https://github.com/bstnfrmry/hanabi/issues/180", "_blank").focus();
             return;
           }
 
-          router.push(router.pathname, router.asPath, { locale: e.target.value }).catch(logFailedPromise);
+          i18n.changeLanguage(e.target.value).catch(logFailedPromise);
         }}
       />
     </label>

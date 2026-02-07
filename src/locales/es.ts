@@ -168,8 +168,6 @@ export const es = {
   rulesContact: "✉️ <1>Comunícate con nosotros</1> si tienes alguna pregunta o sugerencia",
   rulesContributeRepo: "💻 También tenemos un <1>repositorio público en Github</1> si quieres contribuir.",
   rulesDiscordServer: "🗣 Únete a nuestro servidor Discord para discutir posibles mejoras y sugerencias",
-  rulesBuymeacoffee:
-    "🙇‍♀️ Y también puedes apoyar nuestra iniciativa y ayudar a cubrir los gastos del servidor comprándonos un café en buymeacoffee.com",
   noRoom: "No hay ningún juego disponible",
   faster: "Muy rápido",
   fast: "Rápido",
@@ -232,7 +230,6 @@ export const es = {
   colorBlindMode: "Modo daltonismo",
   colorBlindModeSubtext: "Mostrar símbolos en la parte superior de las tarjetas para ayudar a distinguir los colores",
   contributeLanguage: "¡Contribuir!",
-  buymeacoffeePostGame: "Apoya el juego, <2>cómpranos un café</2>",
   next: "Siguiente",
   new: "Nuevo",
   learnHanab: "Aprende",

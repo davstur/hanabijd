@@ -27,7 +27,7 @@ export default function TutorialInstructions() {
           )}
         />
         {originalGameId && (
-          <a className="mt3" href={`/${originalGameId}`}>
+          <a className="mt3" href={`/games/${originalGameId}`}>
             <Button primary size={ButtonSize.SMALL} text={t("backToGame", "Back to game")} />
           </a>
         )}

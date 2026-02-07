@@ -12,8 +12,8 @@ import {
   subscribeToRoomGames,
   joinRoom as joinRoomDb,
 } from "~/lib/firebase";
-import IGameState, { IGameStatus } from "~/lib/state";
-import { getScore } from "~/lib/actions";
+import IGameState, { GameVariant, IGameStatus } from "~/lib/state";
+import { getMaximumScore, getScore } from "~/lib/actions";
 import { uniqueId } from "~/lib/id";
 import { getNotificationPermission, isPushSupported, subscribeToPush } from "~/lib/notifications";
 
@@ -48,29 +48,54 @@ function getPlayerName(): string {
   return "";
 }
 
+const VariantKeys: Record<string, string> = {
+  [GameVariant.CLASSIC]: "classicVariant",
+  [GameVariant.MULTICOLOR]: "multicolorVariant",
+  [GameVariant.RAINBOW]: "rainbowVariant",
+  [GameVariant.CRITICAL_RAINBOW]: "criticalRainbowVariant",
+  [GameVariant.ORANGE]: "orangeVariant",
+  [GameVariant.SEQUENCE]: "sequenceVariant",
+};
+
 function GameStatusBadge({ game }: { game: IGameState }) {
   const { t } = useTranslation();
+  const variant = game.options.variant || GameVariant.CLASSIC;
+  const variantLabel = t(VariantKeys[variant] || "classicVariant");
+  const maxScore = getMaximumScore(game);
 
   if (game.status === IGameStatus.LOBBY) {
     const joined = game.players.length;
     const needed = game.options.playersCount;
     return (
-      <Txt
-        className="txt-yellow"
-        size={TxtSize.SMALL}
-        value={t("waitingForPlayers", `Waiting (${joined}/${needed})`)}
-      />
+      <>
+        <Txt
+          className="txt-yellow"
+          size={TxtSize.XSMALL}
+          value={t("waitingForPlayers", `Waiting (${joined}/${needed})`)}
+        />
+        <Txt className="lavender" size={TxtSize.XSMALL} value={variantLabel} />
+      </>
     );
   }
 
   if (game.status === IGameStatus.ONGOING) {
-    return <Txt className="light-green" size={TxtSize.SMALL} value={t("inProgress", "In progress")} />;
+    const score = getScore(game);
+    return (
+      <>
+        <Txt className="light-green" size={TxtSize.XSMALL} value={`${t("inProgress")} · ${score}/${maxScore}`} />
+        <Txt className="lavender" size={TxtSize.XSMALL} value={variantLabel} />
+      </>
+    );
   }
 
   if (game.status === IGameStatus.OVER) {
     const score = getScore(game);
-    const maxScore = game.options.variant === "classic" ? 25 : 30;
-    return <Txt className="lavender" size={TxtSize.SMALL} value={t("finished", `Finished (${score}/${maxScore})`)} />;
+    return (
+      <>
+        <Txt className="lavender" size={TxtSize.XSMALL} value={`${t("finished")} · ${score}/${maxScore}`} />
+        <Txt className="lavender" size={TxtSize.XSMALL} value={variantLabel} />
+      </>
+    );
   }
 
   return null;
@@ -85,19 +110,18 @@ export default function RoomPage() {
   const [games, setGames] = useState<IGameState[]>([]);
   const [, setCurrentRoom] = useLocalStorage<string | null>(ROOM_KEY, null);
   const [loading, setLoading] = useState(true);
-  const [notifPermission, setNotifPermission] = useState<NotificationPermission | "unsupported">("unsupported");
+  const [notifSupported, setNotifSupported] = useState(false);
+  const [notifEnabled, setNotifEnabled] = useState(false);
 
   useEffect(() => {
-    setNotifPermission(getNotificationPermission());
+    setNotifSupported(isPushSupported());
+    setNotifEnabled(getNotificationPermission() === "granted");
   }, []);
 
-  async function handleEnableNotifications() {
+  async function handleNotifToggle() {
+    if (notifEnabled) return;
     const success = await subscribeToPush();
-    if (success) {
-      setNotifPermission("granted");
-    } else {
-      setNotifPermission(getNotificationPermission());
-    }
+    setNotifEnabled(success);
   }
 
   // Subscribe to room data
@@ -156,7 +180,7 @@ export default function RoomPage() {
   }
 
   function handleJoinGame(gameId: string) {
-    router.push(`/${gameId}`);
+    router.push(`/games/${gameId}`);
   }
 
   if (loading) {
@@ -190,44 +214,44 @@ export default function RoomPage() {
         backgroundImage: "linear-gradient(to bottom right, #001030, #00133d)",
       }}
     >
-      {/* Header */}
-      <div className="flex justify-between items-center mb4 pb3 bb b--yellow-light">
-        <div>
-          <Txt className="ttu txt-yellow" size={TxtSize.MEDIUM} value={t("room", "Room")} />
-          <Txt className="ml2" size={TxtSize.MEDIUM} value={room.id} />
-        </div>
-        <Button outlined size={ButtonSize.TINY} text={t("leaveRoom", "Leave room")} onClick={handleLeaveRoom} />
-      </div>
-
-      {/* Notification prompt */}
-      {isPushSupported() && notifPermission === "default" && (
-        <div className="flex items-center justify-between mb4 pa2 br2" style={{ background: "rgba(255,255,255,0.08)" }}>
-          <Txt
-            size={TxtSize.SMALL}
-            value={t("enableNotifications", "Enable notifications to know when it's your turn")}
-          />
-          <Button size={ButtonSize.TINY} text={t("enable", "Enable")} onClick={handleEnableNotifications} />
-        </div>
-      )}
-      {isPushSupported() && notifPermission === "granted" && (
-        <div className="flex items-center mb4 pa2 br2" style={{ background: "rgba(255,255,255,0.05)" }}>
-          <Txt
-            className="light-green"
-            size={TxtSize.SMALL}
-            value={t("notificationsEnabled", "Notifications enabled")}
-          />
-        </div>
-      )}
-
-      {/* Members */}
-      <div className="mb4">
-        <Txt className="ttu mb2 db" size={TxtSize.SMALL} value={t("members", "Members")} />
-        <div className="flex flex-wrap">
+      {/* Members + Leave room */}
+      <div className="flex items-center justify-between mb4">
+        <div className="flex items-center flex-wrap">
+          <Txt className="ttu mr3" size={TxtSize.SMALL} value={t("members")} />
           {members.map((member) => (
-            <span key={member.id} className="mr3 mb1 lavender">
+            <span key={member.id} className="mr3 lavender">
               <Txt size={TxtSize.SMALL} value={member.name} />
             </span>
           ))}
+        </div>
+        <div className="flex items-center">
+          {notifSupported && (
+            <label className="flex items-center pointer mr3">
+              <Txt className="mr2" size={TxtSize.XSMALL} value={t("notifications")} />
+              <div
+                className="relative br-pill"
+                style={{
+                  width: 36,
+                  height: 20,
+                  background: notifEnabled ? "#19a974" : "rgba(255,255,255,0.2)",
+                  transition: "background 0.2s",
+                }}
+                onClick={handleNotifToggle}
+              >
+                <div
+                  className="absolute br-100 bg-white"
+                  style={{
+                    width: 16,
+                    height: 16,
+                    top: 2,
+                    left: notifEnabled ? 18 : 2,
+                    transition: "left 0.2s",
+                  }}
+                />
+              </div>
+            </label>
+          )}
+          <Button outlined size={ButtonSize.TINY} text={t("leaveRoom")} onClick={handleLeaveRoom} />
         </div>
       </div>
 
@@ -257,7 +281,12 @@ export default function RoomPage() {
             </div>
             <div className="flex items-center">
               {game.status === IGameStatus.LOBBY && <Button size={ButtonSize.TINY} text={t("join", "Join")} />}
-              {game.status === IGameStatus.ONGOING && <Button size={ButtonSize.TINY} text={t("watch", "Watch")} />}
+              {game.status === IGameStatus.ONGOING && (
+                <Button
+                  size={ButtonSize.TINY}
+                  text={game.players.some((p) => p.id === getPlayerId()) ? t("rejoinGame") : t("watch")}
+                />
+              )}
               {game.status === IGameStatus.OVER && <Button size={ButtonSize.TINY} text={t("view", "View")} />}
             </div>
           </div>

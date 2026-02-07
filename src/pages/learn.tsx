@@ -14,7 +14,6 @@ import { Paragraph, Subtitle, Title } from "~/components/ui/typography";
 import Vignette from "~/components/vignette";
 import useLocalStorage from "~/hooks/localStorage";
 import { getColors, newGame, numbers } from "~/lib/actions";
-import { logEvent } from "~/lib/analytics";
 import { updateGame } from "~/lib/firebase";
 import { readableUniqueId } from "~/lib/id";
 import { GameMode, GameVariant, IColor, IGameHintsLevel, IHintType, INumber } from "~/lib/state";
@@ -293,7 +292,7 @@ function useSteps(colorBlindMode: boolean, setColorBlindMode: (newColorBlindMode
           <Title className="ttu">{t("learn.ready.title", "Ready?")}</Title>
           <Paragraph>{t("learn.ready.1", "Let's jump into a trial game to try all this out!")}</Paragraph>
           {gameId && (
-            <Link passHref className="lavender pointer" href={`/${gameId}`}>
+            <Link passHref className="lavender pointer" href={`/games/${gameId}`}>
               <Txt value={t("backToGame", "Go back to my game instead")} />
             </Link>
           )}
@@ -362,13 +361,11 @@ export default function Learn() {
 
     await updateGame(game);
 
-    logEvent("Game", "Tutorial created");
-
     const originalGameId = router.query["back-to-game"];
     if (originalGameId) {
-      await router.push(`/${id}?back-to-game=${originalGameId}`);
+      await router.push(`/games/${id}?back-to-game=${originalGameId}`);
     } else {
-      await router.push(`/${id}`);
+      await router.push(`/games/${id}`);
     }
   };
 

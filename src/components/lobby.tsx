@@ -1,7 +1,7 @@
 import { last } from "lodash";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import React, { FormEvent, useEffect, useState } from "react";
+import React, { FormEvent, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import Button from "~/components/ui/button";
 import { Checkbox, Field, TextInput } from "~/components/ui/forms";
@@ -66,28 +66,43 @@ export default function Lobby(props: Props) {
   const canJoin = (game.options.gameMode === GameMode.PASS_AND_PLAY || !selfPlayer) && !gameFull;
   const canStart = gameFull;
 
-  const shareLink = `${host}/${router.query.gameId}`;
+  const shareLink = `${host}/games/${router.query.gameId}`;
   const inputRef = React.createRef<HTMLInputElement>();
   function copy() {
     inputRef.current.select();
     document.execCommand("copy");
   }
 
+  const autoJoined = useRef(false);
+
   useEffect(() => {
     if (game.options.gameMode === GameMode.PASS_AND_PLAY && game.players.length > 0) {
       setName("");
-    } else {
-      setName(localStorage.getItem(NAME_KEY) || "");
+      return;
     }
-  }, [game.players.length, game.options.gameMode]);
+
+    const stored = localStorage.getItem(NAME_KEY);
+    if (!stored) return;
+
+    let parsed: string;
+    try {
+      parsed = JSON.parse(stored);
+    } catch {
+      parsed = stored;
+    }
+    setName(parsed);
+
+    // Auto-join with the stored name if we can
+    if (parsed && canJoin && !autoJoined.current) {
+      autoJoined.current = true;
+      onJoinGame({ name: parsed, bot: false });
+    }
+  }, [game.players.length, game.options.gameMode, canJoin]);
 
   function onJoinGameSubmit(e: FormEvent) {
     e.preventDefault();
     onJoinGame({ name, bot });
-
-    if (game.players.length === 0) {
-      localStorage.setItem(NAME_KEY, name);
-    }
+    localStorage.setItem(NAME_KEY, JSON.stringify(name));
   }
 
   return (

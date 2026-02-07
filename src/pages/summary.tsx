@@ -5,7 +5,7 @@ import { logFailedPromise } from "~/lib/errors";
 
 /**
  * Legacy route for /summary?gameId={gameId}
- * Redirects to /{gameId}/summary
+ * Redirects to /games/{gameId}/summary
  */
 export default function Summary() {
   const router = useRouter();
@@ -14,7 +14,7 @@ export default function Summary() {
   useEffect(() => {
     if (!gameId) return;
 
-    router.replace(`/${gameId}/summary`).catch(logFailedPromise);
+    router.replace(`/games/${gameId}/summary`).catch(logFailedPromise);
   }, [gameId, router]);
 
   return <LoadingScreen />;
