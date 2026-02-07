@@ -63,7 +63,7 @@ export default function AppHeader() {
       <div className="flex items-center">
         <LanguageSelector outlined />
         {playerName && (
-          <div className="relative ml2" ref={menuRef}>
+          <div ref={menuRef} className="relative ml2">
             <span className="pointer underline-hover" onClick={() => setShowMenu(!showMenu)}>
               <Txt size={TxtSize.XSMALL} value={playerName} />
             </span>
