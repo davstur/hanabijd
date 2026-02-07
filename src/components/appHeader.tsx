@@ -1,8 +1,7 @@
 import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import LanguageSelector from "~/components/languageSelector";
-import Button, { ButtonSize } from "~/components/ui/button";
 import Txt, { TxtSize } from "~/components/ui/txt";
 
 export default function AppHeader() {
@@ -10,6 +9,8 @@ export default function AppHeader() {
   const { t } = useTranslation();
   const [roomId, setRoomId] = useState<string | null>(null);
   const [playerName, setPlayerName] = useState<string | null>(null);
+  const [showMenu, setShowMenu] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     try {
@@ -26,6 +27,17 @@ export default function AppHeader() {
       setPlayerName(null);
     }
   }, [router.asPath]);
+
+  useEffect(() => {
+    if (!showMenu) return;
+    function handleClickOutside(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setShowMenu(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [showMenu]);
 
   if (router.pathname === "/") return null;
   if (!roomId && !playerName) return null;
@@ -50,8 +62,23 @@ export default function AppHeader() {
       )}
       <div className="flex items-center">
         <LanguageSelector outlined />
-        {playerName && <Txt className="mh2" size={TxtSize.XSMALL} value={playerName} />}
-        <Button void size={ButtonSize.TINY} text={t("logout")} onClick={handleLogout} />
+        {playerName && (
+          <div className="relative ml2" ref={menuRef}>
+            <span className="pointer underline-hover" onClick={() => setShowMenu(!showMenu)}>
+              <Txt size={TxtSize.XSMALL} value={playerName} />
+            </span>
+            {showMenu && (
+              <div
+                className="absolute right-0 mt1 pa2 br2 shadow-1 z-999"
+                style={{ background: "#1a1a3e", border: "1px solid rgba(255,255,255,0.15)", minWidth: "6rem" }}
+              >
+                <span className="pointer db pa1 hover-bg-white-10 br1" onClick={handleLogout}>
+                  <Txt size={TxtSize.XSMALL} value={t("logout")} />
+                </span>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

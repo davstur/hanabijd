@@ -1,5 +1,5 @@
 import Head from "next/head";
-import Image from "next/image";
+import Image from "next/legacy/image";
 import { useRouter } from "next/router";
 import React, { FormEvent, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -130,10 +130,10 @@ export default function Home() {
 
   return (
     <div
-      className="relative w-100 overflow-y-scroll flex flex-column justify-center items-center pa2 pv4-l ph3-l shadow-5 br3"
+      className="relative w-100 flex flex-column items-center pa2 pv4-l ph3-l"
       style={{
         backgroundImage: "linear-gradient(to bottom right, #001030, #00133d)",
-        minHeight: "100vh",
+        height: "100%",
       }}
     >
       <Head>
@@ -146,7 +146,7 @@ export default function Home() {
       <div className="absolute top-1 right-2">
         <LanguageSelector outlined />
       </div>
-      <div className="flex flex-column items-center justify-center">
+      <div className="flex-1 flex flex-column items-center justify-center">
         <div className="flex flex-column items-center">
           <div className="mb4 w4 h4">
             <Image
@@ -185,26 +185,35 @@ export default function Home() {
               onClick={handleCreateRoom}
             />
 
-            <form className="flex flex-column items-center" onSubmit={handleJoinRoom}>
-              <div className="flex items-center mb2">
-                <TextInput
-                  className="mr2"
-                  placeholder={t("roomCode", "Room code")}
-                  style={{ width: "14rem" }}
-                  value={joinCode}
-                  onChange={(e) => {
-                    setJoinCode(e.target.value);
-                    setError(null);
-                  }}
-                />
-                <Button size={ButtonSize.MEDIUM} text={t("joinRoom", "Join a room")} />
-              </div>
-              {error && <Txt className="red mt1" size={TxtSize.SMALL} value={error} />}
-            </form>
+            {showJoinForm ? (
+              <form className="flex flex-column items-center" onSubmit={handleJoinRoom}>
+                <div className="flex items-center mb2">
+                  <TextInput
+                    autoFocus
+                    className="mr2"
+                    placeholder={t("roomCode", "Room code")}
+                    style={{ width: "14rem" }}
+                    value={joinCode}
+                    onChange={(e) => {
+                      setJoinCode(e.target.value);
+                      setError(null);
+                    }}
+                  />
+                  <Button size={ButtonSize.MEDIUM} text={t("joinRoom", "Join a room")} />
+                </div>
+                {error && <Txt className="red mt1" size={TxtSize.SMALL} value={error} />}
+              </form>
+            ) : (
+              <Button
+                size={ButtonSize.MEDIUM}
+                text={t("joinRoom", "Join a room")}
+                onClick={() => setShowJoinForm(true)}
+              />
+            )}
           </main>
         )}
       </div>
-      <div className="absolute bottom-1 tc w-100">
+      <div className="tc w-100 pb1">
         <span className="lavender f7">
           {"This builds on "}
           <a

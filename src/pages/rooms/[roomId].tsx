@@ -67,34 +67,34 @@ function GameStatusBadge({ game }: { game: IGameState }) {
     const joined = game.players.length;
     const needed = game.options.playersCount;
     return (
-      <>
+      <div className="flex items-center">
         <Txt
-          className="txt-yellow"
+          className="txt-yellow mr2"
           size={TxtSize.XSMALL}
           value={t("waitingForPlayers", `Waiting (${joined}/${needed})`)}
         />
         <Txt className="lavender" size={TxtSize.XSMALL} value={variantLabel} />
-      </>
+      </div>
     );
   }
 
   if (game.status === IGameStatus.ONGOING) {
     const score = getScore(game);
     return (
-      <>
-        <Txt className="light-green" size={TxtSize.XSMALL} value={`${t("inProgress")} · ${score}/${maxScore}`} />
+      <div className="flex items-center">
+        <Txt className="light-green mr2" size={TxtSize.XSMALL} value={`${t("inProgress")} · ${score}/${maxScore}`} />
         <Txt className="lavender" size={TxtSize.XSMALL} value={variantLabel} />
-      </>
+      </div>
     );
   }
 
   if (game.status === IGameStatus.OVER) {
     const score = getScore(game);
     return (
-      <>
-        <Txt className="lavender" size={TxtSize.XSMALL} value={`${t("finished")} · ${score}/${maxScore}`} />
+      <div className="flex items-center">
+        <Txt className="lavender mr2" size={TxtSize.XSMALL} value={`${t("finished")} · ${score}/${maxScore}`} />
         <Txt className="lavender" size={TxtSize.XSMALL} value={variantLabel} />
-      </>
+      </div>
     );
   }
 
@@ -214,19 +214,11 @@ export default function RoomPage() {
         backgroundImage: "linear-gradient(to bottom right, #001030, #00133d)",
       }}
     >
-      {/* Members + Leave room */}
-      <div className="flex items-center justify-between mb4">
-        <div className="flex items-center flex-wrap">
-          <Txt className="ttu mr3" size={TxtSize.SMALL} value={t("members")} />
-          {members.map((member) => (
-            <span key={member.id} className="mr3 lavender">
-              <Txt size={TxtSize.SMALL} value={member.name} />
-            </span>
-          ))}
-        </div>
+      {/* Notification + Leave room */}
+      <div className="flex justify-between items-center mb3">
         <div className="flex items-center">
           {notifSupported && (
-            <label className="flex items-center pointer mr3">
+            <label className="flex items-center pointer">
               <Txt className="mr2" size={TxtSize.XSMALL} value={t("notifications")} />
               <div
                 className="relative br-pill"
@@ -251,8 +243,18 @@ export default function RoomPage() {
               </div>
             </label>
           )}
-          <Button outlined size={ButtonSize.TINY} text={t("leaveRoom")} onClick={handleLeaveRoom} />
         </div>
+        <Button outlined size={ButtonSize.TINY} text={t("leave", "Leave")} onClick={handleLeaveRoom} />
+      </div>
+
+      {/* Members */}
+      <div className="mb4">
+        <Txt className="ttu mb2 db" size={TxtSize.SMALL} value={t("members")} />
+        {members.map((member) => (
+          <span key={member.id} className="mb1 db lavender">
+            <Txt size={TxtSize.SMALL} value={member.name} />
+          </span>
+        ))}
       </div>
 
       {/* Create Game */}
@@ -273,10 +275,8 @@ export default function RoomPage() {
             style={{ background: "rgba(255,255,255,0.05)" }}
             onClick={() => handleJoinGame(game.id)}
           >
-            <div className="flex flex-column">
-              <div className="flex items-center">
-                <Txt className="mr2" size={TxtSize.SMALL} value={game.players.map((p) => p.name).join(", ") || "..."} />
-              </div>
+            <div className="flex items-center">
+              <Txt className="mr2" size={TxtSize.SMALL} value={game.players.map((p) => p.name).join(", ") || "..."} />
               <GameStatusBadge game={game} />
             </div>
             <div className="flex items-center">
