@@ -8,7 +8,7 @@ import Txt, { TxtSize } from "~/components/ui/txt";
 import useLocalStorage from "~/hooks/localStorage";
 import { newGame } from "~/lib/actions";
 import { logEvent } from "~/lib/analytics";
-import { addGameToRoom, updateGame } from "~/lib/firebase";
+import { addGameToRoom, IRoomGameConfig, loadRoom, saveRoomGameConfig, updateGame } from "~/lib/firebase";
 import { generateShuffleSeed, readableUniqueId } from "~/lib/id";
 import { GameMode, GameVariant, IGameHintsLevel } from "~/lib/state";
 
@@ -51,7 +51,7 @@ export default function NewGame() {
   const [offline, setOffline] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [seed, setSeed] = useState<string>();
-  const [playersCount, setPlayersCount] = useState(3);
+  const [playersCount, setPlayersCount] = useState(2);
   const [variant, setVariant] = useState(GameVariant.CLASSIC);
   const [allowRollback, setAllowRollback] = useState(true);
   const [preventLoss, setPreventLoss] = useState(false);
@@ -61,10 +61,30 @@ export default function NewGame() {
   const [botsWait, setBotsWait] = useState(process.env.NODE_ENV === "production" ? 1000 : 0);
 
   const [creatingGame, setCreatingGame] = useState(false);
+  const [loadingRoomConfig, setLoadingRoomConfig] = useState(!!roomId);
 
   useEffect(() => {
     setSeed(generateShuffleSeed());
   }, []);
+
+  useEffect(() => {
+    if (!roomId) return;
+
+    loadRoom(roomId).then((room) => {
+      const config = room?.lastGameConfig;
+      if (config) {
+        setPlayersCount(config.playersCount);
+        setVariant(config.variant);
+        setAllowRollback(config.allowRollback);
+        setPreventLoss(config.preventLoss);
+        setHintsLevel(config.hintsLevel);
+        setBotsWait(config.botsWait);
+        setOffline(config.gameMode === GameMode.PASS_AND_PLAY);
+        setColorBlindMode(config.colorBlindMode);
+      }
+      setLoadingRoomConfig(false);
+    });
+  }, [roomId]);
 
   async function onCreateGame() {
     const gameId = readableUniqueId();
@@ -90,6 +110,17 @@ export default function NewGame() {
 
     if (roomId) {
       await addGameToRoom(roomId, gameId);
+      const config: IRoomGameConfig = {
+        playersCount,
+        variant,
+        allowRollback,
+        preventLoss,
+        hintsLevel,
+        botsWait,
+        gameMode: offline ? GameMode.PASS_AND_PLAY : GameMode.NETWORK,
+        colorBlindMode,
+      };
+      saveRoomGameConfig(roomId, config);
     }
 
     logEvent("Game", "Game created");
@@ -242,8 +273,9 @@ export default function NewGame() {
         <div className="flex justify-center">
           <Button
             className="justify-end mt2"
+            disabled={loadingRoomConfig || creatingGame}
             id="new-game"
-            primary={!creatingGame}
+            primary={!creatingGame && !loadingRoomConfig}
             size={ButtonSize.LARGE}
             text={creatingGame ? t("creatingGame") : t("newGame")}
             onClick={onCreateGame}

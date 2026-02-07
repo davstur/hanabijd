@@ -1,7 +1,15 @@
 import firebase from "firebase/app";
 import "firebase/database";
 import { cloneDeep } from "lodash";
-import IGameState, { cleanState, fillEmptyValues, IPlayer, rebuildGame } from "~/lib/state";
+import IGameState, {
+  cleanState,
+  fillEmptyValues,
+  GameMode,
+  GameVariant,
+  IGameHintsLevel,
+  IPlayer,
+  rebuildGame,
+} from "~/lib/state";
 
 function database() {
   if (!firebase.apps.length) {
@@ -73,11 +81,23 @@ export interface IRoomMember {
   joinedAt: number;
 }
 
+export interface IRoomGameConfig {
+  playersCount: number;
+  variant: GameVariant;
+  allowRollback: boolean;
+  preventLoss: boolean;
+  hintsLevel: IGameHintsLevel;
+  botsWait: number;
+  gameMode: GameMode;
+  colorBlindMode: boolean;
+}
+
 export interface IRoom {
   id: string;
   createdAt: number;
   members: { [memberId: string]: IRoomMember };
   gameIds: string[];
+  lastGameConfig?: IRoomGameConfig;
 }
 
 export async function createRoom(roomId: string, member: IRoomMember) {
@@ -158,4 +178,12 @@ export function subscribeToRoomGames(gameIds: string[], callback: (games: IGameS
   });
 
   return () => unsubscribers.forEach((unsub) => unsub());
+}
+
+export async function saveRoomGameConfig(roomId: string, config: IRoomGameConfig) {
+  try {
+    await database().ref(`/rooms/${roomId}/lastGameConfig`).set(config);
+  } catch (e) {
+    console.debug(`DB Error: saveRoomGameConfig\n ${e}`);
+  }
 }
