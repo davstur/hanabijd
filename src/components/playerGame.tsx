@@ -3,7 +3,7 @@ import { TFunction } from "i18next";
 import React, { HTMLAttributes, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ArrowContainer, Popover } from "react-tiny-popover";
-import posed, { PoseGroup } from "react-pose";
+import { AnimatePresence, motion } from "motion/react";
 import Card, { CardSize, ICardContext, PositionMap } from "~/components/card";
 import ChatPopover from "~/components/chatPopover";
 import PlayerName, { PlayerNameSize } from "~/components/playerName";
@@ -348,9 +348,15 @@ export default function PlayerGame(props: Props) {
                 />
               )}
 
-              <PoseGroup>
+              <AnimatePresence>
                 {player.hand.map((card, i) => (
-                  <AnimatedCard key={card.id}>
+                  <motion.div
+                    key={card.id}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0.1 }}
+                    initial={{ opacity: 0.1 }}
+                    transition={{ duration: 0.1, delay: 0.2 }}
+                  >
                     <Card
                       card={card}
                       className={classnames({
@@ -376,9 +382,9 @@ export default function PlayerGame(props: Props) {
                         }
                       }}
                     />
-                  </AnimatedCard>
+                  </motion.div>
                 ))}
-              </PoseGroup>
+              </AnimatePresence>
             </div>
           )}
         </div>
@@ -506,19 +512,3 @@ export default function PlayerGame(props: Props) {
     </>
   );
 }
-
-const AnimatedCard = posed.div({
-  enter: {
-    opacity: 1,
-    transition: {
-      delay: 200,
-      duration: 100,
-    },
-  },
-  exit: {
-    opacity: 0.1,
-    transition: {
-      duration: 100,
-    },
-  },
-});

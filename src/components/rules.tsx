@@ -1,4 +1,4 @@
-import Image from "next/legacy/image";
+import Image from "next/image";
 import React from "react";
 import { Trans, useTranslation } from "react-i18next";
 import DiscordButton from "~/components/discordButton";

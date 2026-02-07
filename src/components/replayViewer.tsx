@@ -58,7 +58,7 @@ export default function ReplayViewer(props: Props) {
   const selfReviewComments = game.reviewComments.filter((rc) => rc.playerId === selfPlayer?.id);
   selfReviewComments.forEach((rc) => {
     marks[rc.afterTurnNumber] = {
-      style: "",
+      style: {},
       label: <Empty />,
     };
   });

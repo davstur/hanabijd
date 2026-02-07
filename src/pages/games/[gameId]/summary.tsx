@@ -1,9 +1,7 @@
 import classnames from "classnames";
-import moment from "moment";
 import { useRouter } from "next/router";
 import React, { ReactNode, useEffect, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
-import shortid from "shortid";
 import GameActionsStats from "~/components/gameActionsStats";
 import GameBoard from "~/components/gameBoard";
 import GameStats from "~/components/gameStats";
@@ -14,6 +12,7 @@ import Txt, { TxtSize } from "~/components/ui/txt";
 import { GameContext } from "~/hooks/game";
 import { newGame } from "~/lib/actions";
 import { loadGame, subscribeToGame, updateGame } from "~/lib/firebase";
+import { uniqueId } from "~/lib/id";
 import IGameState, { GameVariant } from "~/lib/state";
 import { logFailedPromise } from "~/lib/errors";
 
@@ -42,7 +41,11 @@ function Section(props: SectionProps) {
 }
 
 function formatDuration(start: number, end: number) {
-  return moment.utc(moment(end).diff(start)).format("HH:mm:ss");
+  const totalSeconds = Math.floor((end - start) / 1000);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  return [hours, minutes, seconds].map((n) => String(n).padStart(2, "0")).join(":");
 }
 
 export const getServerSideProps = async function ({ params }) {
@@ -167,7 +170,7 @@ export default function Summary(props: Props) {
               className="ml3"
               text={t("tryOutButton")}
               onClick={async () => {
-                const nextGameId = shortid();
+                const nextGameId = uniqueId();
                 const nextGame = newGame({
                   ...game.options,
                   id: nextGameId,

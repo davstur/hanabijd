@@ -1,9 +1,9 @@
-import Image from "next/legacy/image";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import posed, { PoseGroup } from "react-pose";
+import { AnimatePresence, motion } from "motion/react";
 import Card, { CardSize, ICardContext } from "~/components/card";
 import HomeButton from "~/components/homeButton";
 import PlayedCards from "~/components/playedCards";
@@ -321,15 +321,6 @@ function useSteps(colorBlindMode: boolean, setColorBlindMode: (newColorBlindMode
   ];
 }
 
-const Step = posed.div({
-  enter: {
-    opacity: 1,
-  },
-  exit: {
-    opacity: 0,
-  },
-});
-
 export default function Learn() {
   const [currentStep, setCurrentStep] = useState(0);
   const [colorBlindMode, setColorBlindMode] = useLocalStorage("colorBlindMode", false);
@@ -378,15 +369,22 @@ export default function Learn() {
       </div>
 
       <div className="relative flex items-center h-90 w-90 w-50-l center">
-        <PoseGroup>
+        <AnimatePresence mode="wait">
           {steps.map((step, i) => {
             return i === currentStep ? (
-              <Step key={i} className="flex flex-column">
+              <motion.div
+                key={i}
+                animate={{ opacity: 1 }}
+                className="flex flex-column"
+                exit={{ opacity: 0 }}
+                initial={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+              >
                 {step.html}
-              </Step>
+              </motion.div>
             ) : null;
           })}
-        </PoseGroup>
+        </AnimatePresence>
         <div className="absolute left-0 right-0 bottom-1 flex justify-between items-center mh2">
           <Txt className="lavender nowrap" size={TxtSize.XXSMALL} value={`${currentStep + 1} / ${steps.length}`} />
           <div>

@@ -1,6 +1,5 @@
 import assert from "assert";
-import { cloneDeep, findIndex, flatMap, last, range, shuffle, zipObject } from "lodash";
-import mem from "mem";
+import { cloneDeep, findIndex, flatMap, last, memoize, range, shuffle, zipObject } from "lodash";
 import { shuffle as shuffleSeed } from "shuffle-seed";
 import { generateShuffleSeed, nextGameId } from "./id";
 import IGameState, {
@@ -237,7 +236,7 @@ export function sendMessage(state: IGameState, message: IMessage) {
 /**
  * Rollback the state for the given amount of turns
  */
-export const getStateAtTurn = mem(
+export const getStateAtTurn = memoize(
   (state: IGameState, turnIndex: number) => {
     let newState = newGame(state.options);
 
@@ -255,9 +254,7 @@ export const getStateAtTurn = mem(
 
     return newState;
   },
-  {
-    cacheKey: ([state, turn]) => `${state.id}-${turn}`,
-  }
+  (state: IGameState, turnIndex: number) => `${state.id}-${turnIndex}`
 );
 
 export function getColors(variant: GameVariant) {

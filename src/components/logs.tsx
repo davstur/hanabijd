@@ -1,6 +1,6 @@
+import { AnimatePresence, motion } from "motion/react";
 import React from "react";
 import { Trans, useTranslation } from "react-i18next";
-import posed, { PoseGroup } from "react-pose";
 import { ReviewCommentPopover } from "~/components/reviewComments";
 import Turn from "~/components/turn";
 import Tutorial, { ITutorialStep } from "~/components/tutorial";
@@ -21,20 +21,26 @@ export default function Logs(props: Props) {
   const replay = useReplay();
   const selfPlayer = useSelfPlayer(game);
 
-  const PoseItem = replay.cursor ? posed.div() : Item;
+  const animate = !replay.cursor;
   const firstMessages = game.messages.filter((message) => message.turn === 0).reverse();
 
   return (
     <div className="flex-grow-1 overflow-y-scroll">
       <div className="relative">
-        <PoseGroup>
+        <AnimatePresence>
           {[...game.turnsHistory].reverse().map((turn, i) => {
             const key = game.turnsHistory.length - i;
 
             const messages = game.messages.filter((message) => message.turn === game.turnsHistory.length - i).reverse();
             const turnNumber = game.turnsHistory.length - i;
             return (
-              <PoseItem key={key}>
+              <motion.div
+                key={key}
+                animate={{ y: 0 }}
+                exit={animate ? { y: -100 } : undefined}
+                initial={animate ? { y: -100 } : false}
+                transition={{ duration: 0.2 }}
+              >
                 {messages.map((message) => {
                   return <Message key={message.id} message={message} />;
                 })}
@@ -44,10 +50,10 @@ export default function Logs(props: Props) {
                   turn={turn}
                   turnNumber={turnNumber}
                 />
-              </PoseItem>
+              </motion.div>
             );
           })}
-        </PoseGroup>
+        </AnimatePresence>
         {firstMessages.map((message) => {
           return <Message key={message.id} message={message} />;
         })}
@@ -86,5 +92,3 @@ function Message(props: MessageProps) {
     </div>
   );
 }
-
-const Item = posed.div({ enter: { y: 0 }, exit: { y: -100 } });

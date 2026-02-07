@@ -1,7 +1,7 @@
+import { motion } from "motion/react";
 import React, { ReactNode, useContext, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Popover, ArrowContainer, PopoverPosition } from "react-tiny-popover";
-import posed from "react-pose";
 import Button, { ButtonSize } from "~/components/ui/button";
 import Txt, { TxtSize } from "~/components/ui/txt";
 import { POPOVER_ARROW_COLOR, POPOVER_CONTENT_STYLE } from "~/components/popoverAppearance";
@@ -9,17 +9,6 @@ import { POPOVER_ARROW_COLOR, POPOVER_CONTENT_STYLE } from "~/components/popover
 export const TutorialContext = React.createContext(null);
 
 const LocalStorageKey = "tutorialStep";
-
-const HighlightedArea = posed.div({
-  attention: {
-    opacity: 0.7,
-    transition: {
-      type: "spring",
-      stiffness: 10,
-      damping: 0,
-    },
-  },
-});
 
 export enum ITutorialStep {
   WELCOME = 0,
@@ -120,7 +109,7 @@ export default function Tutorial(props: Props) {
   const { step, placement, children } = props;
   const { t } = useTranslation();
 
-  const [pose, setPose] = useState(null);
+  const [active, setActive] = useState(false);
   const context = useContext(TutorialContext);
 
   const { currentStep, previousStep, nextStep, lastStep, skip, totalSteps } = context || {};
@@ -128,9 +117,9 @@ export default function Tutorial(props: Props) {
   useEffect(() => {
     if (step !== currentStep) return;
 
-    const interval = setTimeout(() => setPose("attention"), 100);
+    const timeout = setTimeout(() => setActive(true), 100);
 
-    return () => clearInterval(interval);
+    return () => clearTimeout(timeout);
   }, [currentStep, step]);
 
   if (!context || step !== currentStep) {
@@ -197,7 +186,12 @@ export default function Tutorial(props: Props) {
       isOpen={true}
       positions={placement}
     >
-      <HighlightedArea pose={pose}>{children}</HighlightedArea>
+      <motion.div
+        animate={active ? { opacity: [1, 0.7, 1] } : {}}
+        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+      >
+        {children}
+      </motion.div>
     </Popover>
   );
 }
