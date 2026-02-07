@@ -1,1 +1,0 @@
-- make two players the default

@@ -1,0 +1,40 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(firebase:*)",
+      "Bash(vercel:*)",
+      "Bash(done)",
+      "Bash(curl:*)",
+      "Bash(node:*)",
+      "Bash(npm install:*)",
+      "Bash(claude mcp:*)",
+      "mcp__supabase__list_projects",
+      "Bash(npx vercel:*)",
+      "Bash(gh api:*)",
+      "Bash(terminal-notifier:*)",
+      "Bash(echo:*)",
+      "Bash(wc:*)",
+      "Bash(ls:*)",
+      "Bash(npm run build:*)",
+      "Bash(git -C /Users/dstur/code/hanabijd status)",
+      "Bash(git -C /Users/dstur/code/hanabijd diff -- src/lib/firebase.ts src/pages/new-game.tsx)",
+      "Bash(git -C /Users/dstur/code/hanabijd log --oneline -5)",
+      "Bash(git -C /Users/dstur/code/hanabijd add src/lib/firebase.ts src/pages/new-game.tsx)",
+      "Bash(git -C /Users/dstur/code/hanabijd commit -m \"$\\(cat <<''EOF''\nPersist game config per room for new-game form pre-fill\n\nSave last game settings \\(players, variant, rollback, etc.\\) to the room\nin Firebase when creating a game, so the next \"New Game\" from that room\npre-fills the form with those settings instead of defaults.\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(npx next lint:*)",
+      "Bash(npx tsc:*)",
+      "Bash(git -C /Users/dstur/code/hanabijd ls-files .npmrc)",
+      "Bash(npx eslint:*)",
+      "Bash(npm view:*)",
+      "Bash(npx cross-env:*)",
+      "Bash(npm outdated:*)",
+      "Bash(npm ls:*)",
+      "Bash(git status:*)",
+      "Bash(git add:*)",
+      "WebSearch",
+      "Bash(printf \"\\\\033]0;[WT] #2: Upgrade all dependencies to latest\\\\007\")",
+      "mcp__supabase__search_docs",
+      "Bash(npm uninstall:*)"
+    ]
+  }
+}
