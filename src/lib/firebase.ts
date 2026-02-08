@@ -127,6 +127,19 @@ export function subscribeToRoom(roomId: string, callback: (room: IRoom | null) =
 }
 
 export async function joinRoom(roomId: string, member: IRoomMember) {
+  // Remove any existing member with the same name but a different ID.
+  // This handles players who reconnect after losing their localStorage playerId
+  // (e.g. cleared cache, different browser/device, incognito mode).
+  const membersRef = database().ref(`/rooms/${roomId}/members`);
+  const snapshot = await membersRef.once("value");
+  const members = snapshot.val() || {};
+
+  const removals = Object.entries(members)
+    .filter(([existingId, m]) => existingId !== member.id && (m as IRoomMember).name === member.name)
+    .map(([existingId]) => database().ref(`/rooms/${roomId}/members/${existingId}`).remove());
+
+  await Promise.all(removals);
+
   await database().ref(`/rooms/${roomId}/members/${member.id}`).set(member);
 }
 
