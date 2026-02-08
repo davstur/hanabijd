@@ -11,3 +11,7 @@ Notes
 
 tsconfig.tsbuildinfo
 .env*.local
+
+.claude/
+.playwright-mcp/
+pglite-debug.log
