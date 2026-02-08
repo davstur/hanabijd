@@ -89,17 +89,17 @@ export async function subscribeToPush(): Promise<boolean> {
   }
 }
 
-export async function savePushSubscription(playerId: string, subscription: PushSubscription) {
+export async function savePushSubscription(playerName: string, subscription: PushSubscription) {
   const subscriptionData = subscription.toJSON();
-  await database().ref(`/pushSubscriptions/${playerId}`).set({
+  await database().ref(`/pushSubscriptions/${playerName}`).set({
     endpoint: subscriptionData.endpoint,
     keys: subscriptionData.keys,
     createdAt: Date.now(),
   });
 }
 
-export async function removePushSubscription(playerId: string) {
-  await database().ref(`/pushSubscriptions/${playerId}`).remove();
+export async function removePushSubscription(playerName: string) {
+  await database().ref(`/pushSubscriptions/${playerName}`).remove();
 }
 
 export async function unsubscribeFromPush(): Promise<boolean> {

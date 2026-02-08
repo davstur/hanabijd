@@ -1,5 +1,5 @@
 import { useRouter } from "next/router";
-import React, { useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import GameIndex from "~/components/GameIndex";
 import { TutorialProvider } from "~/components/tutorial";
 import { ReplayContext } from "~/hooks/replay";
@@ -21,10 +21,15 @@ export default function Play() {
   const gameId = router.query.gameId as string;
 
   const [replayCursor, setReplayCursor] = useState<number>(null);
+  const [playerName, setPlayerName] = useState(getPlayerName);
+
+  const refreshSession = useCallback(() => {
+    setPlayerName(getPlayerName());
+  }, []);
 
   const session = useMemo<Session>(() => {
-    return { playerName: getPlayerName() };
-  }, []);
+    return { playerName, refreshSession };
+  }, [playerName, refreshSession]);
 
   const host = typeof window !== "undefined" ? window.location.origin : "";
 

@@ -7,6 +7,7 @@ import Button from "~/components/ui/button";
 import { Checkbox, Field, TextInput } from "~/components/ui/forms";
 import Txt, { TxtSize } from "~/components/ui/txt";
 import { useGame, useSelfPlayer } from "~/hooks/game";
+import { useSession } from "~/hooks/session";
 import { GameMode, IPlayer } from "~/lib/state";
 
 function listPlayerNames(players: IPlayer[]) {
@@ -58,6 +59,7 @@ export default function Lobby(props: Props) {
 
   const game = useGame();
   const selfPlayer = useSelfPlayer(game);
+  const { refreshSession } = useSession();
   const router = useRouter();
   const [name, setName] = useState("");
   const [bot, setBot] = useState(false);
@@ -92,10 +94,11 @@ export default function Lobby(props: Props) {
     }
     setName(parsed);
 
-    // Auto-join with the stored name if we can
-    if (parsed && canJoin && !autoJoined.current) {
+    // Auto-join with the stored name if we can (skip if name is already taken)
+    const trimmedParsed = parsed.trim();
+    if (trimmedParsed && canJoin && !autoJoined.current && !game.players.some((p) => p.name === trimmedParsed)) {
       autoJoined.current = true;
-      onJoinGame({ name: parsed, bot: false });
+      onJoinGame({ name: trimmedParsed, bot: false });
     }
   }, [game.players.length, game.options.gameMode, canJoin, onJoinGame]);
 
@@ -116,6 +119,7 @@ export default function Lobby(props: Props) {
     setNameError(null);
     onJoinGame({ name: trimmed, bot });
     localStorage.setItem(NAME_KEY, JSON.stringify(trimmed));
+    refreshSession();
   }
 
   return (

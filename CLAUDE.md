@@ -80,7 +80,7 @@ Firebase stores a **minimal state** (no derived data like hands, played/discard 
 
 - **`game.ts`** — `useGame()` provides current game state (handles replay mode), `useSelfPlayer()` identifies current user
 - **`replay.ts`** — Replay cursor context for reviewing past turns
-- **`session.ts`** — Player ID from server session (iron-session)
+- **`session.ts`** — Player name context from localStorage (used for self-identification in network games)
 - **`notifications.ts`** — Notification handling for turn alerts
 
 ### Game Variants
