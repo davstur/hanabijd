@@ -33,8 +33,9 @@ export default function PlayerName(props: Props) {
 
   return (
     <Txt
-      className={classnames("relative inline-flex items-center truncate", className)}
+      className={classnames("relative inline-flex items-center", className)}
       size={PlayerNameTextSizes[size]}
+      style={{ lineHeight: 1.4 }}
       value={you ? t("you") : player.name}
     />
   );

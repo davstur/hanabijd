@@ -40,8 +40,10 @@ export default function AppHeader() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [showMenu]);
 
+  const gameId = router.query.gameId as string | undefined;
+
   if (router.pathname === "/") return null;
-  if (!roomId && !playerName) return null;
+  if (!roomId && !playerName && !gameId) return null;
 
   function handleLogout() {
     localStorage.removeItem("name");
@@ -53,7 +55,12 @@ export default function AppHeader() {
 
   return (
     <div className="flex items-center justify-between pv2 ph3 bb b--yellow-light">
-      {roomId ? (
+      {gameId ? (
+        <span className="flex items-center">
+          <Txt className="ttu txt-yellow mr2" size={TxtSize.SMALL} value={t("game")} />
+          <Txt size={TxtSize.SMALL} value={gameId} />
+        </span>
+      ) : roomId ? (
         <a className="pointer no-underline flex items-center" onClick={() => router.push(`/rooms/${roomId}`)}>
           <Txt className="ttu txt-yellow mr2" size={TxtSize.SMALL} value={t("room")} />
           <Txt size={TxtSize.SMALL} value={roomId} />
