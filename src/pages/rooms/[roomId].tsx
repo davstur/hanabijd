@@ -168,7 +168,6 @@ export default function RoomPage() {
     }
 
     return subscribeToRoomGames(room.gameIds, setGames);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [room?.gameIds?.length]);
 
   async function handleLeaveRoom() {
