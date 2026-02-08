@@ -348,14 +348,19 @@ export default function PlayerGame(props: Props) {
                 />
               )}
 
-              <AnimatePresence>
+              <AnimatePresence mode="popLayout">
                 {player.hand.map((card, i) => (
                   <motion.div
                     key={card.id}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0.1 }}
-                    initial={{ opacity: 0.1 }}
-                    transition={{ duration: 0.1, delay: 0.2 }}
+                    layout
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    transition={{
+                      opacity: { duration: 0.1 },
+                      scale: { duration: 0.1 },
+                      layout: { duration: 0.15, ease: "easeInOut" },
+                    }}
                   >
                     <Card
                       card={card}
