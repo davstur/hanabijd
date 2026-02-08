@@ -4,6 +4,8 @@ import { useTranslation } from "react-i18next";
 import LanguageSelector from "~/components/languageSelector";
 import PlayerAvatar, { AvatarSize } from "~/components/playerAvatar";
 import Txt, { TxtSize } from "~/components/ui/txt";
+import { leaveRoom } from "~/lib/firebase";
+import { isPushSubscribed, isPushSupported, subscribeToPush, unsubscribeFromPush } from "~/lib/notifications";
 
 export default function AppHeader() {
   const router = useRouter();
@@ -11,7 +13,11 @@ export default function AppHeader() {
   const [roomId, setRoomId] = useState<string | null>(null);
   const [playerName, setPlayerName] = useState<string | null>(null);
   const [showMenu, setShowMenu] = useState(false);
+  const [showLeftMenu, setShowLeftMenu] = useState(false);
+  const [notifSupported, setNotifSupported] = useState(false);
+  const [notifEnabled, setNotifEnabled] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const leftMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     try {
@@ -30,15 +36,23 @@ export default function AppHeader() {
   }, [router.asPath]);
 
   useEffect(() => {
-    if (!showMenu) return;
+    setNotifSupported(isPushSupported());
+    isPushSubscribed().then(setNotifEnabled);
+  }, []);
+
+  useEffect(() => {
+    if (!showMenu && !showLeftMenu) return;
     function handleClickOutside(e: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+      if (showMenu && menuRef.current && !menuRef.current.contains(e.target as Node)) {
         setShowMenu(false);
+      }
+      if (showLeftMenu && leftMenuRef.current && !leftMenuRef.current.contains(e.target as Node)) {
+        setShowLeftMenu(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [showMenu]);
+  }, [showMenu, showLeftMenu]);
 
   const gameId = router.query.gameId as string | undefined;
 
@@ -53,18 +67,69 @@ export default function AppHeader() {
     router.push("/");
   }
 
+  async function handleLeaveRoom() {
+    if (!roomId || !playerName) return;
+    await leaveRoom(roomId, playerName);
+    localStorage.removeItem("currentRoom");
+    setShowLeftMenu(false);
+    router.push("/");
+  }
+
+  function handleLeaveGame() {
+    setShowLeftMenu(false);
+    if (roomId) {
+      router.push(`/rooms/${roomId}`);
+    } else {
+      router.push("/");
+    }
+  }
+
+  async function handleNotifToggle() {
+    if (notifEnabled) {
+      const success = await unsubscribeFromPush();
+      if (success) setNotifEnabled(false);
+    } else {
+      const success = await subscribeToPush();
+      setNotifEnabled(success);
+    }
+  }
+
   return (
     <div className="flex items-center justify-between pv2 ph3 bb b--yellow-light">
       {gameId ? (
-        <span className="flex items-center">
-          <Txt className="ttu txt-yellow mr2" size={TxtSize.SMALL} value={t("game")} />
-          <Txt size={TxtSize.SMALL} value={gameId} />
-        </span>
+        <div ref={leftMenuRef} className="relative">
+          <span className="pointer flex items-center" onClick={() => setShowLeftMenu(!showLeftMenu)}>
+            <Txt className="ttu txt-yellow mr2" size={TxtSize.SMALL} value={t("game")} />
+            <Txt size={TxtSize.SMALL} value={gameId} />
+          </span>
+          {showLeftMenu && (
+            <div
+              className="absolute left-0 mt1 pa2 br2 shadow-1 z-999"
+              style={{ background: "#1a1a3e", border: "1px solid rgba(255,255,255,0.15)", minWidth: "6rem" }}
+            >
+              <span className="pointer db pa1 hover-bg-white-10 br1" onClick={handleLeaveGame}>
+                <Txt size={TxtSize.XSMALL} value={t("leaveGame", "Leave game")} />
+              </span>
+            </div>
+          )}
+        </div>
       ) : roomId ? (
-        <a className="pointer no-underline flex items-center" onClick={() => router.push(`/rooms/${roomId}`)}>
-          <Txt className="ttu txt-yellow mr2" size={TxtSize.SMALL} value={t("room")} />
-          <Txt size={TxtSize.SMALL} value={roomId} />
-        </a>
+        <div ref={leftMenuRef} className="relative">
+          <span className="pointer flex items-center" onClick={() => setShowLeftMenu(!showLeftMenu)}>
+            <Txt className="ttu txt-yellow mr2" size={TxtSize.SMALL} value={t("room")} />
+            <Txt size={TxtSize.SMALL} value={roomId} />
+          </span>
+          {showLeftMenu && (
+            <div
+              className="absolute left-0 mt1 pa2 br2 shadow-1 z-999"
+              style={{ background: "#1a1a3e", border: "1px solid rgba(255,255,255,0.15)", minWidth: "6rem" }}
+            >
+              <span className="pointer db pa1 hover-bg-white-10 br1" onClick={handleLeaveRoom}>
+                <Txt size={TxtSize.XSMALL} value={t("leaveRoom")} />
+              </span>
+            </div>
+          )}
+        </div>
       ) : (
         <div />
       )}
@@ -80,6 +145,32 @@ export default function AppHeader() {
                 className="absolute right-0 mt1 pa2 br2 shadow-1 z-999"
                 style={{ background: "#1a1a3e", border: "1px solid rgba(255,255,255,0.15)", minWidth: "6rem" }}
               >
+                {notifSupported && (
+                  <label className="pointer db pa1 mb1 hover-bg-white-10 br1 flex items-center justify-between">
+                    <Txt className="mr2" size={TxtSize.XSMALL} value={t("notifications")} />
+                    <div
+                      className="relative br-pill flex-shrink-0"
+                      style={{
+                        width: 36,
+                        height: 20,
+                        background: notifEnabled ? "#19a974" : "rgba(255,255,255,0.2)",
+                        transition: "background 0.2s",
+                      }}
+                      onClick={handleNotifToggle}
+                    >
+                      <div
+                        className="absolute br-100 bg-white"
+                        style={{
+                          width: 16,
+                          height: 16,
+                          top: 2,
+                          left: notifEnabled ? 18 : 2,
+                          transition: "left 0.2s",
+                        }}
+                      />
+                    </div>
+                  </label>
+                )}
                 <span className="db pa1 mb1 hover-bg-white-10 br1">
                   <LanguageSelector outlined />
                 </span>

@@ -4,19 +4,10 @@ import { useTranslation } from "react-i18next";
 import PlayerAvatar from "~/components/playerAvatar";
 import Button, { ButtonSize } from "~/components/ui/button";
 import Txt, { TxtSize } from "~/components/ui/txt";
-import useLocalStorage from "~/hooks/localStorage";
 import { useRequireName } from "~/hooks/useRequireName";
-import {
-  IRoom,
-  IRoomMember,
-  leaveRoom,
-  subscribeToRoom,
-  subscribeToRoomGames,
-  joinRoom as joinRoomDb,
-} from "~/lib/firebase";
+import { IRoom, IRoomMember, subscribeToRoom, subscribeToRoomGames, joinRoom as joinRoomDb } from "~/lib/firebase";
 import IGameState, { GameVariant, IGameStatus } from "~/lib/state";
 import { getMaximumScore, getScore } from "~/lib/actions";
-import { isPushSubscribed, isPushSupported, subscribeToPush, unsubscribeFromPush } from "~/lib/notifications";
 
 const NAME_KEY = "name";
 const ROOM_KEY = "currentRoom";
@@ -95,25 +86,7 @@ export default function RoomPage() {
 
   const [room, setRoom] = useState<IRoom | null>(null);
   const [games, setGames] = useState<IGameState[]>([]);
-  const [, setCurrentRoom] = useLocalStorage<string | null>(ROOM_KEY, null);
   const [loading, setLoading] = useState(true);
-  const [notifSupported, setNotifSupported] = useState(false);
-  const [notifEnabled, setNotifEnabled] = useState(false);
-
-  useEffect(() => {
-    setNotifSupported(isPushSupported());
-    isPushSubscribed().then(setNotifEnabled);
-  }, []);
-
-  async function handleNotifToggle() {
-    if (notifEnabled) {
-      const success = await unsubscribeFromPush();
-      if (success) setNotifEnabled(false);
-    } else {
-      const success = await subscribeToPush();
-      setNotifEnabled(success);
-    }
-  }
 
   // Subscribe to room data
   useEffect(() => {
@@ -151,14 +124,6 @@ export default function RoomPage() {
 
     return subscribeToRoomGames(room.gameIds, setGames);
   }, [room?.gameIds?.length]);
-
-  async function handleLeaveRoom() {
-    if (!roomId || typeof roomId !== "string") return;
-    await leaveRoom(roomId, getPlayerName());
-    setCurrentRoom(null);
-    localStorage.removeItem(ROOM_KEY);
-    router.push("/");
-  }
 
   function handleCreateGame() {
     router.push(`/new-game?room=${roomId}`);
@@ -199,39 +164,6 @@ export default function RoomPage() {
         backgroundImage: "linear-gradient(to bottom right, #001030, #00133d)",
       }}
     >
-      {/* Notification + Leave room */}
-      <div className="flex justify-between items-center mb3">
-        <div className="flex items-center">
-          {notifSupported && (
-            <label className="flex items-center pointer">
-              <Txt className="mr2" size={TxtSize.XSMALL} value={t("notifications")} />
-              <div
-                className="relative br-pill"
-                style={{
-                  width: 36,
-                  height: 20,
-                  background: notifEnabled ? "#19a974" : "rgba(255,255,255,0.2)",
-                  transition: "background 0.2s",
-                }}
-                onClick={handleNotifToggle}
-              >
-                <div
-                  className="absolute br-100 bg-white"
-                  style={{
-                    width: 16,
-                    height: 16,
-                    top: 2,
-                    left: notifEnabled ? 18 : 2,
-                    transition: "left 0.2s",
-                  }}
-                />
-              </div>
-            </label>
-          )}
-        </div>
-        <Button outlined size={ButtonSize.TINY} text={t("leave", "Leave")} onClick={handleLeaveRoom} />
-      </div>
-
       {/* Members */}
       <div className="mb4">
         <Txt className="ttu mb2 db" size={TxtSize.SMALL} value={t("members")} />

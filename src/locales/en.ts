@@ -18,6 +18,7 @@ export const en = {
   roomNotFound: "Room not found",
   enterRoomCode: "Please enter a room code",
   leaveRoom: "Leave room",
+  leaveGame: "Leave game",
   logout: "Logout",
   backToRoom: "Back to room",
   members: "Members",
