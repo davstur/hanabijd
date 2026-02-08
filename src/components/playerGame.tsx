@@ -1,6 +1,6 @@
 import classnames from "classnames";
 import { TFunction } from "i18next";
-import React, { HTMLAttributes, useEffect, useState } from "react";
+import React, { HTMLAttributes, useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ArrowContainer, Popover } from "react-tiny-popover";
 import { AnimatePresence, motion } from "motion/react";
@@ -147,6 +147,57 @@ export default function PlayerGame(props: Props) {
   }, [game.status, revealCards, game.options.gameMode, selfPlayer, self]);
 
   const canPlay = [IGameStatus.ONGOING, IGameStatus.OVER].includes(game.status) && !replay.cursor;
+
+  // Phased card animation: exit → slide → enter (sequentially)
+  const [displayHand, setDisplayHand] = useState<ICard[]>(player.hand);
+  const pendingCardIdRef = useRef<number | null>(null);
+  const targetHandRef = useRef<ICard[]>(player.hand);
+  const prevHandIdsRef = useRef(player.hand.map((c) => c.id));
+
+  useEffect(() => {
+    const prevIds = prevHandIdsRef.current;
+    const nextIds = player.hand.map((c) => c.id);
+
+    targetHandRef.current = player.hand;
+
+    if (prevIds.join(",") === nextIds.join(",")) {
+      // Card IDs unchanged, sync card data (e.g. after hints)
+      if (pendingCardIdRef.current == null) {
+        setDisplayHand(player.hand);
+      }
+      return;
+    }
+
+    prevHandIdsRef.current = nextIds;
+
+    const prevIdSet = new Set(prevIds);
+    const nextIdSet = new Set(nextIds);
+
+    const added = nextIds.filter((id) => !prevIdSet.has(id));
+    const removed = prevIds.filter((id) => !nextIdSet.has(id));
+
+    if (added.length === 1 && removed.length === 1) {
+      // Phase 1: show hand with played card removed, without new card yet
+      pendingCardIdRef.current = added[0];
+      setDisplayHand(player.hand.filter((c) => c.id !== added[0]));
+    } else {
+      pendingCardIdRef.current = null;
+      setDisplayHand(player.hand);
+    }
+  }, [player.hand]);
+
+  const handleExitComplete = useCallback(() => {
+    if (pendingCardIdRef.current != null) {
+      const pendingId = pendingCardIdRef.current;
+      // Phase 2→3: wait for layout slide to settle, then add new card
+      setTimeout(() => {
+        if (pendingCardIdRef.current === pendingId) {
+          pendingCardIdRef.current = null;
+          setDisplayHand(targetHandRef.current);
+        }
+      }, 120);
+    }
+  }, []);
 
   const hasSelectedCard = selectedCard !== null;
   const cardContext = selected
@@ -348,8 +399,8 @@ export default function PlayerGame(props: Props) {
                 />
               )}
 
-              <AnimatePresence mode="popLayout">
-                {player.hand.map((card, i) => (
+              <AnimatePresence onExitComplete={handleExitComplete}>
+                {displayHand.map((card, i) => (
                   <motion.div
                     key={card.id}
                     layout
@@ -357,16 +408,16 @@ export default function PlayerGame(props: Props) {
                     exit={{ opacity: 0, scale: 0.8 }}
                     initial={{ opacity: 0, scale: 0.8 }}
                     transition={{
-                      opacity: { duration: 0.1 },
-                      scale: { duration: 0.1 },
-                      layout: { duration: 0.15, ease: "easeInOut" },
+                      opacity: { duration: 0.08 },
+                      scale: { duration: 0.08 },
+                      layout: { duration: 0.12, ease: "easeInOut" },
                     }}
                   >
                     <Card
                       card={card}
                       className={classnames({
                         "ma1": selected,
-                        "mr1 mr2-l": i < player.hand.length - 1,
+                        "mr1 mr2-l": i < displayHand.length - 1,
                       })}
                       context={cardContext}
                       hidden={hideCards}
