@@ -121,7 +121,7 @@ exports.onTurnPlayed = functions.database
         return sendPushToPlayer(player.id, {
           title: "Hanab",
           body,
-          url: `/${gameId}`,
+          url: `/games/${gameId}`,
           tag: `game-${gameId}-turn`,
         });
       });

@@ -39,6 +39,17 @@ export function getNotificationPermission(): NotificationPermission | "unsupport
   return Notification.permission;
 }
 
+export async function isPushSubscribed(): Promise<boolean> {
+  try {
+    const registration = await navigator.serviceWorker?.ready;
+    if (!registration) return false;
+    const subscription = await registration.pushManager.getSubscription();
+    return subscription !== null;
+  } catch {
+    return false;
+  }
+}
+
 export async function subscribeToPush(): Promise<boolean> {
   if (!isPushSupported()) return false;
 
@@ -89,6 +100,28 @@ export async function savePushSubscription(playerId: string, subscription: PushS
 
 export async function removePushSubscription(playerId: string) {
   await database().ref(`/pushSubscriptions/${playerId}`).remove();
+}
+
+export async function unsubscribeFromPush(): Promise<boolean> {
+  try {
+    const registration = await navigator.serviceWorker?.ready;
+    if (!registration) return false;
+
+    const subscription = await registration.pushManager.getSubscription();
+    if (subscription) {
+      await subscription.unsubscribe();
+    }
+
+    const playerId = getPlayerId();
+    if (playerId) {
+      await removePushSubscription(playerId);
+    }
+
+    return true;
+  } catch (err) {
+    console.error("Push unsubscription failed:", err);
+    return false;
+  }
 }
 
 function urlBase64ToUint8Array(base64String: string): Uint8Array {
