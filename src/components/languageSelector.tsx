@@ -32,7 +32,7 @@ export default function LanguageSelector(props: Props) {
   };
 
   return (
-    <label title={t("selectLanguage")}>
+    <label className="db" title={t("selectLanguage")}>
       <Select
         options={languages}
         outlined={outlined}
