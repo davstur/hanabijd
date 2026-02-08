@@ -52,6 +52,7 @@ body ::-webkit-scrollbar {
 .identityBlock {
   flex-wrap: wrap;
   flex-direction: row;
+  align-items: center;
 }
 button {
   background-color: white;
