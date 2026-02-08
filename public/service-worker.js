@@ -10,19 +10,33 @@ self.addEventListener("push", (event) => {
     data = { title: "Hanab", body: event.data.text() };
   }
 
-  const title = data.title || "Hanab";
-  const options = {
-    body: data.body || "",
-    icon: "/static/hanab-192.png",
-    badge: "/static/hanab-192.png",
-    data: {
-      url: data.url || "/",
-    },
-    tag: data.tag || "hanab-notification",
-    renotify: true,
-  };
+  const targetUrl = data.url || "/";
 
-  event.waitUntil(self.registration.showNotification(title, options));
+  // Suppress notification if the user already has the target page open and focused
+  const showIfNeeded = clients
+    .matchAll({ type: "window", includeUncontrolled: false })
+    .then((windowClients) => {
+      const isViewingPage = windowClients.some(
+        (client) => client.focused && new URL(client.url).pathname === targetUrl
+      );
+      if (isViewingPage) return;
+
+      const title = data.title || "Hanab";
+      const options = {
+        body: data.body || "",
+        icon: "/static/hanab-192.png",
+        badge: "/static/hanab-192.png",
+        data: {
+          url: targetUrl,
+        },
+        tag: data.tag || "hanab-notification",
+        renotify: true,
+      };
+
+      return self.registration.showNotification(title, options);
+    });
+
+  event.waitUntil(showIfNeeded);
 });
 
 self.addEventListener("notificationclick", (event) => {

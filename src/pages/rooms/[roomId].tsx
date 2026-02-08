@@ -15,7 +15,7 @@ import {
 import IGameState, { GameVariant, IGameStatus } from "~/lib/state";
 import { getMaximumScore, getScore } from "~/lib/actions";
 import { uniqueId } from "~/lib/id";
-import { getNotificationPermission, isPushSupported, subscribeToPush } from "~/lib/notifications";
+import { isPushSubscribed, isPushSupported, subscribeToPush, unsubscribeFromPush } from "~/lib/notifications";
 
 const NAME_KEY = "name";
 const ROOM_KEY = "currentRoom";
@@ -115,13 +115,17 @@ export default function RoomPage() {
 
   useEffect(() => {
     setNotifSupported(isPushSupported());
-    setNotifEnabled(getNotificationPermission() === "granted");
+    isPushSubscribed().then(setNotifEnabled);
   }, []);
 
   async function handleNotifToggle() {
-    if (notifEnabled) return;
-    const success = await subscribeToPush();
-    setNotifEnabled(success);
+    if (notifEnabled) {
+      const success = await unsubscribeFromPush();
+      if (success) setNotifEnabled(false);
+    } else {
+      const success = await subscribeToPush();
+      setNotifEnabled(success);
+    }
   }
 
   // Subscribe to room data
