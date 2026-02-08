@@ -177,30 +177,30 @@ export default function Home() {
           </form>
         ) : (
           <main className="flex flex-column mt5 items-center">
-            <Button
-              primary
-              className="mb4"
-              size={ButtonSize.LARGE}
-              text={t("createRoom", "Create a room")}
-              onClick={handleCreateRoom}
-            />
+            {!showJoinForm && (
+              <Button
+                primary
+                className="mb4"
+                size={ButtonSize.LARGE}
+                text={t("createRoom", "Create a room")}
+                onClick={handleCreateRoom}
+              />
+            )}
 
             {showJoinForm ? (
               <form className="flex flex-column items-center" onSubmit={handleJoinRoom}>
-                <div className="flex items-center mb2">
-                  <TextInput
-                    autoFocus
-                    className="mr2"
-                    placeholder={t("roomCode", "Room code")}
-                    style={{ width: "14rem" }}
-                    value={joinCode}
-                    onChange={(e) => {
-                      setJoinCode(e.target.value);
-                      setError(null);
-                    }}
-                  />
-                  <Button size={ButtonSize.MEDIUM} text={t("joinRoom", "Join a room")} />
-                </div>
+                <TextInput
+                  autoFocus
+                  className="mb3"
+                  placeholder={t("roomCode", "Room code")}
+                  style={{ width: "14rem" }}
+                  value={joinCode}
+                  onChange={(e) => {
+                    setJoinCode(e.target.value);
+                    setError(null);
+                  }}
+                />
+                <Button primary size={ButtonSize.MEDIUM} text={t("joinRoom", "Join a room")} />
                 {error && <Txt className="red mt1" size={TxtSize.SMALL} value={error} />}
               </form>
             ) : (
