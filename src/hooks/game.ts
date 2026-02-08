@@ -39,7 +39,7 @@ export function useCurrentPlayer(game: IGameState) {
 }
 
 export function useSelfPlayer(game: IGameState): IPlayer | undefined {
-  const { playerId } = useSession();
+  const { playerName } = useSession();
   const currentPlayer = useCurrentPlayer(game);
 
   if (!game) {
@@ -47,7 +47,7 @@ export function useSelfPlayer(game: IGameState): IPlayer | undefined {
   }
 
   if (game.options.gameMode === GameMode.NETWORK) {
-    return game.players.find((p) => p.id === playerId);
+    return game.players.find((p) => p.id === playerName);
   }
 
   if (game.options.gameMode === GameMode.PASS_AND_PLAY) {

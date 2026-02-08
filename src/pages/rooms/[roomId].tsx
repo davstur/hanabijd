@@ -15,26 +15,10 @@ import {
 } from "~/lib/firebase";
 import IGameState, { GameVariant, IGameStatus } from "~/lib/state";
 import { getMaximumScore, getScore } from "~/lib/actions";
-import { uniqueId } from "~/lib/id";
 import { isPushSubscribed, isPushSupported, subscribeToPush, unsubscribeFromPush } from "~/lib/notifications";
 
 const NAME_KEY = "name";
 const ROOM_KEY = "currentRoom";
-
-function getPlayerId(): string {
-  if (typeof window === "undefined") return uniqueId();
-  let id = localStorage.getItem("playerId");
-  if (id) {
-    try {
-      return JSON.parse(id);
-    } catch {
-      return id;
-    }
-  }
-  id = uniqueId();
-  localStorage.setItem("playerId", JSON.stringify(id));
-  return id;
-}
 
 function getPlayerName(): string {
   if (typeof window === "undefined") return "";
@@ -139,18 +123,15 @@ export default function RoomPage() {
 
       // Auto-join room if not already a member
       if (roomData) {
-        const playerId = getPlayerId();
+        const name = getPlayerName();
         const members = roomData.members || {};
-        if (!members[playerId]) {
-          const name = getPlayerName();
-          if (name) {
-            const member: IRoomMember = {
-              id: playerId,
-              name,
-              joinedAt: Date.now(),
-            };
-            joinRoomDb(roomId, member);
-          }
+        if (name && !members[name]) {
+          const member: IRoomMember = {
+            id: name,
+            name,
+            joinedAt: Date.now(),
+          };
+          joinRoomDb(roomId, member);
         }
         // Store room in localStorage
         localStorage.setItem(ROOM_KEY, JSON.stringify(roomId));
@@ -172,8 +153,8 @@ export default function RoomPage() {
 
   async function handleLeaveRoom() {
     if (!roomId || typeof roomId !== "string") return;
-    const playerId = getPlayerId();
-    await leaveRoom(roomId, playerId);
+    const name = getPlayerName();
+    if (name) await leaveRoom(roomId, name);
     setCurrentRoom(null);
     localStorage.removeItem(ROOM_KEY);
     router.push("/");
@@ -295,7 +276,7 @@ export default function RoomPage() {
               {game.status === IGameStatus.ONGOING && (
                 <Button
                   size={ButtonSize.TINY}
-                  text={game.players.some((p) => p.id === getPlayerId()) ? t("rejoinGame") : t("watch")}
+                  text={game.players.some((p) => p.id === getPlayerName()) ? t("rejoinGame") : t("watch")}
                 />
               )}
               {game.status === IGameStatus.OVER && <Button size={ButtonSize.TINY} text={t("view", "View")} />}

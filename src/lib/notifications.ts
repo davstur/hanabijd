@@ -5,9 +5,9 @@ function database() {
   return firebase.database();
 }
 
-function getPlayerId(): string | null {
+function getPlayerName(): string | null {
   if (typeof window === "undefined") return null;
-  const stored = localStorage.getItem("playerId");
+  const stored = localStorage.getItem("name");
   if (!stored) return null;
   try {
     return JSON.parse(stored);
@@ -77,9 +77,9 @@ export async function subscribeToPush(): Promise<boolean> {
     });
 
     // Store the subscription in Firebase
-    const playerId = getPlayerId();
-    if (playerId && subscription) {
-      await savePushSubscription(playerId, subscription);
+    const playerName = getPlayerName();
+    if (playerName && subscription) {
+      await savePushSubscription(playerName, subscription);
     }
 
     return true;
@@ -112,9 +112,9 @@ export async function unsubscribeFromPush(): Promise<boolean> {
       await subscription.unsubscribe();
     }
 
-    const playerId = getPlayerId();
-    if (playerId) {
-      await removePushSubscription(playerId);
+    const playerName = getPlayerName();
+    if (playerName) {
+      await removePushSubscription(playerName);
     }
 
     return true;
