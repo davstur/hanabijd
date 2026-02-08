@@ -67,10 +67,8 @@ export default function Lobby(props: Props) {
   const canStart = gameFull;
 
   const shareLink = `${host}/games/${router.query.gameId}`;
-  const inputRef = React.createRef<HTMLInputElement>();
   function copy() {
-    inputRef.current.select();
-    document.execCommand("copy");
+    navigator.clipboard.writeText(shareLink);
   }
 
   const autoJoined = useRef(false);
@@ -178,15 +176,9 @@ export default function Lobby(props: Props) {
           </form>
         )}
         {!gameFull && !game.options.tutorial && (
-          <div className="flex mt4">
-            <div className="flex flex-column mr2">
-              <Txt className="mb1" value={t("shareGame")} />
-              <a className="lavender flex-1" href={shareLink} rel="noopener noreferrer" target="_blank">
-                <Txt value={shareLink} />
-              </a>
-            </div>
-            <input ref={inputRef} readOnly className="fixed top--2 left--2" type="text" value={shareLink} />
-            <Button text={t("copy")} onClick={copy} />
+          <div className="flex items-center mt4">
+            <Txt className="mr3" value={t("shareGame")} />
+            <Button text={t("copyLink")} onClick={copy} />
           </div>
         )}
       </div>

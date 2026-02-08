@@ -21,6 +21,7 @@ export const nl = {
   autoplay: "Autoplay",
   shareGame: "Deel dit spel",
   copy: "Kopiëren",
+  copyLink: "Link kopiëren",
   waitForOthers: "Wachten op andere spelers, of ",
   gameStarted: "Spel gestart!",
   gameStarts: "Spel start!",
