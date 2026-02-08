@@ -114,9 +114,6 @@ export default function PlayerGame(props: Props) {
   const selfPlayer = useSelfPlayer(game);
   const currentPlayer = useCurrentPlayer(game);
 
-  function nothingInvoked() {
-    return chatOpen === false && reactionsOpen === false;
-  }
   useEffect(() => {
     setRevealCards(false);
   }, [game.id]);
@@ -273,7 +270,6 @@ export default function PlayerGame(props: Props) {
                     </a>
                   </Popover>
                 )}
-
               </div>
 
               {active && selfPlayer && !self && !player.notified && !player.bot && (
