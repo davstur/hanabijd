@@ -339,7 +339,7 @@ export function joinGame(state: IGameState, player: IPlayer): IGameState {
   game.players = game.players || [];
 
   // Prevent duplicate players from joining
-  if (game.players.some((p) => p.id === player.id)) {
+  if (game.players.some((p) => p.name === player.name)) {
     return game;
   }
 
@@ -453,7 +453,6 @@ export function newGame(options: IGameOptions): IGameState {
     messages: [],
     createdAt: Date.now(),
     synced: false,
-    reviewComments: [],
   };
 }
 

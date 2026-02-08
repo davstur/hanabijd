@@ -10,6 +10,7 @@ import PlayerStats from "~/components/playerStats";
 import Button, { ButtonSize } from "~/components/ui/button";
 import Txt, { TxtSize } from "~/components/ui/txt";
 import { GameContext } from "~/hooks/game";
+import { useRequireName } from "~/hooks/useRequireName";
 import { newGame } from "~/lib/actions";
 import { subscribeToGame, updateGame } from "~/lib/firebase";
 import { uniqueId } from "~/lib/id";
@@ -51,6 +52,7 @@ function formatDuration(start: number, end: number) {
 export default function Summary() {
   const router = useRouter();
   const gameId = router.query.gameId as string;
+  useRequireName();
   const [game, setGame] = useState<IGameState | null>(null);
   const { t } = useTranslation();
 

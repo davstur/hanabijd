@@ -1,9 +1,7 @@
 import { AnimatePresence, motion } from "motion/react";
 import React from "react";
 import { Trans, useTranslation } from "react-i18next";
-import { ReviewCommentPopover } from "~/components/reviewComments";
 import Turn from "~/components/turn";
-import Tutorial, { ITutorialStep } from "~/components/tutorial";
 import Txt, { TxtSize } from "~/components/ui/txt";
 import { useGame, useSelfPlayer } from "~/hooks/game";
 import { useReplay } from "~/hooks/replay";
@@ -46,7 +44,7 @@ export default function Logs(props: Props) {
                 })}
                 <Turn
                   key={key}
-                  showDrawn={!interturn && game.players[turn.action.from].id !== selfPlayer?.id}
+                  showDrawn={!interturn && game.players[turn.action.from].name !== selfPlayer?.name}
                   turn={turn}
                   turnNumber={turnNumber}
                 />
@@ -58,15 +56,11 @@ export default function Logs(props: Props) {
           return <Message key={message.id} message={message} />;
         })}
 
-        <Tutorial placement="bottom" step={ITutorialStep.WELCOME}>
-          <ReviewCommentPopover showAlways={false} turnNumber={0} />
-          &nbsp;
-          <Txt
-            className="lavender"
-            size={TxtSize.SMALL}
-            value={game.turnsHistory.length ? t("gameStarted") : t("gameStarts")}
-          />
-        </Tutorial>
+        <Txt
+          className="lavender"
+          size={TxtSize.SMALL}
+          value={game.turnsHistory.length ? t("gameStarted") : t("gameStarts")}
+        />
       </div>
     </div>
   );

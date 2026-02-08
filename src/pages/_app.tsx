@@ -10,8 +10,6 @@ import useConnectivity from "~/hooks/connectivity";
 import { i18n } from "~/lib/i18n";
 import "../styles/style.css";
 import { registerServiceWorker } from "~/lib/notifications";
-import { TutorialProvider } from "~/components/tutorial";
-
 let nprogressTimeout: NodeJS.Timeout = null;
 
 Router.events.on("routeChangeStart", () => {
@@ -45,25 +43,23 @@ function Hanab({ Component, pageProps }: AppProps) {
   return (
     <>
       <I18nextProvider i18n={i18n}>
-        <TutorialProvider>
-          <Meta />
+        <Meta />
 
-          <div className="aspect-ratio--object flex flex-column">
-            {/* Offline indicator */}
-            {!online && showOffline && (
-              <div className="relative flex items-center justify-center bg-red shadow-4 b--red ba pa2 z-99">
-                <Txt uppercase size={TxtSize.MEDIUM} value={t("offline")} />
-                <a className="absolute right-1" onClick={() => setShowOffline(false)}>
-                  <Txt value="×" />
-                </a>
-              </div>
-            )}
-            <AppHeader />
-            <div className="flex-1" style={{ minHeight: 0 }}>
-              <Component {...pageProps} />
+        <div className="aspect-ratio--object flex flex-column">
+          {/* Offline indicator */}
+          {!online && showOffline && (
+            <div className="relative flex items-center justify-center bg-red shadow-4 b--red ba pa2 z-99">
+              <Txt uppercase size={TxtSize.MEDIUM} value={t("offline")} />
+              <a className="absolute right-1" onClick={() => setShowOffline(false)}>
+                <Txt value="×" />
+              </a>
             </div>
+          )}
+          <AppHeader />
+          <div className="flex-1" style={{ minHeight: 0 }}>
+            <Component {...pageProps} />
           </div>
-        </TutorialProvider>
+        </div>
       </I18nextProvider>
     </>
   );

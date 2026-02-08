@@ -1,7 +1,6 @@
 import classnames from "classnames";
 import { range } from "lodash";
 import React from "react";
-import Tutorial, { ITutorialStep } from "~/components/tutorial";
 import Txt, { TxtSize } from "~/components/ui/txt";
 
 interface TokenProps {
@@ -57,12 +56,8 @@ export default function TokenSpace(props: Props) {
 
   return (
     <div className="flex nl2">
-      <Tutorial placement="bottom" step={ITutorialStep.HINT_TOKENS}>
-        <Token amount={hints} color="hints" />
-      </Tutorial>
-      <Tutorial placement="bottom" step={ITutorialStep.STRIKE_TOKENS}>
-        <Token amount={strikes} color="strikes" />
-      </Tutorial>
+      <Token amount={hints} color="hints" />
+      <Token amount={strikes} color="strikes" />
     </div>
   );
 }

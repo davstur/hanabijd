@@ -4,7 +4,6 @@ import { Trans } from "react-i18next";
 import Card, { CardSize, ICardContext, PositionMap } from "~/components/card";
 import Hint from "~/components/hint";
 import PlayerName from "~/components/playerName";
-import { ReviewCommentPopover } from "~/components/reviewComments";
 import Txt, { TxtSize } from "~/components/ui/txt";
 import { useGame, useSelfPlayer } from "~/hooks/game";
 import {
@@ -143,8 +142,6 @@ export default function Turn(props: Props) {
       <span>&nbsp;</span>
       <Txt className="di">
         {/* The player action and the card they have drawn, if applicable */}
-        <ReviewCommentPopover showAlways={false} turnNumber={props.turnNumber} />
-        &nbsp;
         {textualTurn}
         {drawnTurn}
       </Txt>

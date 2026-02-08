@@ -9,8 +9,6 @@ import ChatPopover from "~/components/chatPopover";
 import PlayerName, { PlayerNameSize } from "~/components/playerName";
 import PlayerStats from "~/components/playerStats";
 import ReactionsPopover from "~/components/reactionsPopover";
-import { ReviewCommentPopover } from "~/components/reviewComments";
-import Tutorial, { ITutorialStep } from "~/components/tutorial";
 import Button, { ButtonSize } from "~/components/ui/button";
 import Txt, { TxtSize } from "~/components/ui/txt";
 import Vignettes from "~/components/vignettes";
@@ -28,7 +26,6 @@ import IGameState, {
   INumber,
   IPlayer,
 } from "~/lib/state";
-import { isTutorialAction, useTutorialAction } from "~/lib/tutorial";
 import { POPOVER_ARROW_COLOR, POPOVER_CONTENT_STYLE } from "~/components/popoverAppearance";
 
 function isCardHintable(game: IGameState, hint: IHintAction, card: ICard) {
@@ -116,7 +113,6 @@ export default function PlayerGame(props: Props) {
 
   const selfPlayer = useSelfPlayer(game);
   const currentPlayer = useCurrentPlayer(game);
-  const tutorialAction = useTutorialAction();
 
   function nothingInvoked() {
     return chatOpen === false && reactionsOpen === false;
@@ -155,8 +151,6 @@ export default function PlayerGame(props: Props) {
       ? ICardContext.SELF_PLAYER
       : ICardContext.OTHER_PLAYER;
 
-  const showReviewCommentPopover =
-    self && game.status === IGameStatus.ONGOING && game.originalGame?.status !== IGameStatus.OVER;
   return (
     <>
       <div
@@ -173,14 +167,12 @@ export default function PlayerGame(props: Props) {
             <div className="flex flex-wrap flex-row nameBlock">
               <div className="flex flex-column">
                 {player === selfPlayer && player === currentPlayer && (
-                  <Tutorial placement="right" step={ITutorialStep.YOUR_TURN}>
-                    <Txt
-                      className="yellow nt1"
-                      id="your-turn"
-                      size={TxtSize.XSMALL}
-                      value={game.status === IGameStatus.LOBBY ? t("youWillStart") : t("yourTurn")}
-                    />
-                  </Tutorial>
+                  <Txt
+                    className="yellow nt1"
+                    id="your-turn"
+                    size={TxtSize.XSMALL}
+                    value={game.status === IGameStatus.LOBBY ? t("youWillStart") : t("yourTurn")}
+                  />
                 )}
                 <div className={classnames("flex items-center")}>
                   {player === currentPlayer && <Txt className="yellow mr2" size={TxtSize.SMALL} value="➤" />}
@@ -282,13 +274,6 @@ export default function PlayerGame(props: Props) {
                   </Popover>
                 )}
 
-                {showReviewCommentPopover && (
-                  <ReviewCommentPopover
-                    handleKeyEvent={nothingInvoked() ? "c" : undefined}
-                    showAlways={true}
-                    turnNumber={game.turnsHistory.length}
-                  />
-                )}
               </div>
 
               {active && selfPlayer && !self && !player.notified && !player.bot && (
@@ -422,12 +407,7 @@ export default function PlayerGame(props: Props) {
                       className="mr2"
                       disabled={
                         (action === "discard" && game.tokens.hints === 8) ||
-                        (action === "discard" && player.hand.length === 0) ||
-                        !isTutorialAction(game, tutorialAction?.action, {
-                          action: action as "discard" | "play",
-                          from: 0,
-                          cardIndex: selectedCard,
-                        })
+                        (action === "discard" && player.hand.length === 0)
                       }
                       id={action}
                       text={t(action)}
@@ -477,11 +457,7 @@ export default function PlayerGame(props: Props) {
               {!pendingHint.value && game.tokens.hints > 0 && <Txt className="mr3" value={t("selectVignette")} />}
 
               <Button
-                disabled={
-                  !pendingHint.type ||
-                  game.tokens.hints === 0 ||
-                  !isTutorialAction(game, tutorialAction?.action, { action: "hint", to: player.index, ...pendingHint })
-                }
+                disabled={!pendingHint.type || game.tokens.hints === 0}
                 id="give-hint"
                 text={t("hint")}
                 onClick={() => {

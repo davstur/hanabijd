@@ -46,7 +46,6 @@ export const fr = {
   deck: "pioche",
   loading: "Chargement...",
   menu: "Menu",
-  tutorial: "Tutoriel",
   rules: "Règles",
   yourTurn: "C'est à toi !",
   youWillStart: "Tu commenceras",
@@ -74,30 +73,6 @@ export const fr = {
   rollbackDisclaimer: "Tu vas révoquer la dernière action.",
   cannotRollback: "Tu ne peux pas encore révoquer la dernière action.",
   abort: "Retour au jeu",
-  introTutorial: "Tutoriel",
-  introContent: "Apprenons ensemble à jouer !",
-  playedCardsTutorial: "Cartes jouées",
-  playedCardsTutorialContent:
-    "Ceci est l'espace des piles de cartes jouées.\nCollectivement, atteignez 5 sur chaque couleur pour gagner.",
-  discardTutorial: "Défausse",
-  discardTutorialContent:
-    "Les cartes défaussées apparaîtront ici.\nÉvitez de défausser les cartes qui vous permettront de finir des piles.",
-  yourGameTutorial: "Ton jeu",
-  yourGameTutorialContent:
-    "Voilà tes cartes.\n Tu ne les vois pas mais les autres joueurs oui.\nIls te donneront des indices sur tes cartes.",
-  teammatesTutorial: "Partenaires",
-  teammatesTutorialContent:
-    "Tes partenaires, comme toi, ne voient pas leur jeu.\nDonne-leur des indices pour les aider\nà savoir s'ils peuvent jouer ou défausser.",
-  hintTokensTutorial: "Jetons bleus",
-  hintTokensTutorialContent:
-    "Certaines actions ont un coût.\n- Donner un indice coûte 1 jeton bleu\n- Défausser une carte récupère 1 jeton bleu\n- Jouer un 5 donne un jeton bleu bonus",
-  strikeTokensTutorial: "Jetons rouges",
-  strikeTokensTutorialContent:
-    "Jouer une mauvaise carte la défaussera et vous coûtera un jeton rouge de pénalité.\nAu troisième jeton rouge, vous perdez instantanément la partie.",
-  yourTurnTutorial: "C'est ton tour !",
-  yourTurnTutorialContent:
-    "Tu as 3 options\n- Sélectionne ton jeu pour jouer une carte\n- ... ou la défausser\n- Clique sur un partenaire pour lui donner un indice",
-  skip: "✕ Passer",
   offline: "Tu es hors ligne",
   apologies: "Désolés, il y a eu un souci 😕",
   errorWillInvestigate:
@@ -234,9 +209,4 @@ export const fr = {
   pageNotFound: "Pagina niet gevonden",
   contributeLanguage: "Contribuer !",
   new: "Nouveau",
-  learnHanab: "Apprendre",
-  learnHanabTime: "~5 min",
-  learnHanabEnglish:
-    "Cette section est en cours de développement et n'a pas encore été traduite dans toutes les langues.",
-  learnWhileWaiting: "Apprendre les bases d'Hanab en attendant",
 };

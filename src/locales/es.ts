@@ -46,7 +46,6 @@ export const es = {
   deck: "mazo",
   loading: "Cargando...",
   menu: "Menú",
-  tutorial: "Tutorial",
   rules: "Reglas",
   yourTurn: "¡Te toca!",
   youWillStart: "Serás el primero en jugar",
@@ -74,30 +73,6 @@ export const es = {
   rollbackDisclaimer: "Estás a punto de deshacer la última acción.",
   cannotRollback: "Todavía no puedes deshacer",
   abort: "Volver al juego",
-  introTutorial: "Tutorial",
-  introContent: "¡Aprende a jugar!",
-  playedCardsTutorial: "Cartas jugadas",
-  playedCardsTutorialContent:
-    "Aquí estarán las cartas que se han jugado.\nPara ganar hay que llegar al 5 de cada color entre todos.",
-  discardTutorial: "Descarte",
-  discardTutorialContent:
-    "Aquí aparecerán las cartas descartadas.\nEvitad descartar cartas que sean\nnecesarias para terminar el juego.",
-  yourGameTutorial: "Tu juego",
-  yourGameTutorialContent:
-    "Estas son tus cartas.\nTú no puedes verlas, pero los demás jugadores\nsí pueden y te darán información sobre ellas.",
-  teammatesTutorial: "Compañeros",
-  teammatesTutorialContent:
-    "Estos son tus compañeros de equipo.\nAl igual que tú, no pueden ver sus propias cartas.\nDales información para ayudarlos a jugar o descartar cartas.",
-  hintTokensTutorial: "Fichas de información",
-  hintTokensTutorialContent:
-    "Algunas acciones tienen un costo:\n\n- Dar información gasta 1 ficha de información.\n- Descartar una carta recupera 1 ficha de información.\n- Jugar un 5 recupera 1 ficha de información.",
-  strikeTokensTutorial: "Fichas de error",
-  strikeTokensTutorialContent:
-    "Si se juega una carta que no se puede colocar,\nla carta se descarta y se añade 1 ficha de error.\nSi se acumulan 3 fichas de error, perdéis el juego.",
-  yourTurnTutorial: "¡Es tu turno!",
-  yourTurnTutorialContent:
-    "Tienes 3 opciones:\n\n- Toca tus cartas para jugar una de ellas...\n- ... o para descartarla.\n- Toca las cartas de otro jugador para darle información.",
-  skip: "✕ Saltar",
   offline: "¡Estás sin conexión!",
   apologies: "Lo lamentamos, algo salió mal 😕",
   errorWillInvestigate:
@@ -233,8 +208,4 @@ export const es = {
   contributeLanguage: "¡Contribuir!",
   next: "Siguiente",
   new: "Nuevo",
-  learnHanab: "Aprende",
-  learnHanabTime: "~5 mn",
-  learnHanabEnglish: "Esta sección está en desarrollo y aún no ha sido traducida a todos los idiomas.",
-  learnWhileWaiting: "Aprende lo básico de Hanab mientras esperas",
 };

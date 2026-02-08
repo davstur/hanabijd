@@ -38,10 +38,7 @@ export default function RollbackArea(props: Props) {
   const canRollback = lastRollbackableTurn >= 0;
 
   function onRollback() {
-    const gameAtTurn = {
-      ...getStateAtTurn(game, lastRollbackableTurn),
-      reviewComments: game.reviewComments.filter((rc) => rc.afterTurnNumber <= lastRollbackableTurn),
-    };
+    const gameAtTurn = getStateAtTurn(game, lastRollbackableTurn);
     updateGame(gameAtTurn).catch(logFailedPromise);
   }
 

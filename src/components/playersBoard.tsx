@@ -1,7 +1,6 @@
 import React from "react";
 import { ActionAreaType, ISelectedArea } from "~/components/actionArea";
 import PlayerGame from "~/components/playerGame";
-import Tutorial, { ITutorialStep } from "~/components/tutorial";
 import { useCurrentPlayer, useGame, useSelfPlayer } from "~/hooks/game";
 import { IAction, IPlayer } from "~/lib/state";
 
@@ -28,50 +27,46 @@ export default function PlayersBoard(props: Props) {
   let selectedPlayer = null;
   let cardIndex = null;
   if (selectedArea.type === ActionAreaType.SELF_PLAYER) {
-    selectedPlayer = game.players.find((player) => player.id === selectedArea.player.id);
+    selectedPlayer = game.players.find((player) => player.name === selectedArea.player.name);
     cardIndex = selectedArea.cardIndex;
   }
   if (selectedArea.type === ActionAreaType.OTHER_PLAYER) {
-    selectedPlayer = game.players.find((player) => player.id === selectedArea.player.id);
+    selectedPlayer = game.players.find((player) => player.name === selectedArea.player.name);
   }
 
   return (
     <>
-      <Tutorial step={ITutorialStep.OTHER_PLAYERS}>
-        {otherPlayers.map((otherPlayer, i) => (
-          <div key={i} className="bb b--yellow bg-main-dark">
-            <PlayerGame
-              active={currentPlayer === otherPlayer}
-              displayStats={displayStats}
-              id={`player-game-${i + 1}`}
-              player={otherPlayer}
-              selected={selectedPlayer && selectedPlayer === otherPlayer}
-              onCloseArea={onCloseArea}
-              onCommitAction={onCommitAction}
-              onNotifyPlayer={onNotifyPlayer}
-              onSelectPlayer={onSelectPlayer}
-            />
-          </div>
-        ))}
-      </Tutorial>
+      {otherPlayers.map((otherPlayer, i) => (
+        <div key={i} className="bb b--yellow bg-main-dark">
+          <PlayerGame
+            active={currentPlayer === otherPlayer}
+            displayStats={displayStats}
+            id={`player-game-${i + 1}`}
+            player={otherPlayer}
+            selected={selectedPlayer && selectedPlayer === otherPlayer}
+            onCloseArea={onCloseArea}
+            onCommitAction={onCommitAction}
+            onNotifyPlayer={onNotifyPlayer}
+            onSelectPlayer={onSelectPlayer}
+          />
+        </div>
+      ))}
       {selfPlayer && (
-        <Tutorial step={ITutorialStep.SELF_PLAYER}>
-          <div className="mb4">
-            <PlayerGame
-              active={currentPlayer === selfPlayer}
-              cardIndex={cardIndex}
-              displayStats={displayStats}
-              id="player-game-self"
-              player={selfPlayer}
-              selected={selectedPlayer && selectedPlayer === selfPlayer}
-              self={true}
-              onCloseArea={onCloseArea}
-              onCommitAction={onCommitAction}
-              onReaction={onReaction}
-              onSelectPlayer={onSelectPlayer}
-            />
-          </div>
-        </Tutorial>
+        <div className="mb4">
+          <PlayerGame
+            active={currentPlayer === selfPlayer}
+            cardIndex={cardIndex}
+            displayStats={displayStats}
+            id="player-game-self"
+            player={selfPlayer}
+            selected={selectedPlayer && selectedPlayer === selfPlayer}
+            self={true}
+            onCloseArea={onCloseArea}
+            onCommitAction={onCommitAction}
+            onReaction={onReaction}
+            onSelectPlayer={onSelectPlayer}
+          />
+        </div>
       )}
     </>
   );

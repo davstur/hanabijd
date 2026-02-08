@@ -1,18 +1,11 @@
 import Slider from "rc-slider";
 import { MarkObj } from "rc-slider/lib/Marks";
 import React from "react";
-import { ReadOnlyCommentMarker, ReviewCommentPopover, StaticReviewComment } from "~/components/reviewComments";
 import Button, { ButtonSize } from "~/components/ui/button";
 import Txt, { TxtSize } from "~/components/ui/txt";
-import { useGame, useSelfPlayer } from "~/hooks/game";
+import { useGame } from "~/hooks/game";
 import { useReplay } from "~/hooks/replay";
-import { isGameFinished } from "~/lib/game";
-import { findComment } from "~/lib/reviewComments";
-import { IPlayer } from "~/lib/state";
 
-function Empty() {
-  return <div className={"dn"} />;
-}
 const SliderStyle = {
   DOT: {
     width: 0,
@@ -49,19 +42,10 @@ interface Props {
 export default function ReplayViewer(props: Props) {
   const { onReplayCursorChange, onStopReplay } = props;
   const game = useGame();
-  const selfPlayer: IPlayer | undefined = useSelfPlayer(game);
   const replay = useReplay();
-  const comment = findComment(game, selfPlayer?.id, replay.cursor);
   const maxTurns = game.originalGame.turnsHistory.length;
 
   const marks: Record<string | number, React.ReactNode | MarkObj> = {};
-  const selfReviewComments = game.reviewComments.filter((rc) => rc.playerId === selfPlayer?.id);
-  selfReviewComments.forEach((rc) => {
-    marks[rc.afterTurnNumber] = {
-      style: {},
-      label: <Empty />,
-    };
-  });
 
   return (
     <div className="flex flex-column items-center w-100">
@@ -108,19 +92,6 @@ export default function ReplayViewer(props: Props) {
         />
         <Button void className="ml3 pointer:hover" size={ButtonSize.TINY} text="&times;" onClick={onStopReplay} />
       </div>
-
-      {comment ? (
-        <div className={"flex flex-row justify-center"} style={{ gap: "0.5rem" }}>
-          <div className={"flex-grow-0"}>
-            {isGameFinished(game) ? (
-              <ReadOnlyCommentMarker />
-            ) : (
-              <ReviewCommentPopover showAlways={true} turnNumber={replay.cursor} />
-            )}
-          </div>
-          <StaticReviewComment comment={comment} />
-        </div>
-      ) : null}
     </div>
   );
 }

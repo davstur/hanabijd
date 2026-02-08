@@ -6,6 +6,7 @@ import Button, { ButtonSize } from "~/components/ui/button";
 import { Checkbox, Field, Select, TextInput } from "~/components/ui/forms";
 import Txt, { TxtSize } from "~/components/ui/txt";
 import useLocalStorage from "~/hooks/localStorage";
+import { useRequireName } from "~/hooks/useRequireName";
 import { newGame } from "~/lib/actions";
 import { addGameToRoom, IRoomGameConfig, loadRoom, saveRoomGameConfig, updateGame } from "~/lib/firebase";
 import { generateShuffleSeed, readableUniqueId } from "~/lib/id";
@@ -45,6 +46,7 @@ const BotsSpeeds = {
 export default function NewGame() {
   const router = useRouter();
   const { t } = useTranslation();
+  useRequireName();
   const roomId = (router.query.room as string) || null;
 
   const [offline, setOffline] = useState(false);

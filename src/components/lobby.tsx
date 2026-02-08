@@ -45,7 +45,7 @@ function Meta() {
 
 interface Props {
   host: string;
-  onJoinGame: (player: Omit<IPlayer, "id">) => void;
+  onJoinGame: (player: Pick<IPlayer, "name" | "bot">) => void;
   onAddBot: () => void;
   onStartGame: () => void;
 }
@@ -164,7 +164,7 @@ export default function Lobby(props: Props) {
                 />
                 <Button primary disabled={name.length === 0} id="join-game" text={t("join")} />
               </div>
-              {process.env.NODE_ENV !== "production" && !game.options.tutorial && (
+              {process.env.NODE_ENV !== "production" && (
                 <Field
                   label={<Txt className="gray" size={TxtSize.SMALL} value={t("autoplay")} />}
                   style={{ width: "80px" }}
@@ -175,7 +175,7 @@ export default function Lobby(props: Props) {
             </div>
           </form>
         )}
-        {!gameFull && !game.options.tutorial && (
+        {!gameFull && (
           <div className="flex items-center mt4">
             <Txt className="mr3" value={t("shareGame")} />
             <Button text={t("copyLink")} onClick={copy} />

@@ -186,7 +186,7 @@ export default function GameStats() {
           const firstHand = getStateAtTurn(game, 0).players[player.index].hand;
 
           return (
-            <div key={player.id} className="flex flex-column items-center mr4">
+            <div key={player.name} className="flex flex-column items-center mr4">
               <Txt size={TxtSize.XSMALL} value={player.name} />
               <div className="h1 flex items-center">
                 {!playerIndex && <Txt className="txt-yellow" size={TxtSize.XXSMALL} value={`➤ ${t("started")}`} />}
