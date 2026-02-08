@@ -62,6 +62,8 @@ export default function Lobby(props: Props) {
   const [name, setName] = useState("");
   const [bot, setBot] = useState(false);
 
+  const [nameError, setNameError] = useState<string | null>(null);
+
   const gameFull = game.players.length === game.options.playersCount;
   const canJoin = (game.options.gameMode === GameMode.PASS_AND_PLAY || !selfPlayer) && !gameFull;
   const canStart = gameFull;
@@ -99,8 +101,21 @@ export default function Lobby(props: Props) {
 
   function onJoinGameSubmit(e: FormEvent) {
     e.preventDefault();
-    onJoinGame({ name, bot });
-    localStorage.setItem(NAME_KEY, JSON.stringify(name));
+    const trimmed = name.trim();
+
+    if (/[.$#[\]/]/.test(trimmed)) {
+      setNameError(t("nameInvalidChars", "Name cannot contain . $ # [ ] /"));
+      return;
+    }
+
+    if (game.players.some((p) => p.name === trimmed)) {
+      setNameError(t("nameTaken", "This name is already taken"));
+      return;
+    }
+
+    setNameError(null);
+    onJoinGame({ name: trimmed, bot });
+    localStorage.setItem(NAME_KEY, JSON.stringify(trimmed));
   }
 
   return (
@@ -164,6 +179,7 @@ export default function Lobby(props: Props) {
                 />
                 <Button primary disabled={name.length === 0} id="join-game" text={t("join")} />
               </div>
+              {nameError && <Txt className="red mt1" size={TxtSize.SMALL} value={nameError} />}
               {process.env.NODE_ENV !== "production" && !game.options.tutorial && (
                 <Field
                   label={<Txt className="gray" size={TxtSize.SMALL} value={t("autoplay")} />}

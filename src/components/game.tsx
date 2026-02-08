@@ -19,13 +19,11 @@ import { useCurrentPlayer, useGame, useSelfPlayer } from "~/hooks/game";
 import useLocalStorage from "~/hooks/localStorage";
 import { useNotifications } from "~/hooks/notifications";
 import { useReplay } from "~/hooks/replay";
-import { useSession } from "~/hooks/session";
 import { useUserPreferences } from "~/hooks/userPreferences";
 import { commitAction, getMaximumPossibleScore, getScore, joinGame, newGame, recreateGame } from "~/lib/actions";
 import { play } from "~/lib/ai";
 import { cheat } from "~/lib/ai-cheater";
 import { setNotification, setReaction, updateGame } from "~/lib/firebase";
-import { uniqueId } from "~/lib/id";
 import IGameState, { GameMode, IAction, IGameHintsLevel, IGameStatus, IPlayer } from "~/lib/state";
 import { logFailedPromise } from "~/lib/errors";
 
@@ -42,7 +40,6 @@ export function Game(props: Props) {
   const [displayStats, setDisplayStats] = useState(false);
   const [reachableScore, setReachableScore] = useState<number>(null);
   const [interturn, setInterturn] = useState(false);
-  const { playerId } = useSession();
   const [, setGameId] = useLocalStorage("gameId", null);
   const [selectedArea, selectArea] = useState<ISelectedArea>({
     id: "logs",
@@ -149,9 +146,9 @@ export function Game(props: Props) {
     const botsName = ["Jane", "Adam"];
 
     for (let i = 1; i < newState.options.playersCount; i++) {
-      const playerId = uniqueId();
+      const botName = botsName[i - 1] + " 🤖";
 
-      newState = joinGame(newState, { id: playerId, name: botsName[i - 1] + " 🤖", bot: true });
+      newState = joinGame(newState, { id: botName, name: botName, bot: true });
 
       await updateGame(newState);
     }
@@ -221,7 +218,7 @@ export function Game(props: Props) {
   }, [game.nextGameId]);
 
   function onJoinGame(player: Omit<IPlayer, "id">) {
-    const newState = joinGame(game, { id: playerId, ...player });
+    const newState = joinGame(game, { id: player.name, ...player });
 
     onGameChange({ ...newState, synced: false });
     updateGame(newState).catch(logFailedPromise);
@@ -230,13 +227,10 @@ export function Game(props: Props) {
   }
 
   function onAddBot() {
-    const playerId = uniqueId();
     const botsCount = game.players.filter((p) => p.bot).length;
+    const botName = `AI #${botsCount + 1}`;
 
-    const bot = {
-      name: `AI #${botsCount + 1}`,
-    };
-    const newState = joinGame(game, { id: playerId, ...bot, bot: true });
+    const newState = joinGame(game, { id: botName, name: botName, bot: true });
 
     onGameChange({ ...newState, synced: false });
     updateGame(newState).catch(logFailedPromise);

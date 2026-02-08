@@ -8,7 +8,7 @@ import Button, { ButtonSize } from "~/components/ui/button";
 import { TextInput } from "~/components/ui/forms";
 import Txt, { TxtSize } from "~/components/ui/txt";
 import { createRoom, joinRoom as joinRoomDb, loadRoom, IRoomMember } from "~/lib/firebase";
-import { readableRoomId, uniqueId } from "~/lib/id";
+import { readableRoomId } from "~/lib/id";
 
 const NAME_KEY = "name";
 const ROOM_KEY = "currentRoom";
@@ -48,23 +48,14 @@ export default function Home() {
     }
   }, [router]);
 
-  function getPlayerId(): string {
-    if (typeof window === "undefined") return uniqueId();
-    let id = localStorage.getItem("playerId");
-    if (id) {
-      try {
-        return JSON.parse(id);
-      } catch {
-        return id;
-      }
-    }
-    id = uniqueId();
-    localStorage.setItem("playerId", JSON.stringify(id));
-    return id;
-  }
-
   function ensureName(action: "create" | "join") {
     if (!playerName.trim()) {
+      setNeedsName(true);
+      setPendingAction(action);
+      return false;
+    }
+    if (/[.$#[\]/]/.test(playerName.trim())) {
+      setError(t("nameInvalidChars", "Name cannot contain . $ # [ ] /"));
       setNeedsName(true);
       setPendingAction(action);
       return false;
@@ -76,13 +67,14 @@ export default function Home() {
     if (!ensureName("create")) return;
 
     const roomId = readableRoomId();
+    const name = playerName.trim();
     const member: IRoomMember = {
-      id: getPlayerId(),
-      name: playerName.trim(),
+      id: name,
+      name,
       joinedAt: Date.now(),
     };
     await createRoom(roomId, member);
-    localStorage.setItem(NAME_KEY, JSON.stringify(playerName.trim()));
+    localStorage.setItem(NAME_KEY, JSON.stringify(name));
     localStorage.setItem(ROOM_KEY, JSON.stringify(roomId));
     router.push(`/rooms/${roomId}`);
   }
@@ -103,13 +95,14 @@ export default function Home() {
       return;
     }
 
+    const name = playerName.trim();
     const member: IRoomMember = {
-      id: getPlayerId(),
-      name: playerName.trim(),
+      id: name,
+      name,
       joinedAt: Date.now(),
     };
     await joinRoomDb(code, member);
-    localStorage.setItem(NAME_KEY, JSON.stringify(playerName.trim()));
+    localStorage.setItem(NAME_KEY, JSON.stringify(name));
     localStorage.setItem(ROOM_KEY, JSON.stringify(code));
     router.push(`/rooms/${code}`);
   }
@@ -117,6 +110,11 @@ export default function Home() {
   function handleNameSubmit(e: FormEvent) {
     e.preventDefault();
     if (!playerName.trim()) return;
+    if (/[.$#[\]/]/.test(playerName.trim())) {
+      setError(t("nameInvalidChars", "Name cannot contain . $ # [ ] /"));
+      return;
+    }
+    setError(null);
     if (pendingAction === "create") {
       handleCreateRoom();
     } else if (pendingAction === "join") {
@@ -174,6 +172,7 @@ export default function Home() {
               />
               <Button primary disabled={!playerName.trim()} text={t("confirm", "OK")} />
             </div>
+            {error && <Txt className="red mt1" size={TxtSize.SMALL} value={error} />}
           </form>
         ) : (
           <main className="flex flex-column mt5 items-center">

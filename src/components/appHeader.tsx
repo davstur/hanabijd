@@ -48,7 +48,6 @@ export default function AppHeader() {
   function handleLogout() {
     localStorage.removeItem("name");
     localStorage.removeItem("currentRoom");
-    localStorage.removeItem("playerId");
     localStorage.removeItem("gameId");
     router.push("/");
   }
@@ -68,26 +67,26 @@ export default function AppHeader() {
       ) : (
         <div />
       )}
-      <div className="flex items-center">
-        <LanguageSelector outlined />
-        {playerName && (
-          <div ref={menuRef} className="relative ml2">
-            <span className="pointer" onClick={() => setShowMenu(!showMenu)}>
-              <PlayerAvatar name={playerName} size={AvatarSize.MEDIUM} />
-            </span>
-            {showMenu && (
-              <div
-                className="absolute right-0 mt1 pa2 br2 shadow-1 z-999"
-                style={{ background: "#1a1a3e", border: "1px solid rgba(255,255,255,0.15)", minWidth: "6rem" }}
-              >
-                <span className="pointer db pa1 hover-bg-white-10 br1" onClick={handleLogout}>
-                  <Txt size={TxtSize.XSMALL} value={t("logout")} />
-                </span>
+      {playerName && (
+        <div ref={menuRef} className="relative">
+          <span className="pointer" onClick={() => setShowMenu(!showMenu)}>
+            <PlayerAvatar name={playerName} size={AvatarSize.MEDIUM} />
+          </span>
+          {showMenu && (
+            <div
+              className="absolute right-0 mt1 pa2 br2 shadow-1 z-999"
+              style={{ background: "#1a1a3e", border: "1px solid rgba(255,255,255,0.15)", minWidth: "8rem" }}
+            >
+              <div className="db pa1">
+                <LanguageSelector outlined />
               </div>
-            )}
-          </div>
-        )}
-      </div>
+              <span className="pointer db pa1 hover-bg-white-10 br1 mt1" onClick={handleLogout}>
+                <Txt size={TxtSize.XSMALL} value={t("logout")} />
+              </span>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
