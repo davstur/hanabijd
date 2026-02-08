@@ -1,15 +1,23 @@
 import { SvgImage } from "~/components/ui/svgImage";
+import heartSvg from "~/images/symbols/heart.svg";
+import cloveSvg from "~/images/symbols/clove.svg";
+import spadeSvg from "~/images/symbols/spade.svg";
+import diamondSvg from "~/images/symbols/diamond.svg";
+import starSvg from "~/images/symbols/star.svg";
+import cloudSvg from "~/images/symbols/cloud.svg";
+import wheelSvg from "~/images/symbols/wheel.svg";
+import rainbowSvg from "~/images/symbols/rainbow.svg";
 import { IColor } from "~/lib/state";
 
 export const ColorsToSymbols = {
-  [IColor.RED]: require("~/images/symbols/heart.svg"),
-  [IColor.GREEN]: require("~/images/symbols/clove.svg"),
-  [IColor.BLUE]: require("~/images/symbols/spade.svg"),
-  [IColor.WHITE]: require("~/images/symbols/diamond.svg"),
-  [IColor.YELLOW]: require("~/images/symbols/star.svg"),
-  [IColor.ORANGE]: require("~/images/symbols/cloud.svg"),
-  [IColor.MULTICOLOR]: require("~/images/symbols/wheel.svg"),
-  [IColor.RAINBOW]: require("~/images/symbols/rainbow.svg"),
+  [IColor.RED]: heartSvg,
+  [IColor.GREEN]: cloveSvg,
+  [IColor.BLUE]: spadeSvg,
+  [IColor.WHITE]: diamondSvg,
+  [IColor.YELLOW]: starSvg,
+  [IColor.ORANGE]: cloudSvg,
+  [IColor.MULTICOLOR]: wheelSvg,
+  [IColor.RAINBOW]: rainbowSvg,
 };
 
 interface Props {

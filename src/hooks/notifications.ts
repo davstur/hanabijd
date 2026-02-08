@@ -59,7 +59,7 @@ export function useNotifications() {
           clearTimeout(closeTimeout);
         }
       };
-    } catch (e) {
+    } catch {
       // Not handled for many mobile browsers.
     }
   }, [currentPlayer, selfPlayer]);

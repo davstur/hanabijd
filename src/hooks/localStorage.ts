@@ -19,7 +19,7 @@ export default function useLocalStorage<T>(key: string, initialValue: T): [T, (v
 
       try {
         return item ? JSON.parse(item) : initialValue;
-      } catch (err) {
+      } catch {
         // Some legacy items are stored as raw strings instead of JSON strings.
         // Restore it as a JSON string and return it.
         if (isString(item)) {

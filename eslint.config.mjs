@@ -17,9 +17,6 @@ export default defineConfig([
     rules: {
       "@typescript-eslint/explicit-module-boundary-types": "off",
       "@typescript-eslint/no-use-before-define": "off",
-      "@typescript-eslint/no-require-imports": "off",
-      "@typescript-eslint/no-unused-expressions": "off",
-      "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_", caughtErrorsIgnorePattern: ".*" }],
       "@typescript-eslint/triple-slash-reference": "off",
     },
   },
