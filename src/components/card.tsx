@@ -197,7 +197,7 @@ export default function Card(props: Props) {
   if (selected) {
     try {
       style.transform = "scale(1.20)";
-    } catch (e) {
+    } catch {
       // This operation sometimes crashes because of a conflict with react-popover
       // This try/catch aims to prevent it and inhibate the error.
     }

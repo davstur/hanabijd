@@ -93,7 +93,7 @@ export function Game(props: Props) {
     setReaction(game, currentPlayer, "🧠").catch(logFailedPromise);
     const timeout = setTimeout(() => {
       updateGame(play(game)).catch(logFailedPromise);
-      game.options.botsWait && setReaction(game, currentPlayer, null);
+      if (game.options.botsWait) setReaction(game, currentPlayer, null);
     }, game.options.botsWait);
 
     return () => clearTimeout(timeout);
