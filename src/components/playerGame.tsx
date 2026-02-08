@@ -354,12 +354,12 @@ export default function PlayerGame(props: Props) {
                     key={card.id}
                     layout
                     animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.8 }}
+                    exit={{ opacity: 0, scale: 0.8, transition: { duration: 0.1 } }}
                     initial={{ opacity: 0, scale: 0.8 }}
                     transition={{
-                      opacity: { duration: 0.1 },
-                      scale: { duration: 0.1 },
-                      layout: { duration: 0.15, ease: "easeInOut" },
+                      opacity: { duration: 0.15, delay: 0.25 },
+                      scale: { duration: 0.15, delay: 0.25 },
+                      layout: { duration: 0.15, delay: 0.1, ease: "easeInOut" },
                     }}
                   >
                     <Card
