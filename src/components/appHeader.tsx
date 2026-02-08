@@ -69,7 +69,7 @@ export default function AppHeader() {
         <div />
       )}
       <div className="flex items-center">
-        <LanguageSelector outlined />
+        {!playerName && <LanguageSelector outlined />}
         {playerName && (
           <div ref={menuRef} className="relative ml2">
             <span className="pointer" onClick={() => setShowMenu(!showMenu)}>
@@ -80,6 +80,9 @@ export default function AppHeader() {
                 className="absolute right-0 mt1 pa2 br2 shadow-1 z-999"
                 style={{ background: "#1a1a3e", border: "1px solid rgba(255,255,255,0.15)", minWidth: "6rem" }}
               >
+                <div className="pa1 mb1 f7 f6-l">
+                  <LanguageSelector outlined />
+                </div>
                 <span className="pointer db pa1 hover-bg-white-10 br1" onClick={handleLogout}>
                   <Txt size={TxtSize.XSMALL} value={t("logout")} />
                 </span>

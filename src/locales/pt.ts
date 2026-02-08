@@ -46,7 +46,6 @@ export const pt = {
   deck: "deck",
   loading: "Carregando...",
   menu: "Menu",
-  tutorial: "Tutorial",
   rules: "Regras",
   yourTurn: "Sua vez",
   youWillStart: "Você vai começar",
@@ -74,30 +73,6 @@ export const pt = {
   rollbackDisclaimer: "Você está prestes a refazer a sua última ação!",
   cannotRollback: "Você não pode retroceder o jogo",
   abort: "Abortar",
-  introTutorial: "Tutorial",
-  introContent: "Vamos aprender como jogar!",
-  playedCardsTutorial: "Cartas Jogadas",
-  playedCardsTutorialContent:
-    "Aqui vão ficar as cartas que foram jogadas.\nColetivamente, alcancem 5 em cada cor para ganhar o jogo.",
-  discardTutorial: "Descarte",
-  discardTutorialContent:
-    "Aqui você vai ver as cartas\nque você e o seu time descartaram.\nTente não descartar as cartas\nque vocês precisam para ganhar o jogo.",
-  yourGameTutorial: "Seu jogo",
-  yourGameTutorialContent:
-    "Essas são as suas cartas.\nVocê não consegue ver elas, mas outros jogadores vão te dar dicas sobre elas.",
-  teammatesTutorial: "Companheiros de time",
-  teammatesTutorialContent:
-    "Esses são os seus companheiros de time.\nComo você, eles não conseguem ver as respectivas cartas.\nDê dicas para ajudar eles a jogar ou descartar cartas.",
-  hintTokensTutorial: "Fichas de dicas",
-  hintTokensTutorialContent:
-    "Algumas ações têm um custo.\n\n- Dar dica custa uma ficha de dica.\n- Descartando uma carta vocês ganham uma ficha de dica.\n- Jogando um 5 ganham uma ficha de dica como bônus.",
-  strikeTokensTutorial: "Ficha de penalidade",
-  strikeTokensTutorialContent:
-    "Ao jogar uma carta errada, ela é descartada e te custa uma ficha de penalidade.\nSe chegarem a 3 fichas de penalidade, perdem o jogo.",
-  yourTurnTutorial: "É a sua vez",
-  yourTurnTutorialContent:
-    "Você tem 3 opções:\n\n- Clique o seu jogo para jogar uma carta...\n- ... ou descartar ela\n- Clique um dos seus companheiros para dar uma dica.",
-  skip: "✕ Pular",
   offline: "Você está offline !",
   apologies: "Desculpe, alguma coisa deu errado 😕",
   errorWillInvestigate:
@@ -231,8 +206,4 @@ export const pt = {
   contributeLanguage: "Contribua!",
   next: "Próximo",
   new: "Novo",
-  learnHanab: "Aprenda",
-  learnHanabEnglish: "Esta secção está em desenvolvimento e ainda não foi traduzida para todas as línguas.",
-  learnHanabTime: "~5 mn",
-  learnWhileWaiting: "Aprender as noções básicas de Hanab enquanto espera",
 };

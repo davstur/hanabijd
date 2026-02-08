@@ -46,7 +46,6 @@ export const it = {
   deck: "mazzo",
   loading: "Caricamento...",
   menu: "Menu",
-  tutorial: "Tutorial",
   rules: "Regole",
   yourTurn: "Tuo turno",
   youWillStart: "Inizierai per primo",
@@ -74,30 +73,6 @@ export const it = {
   rollbackDisclaimer: "Stai per annullare l'ultima azione!",
   cannotRollback: "Non puoi ancora annullare azioni",
   abort: "Termina",
-  introTutorial: "Tutorial",
-  introContent: "Impariamo come si gioca!",
-  playedCardsTutorial: "Carte Giocate",
-  playedCardsTutorialContent:
-    "Qui verranno mostrate le carte giocate. \nDi squadra, raggiungete il 5 di ogni colore per vincere il gioco.",
-  discardTutorial: "Scarti",
-  discardTutorialContent:
-    "Qui vedrai le carte che tu\n o la tua squadra avete scartato.\nEvita di scartare quelle che\nvi servono per vincere la\npartita.",
-  yourGameTutorial: "La tua mano",
-  yourGameTutorialContent:
-    "Queste sono le tue carte.\n Tu non puoi vederle, ma sono visibili \nagli altri giocatori e riceverai indizi su di esse.",
-  teammatesTutorial: "Compagni di squadra",
-  teammatesTutorialContent:
-    "Questi sono i tuoi compagni di squadra.\nCome te, non possono vedere le proprie carte.\nDa loro indizi per aiutarli a giocare o scartare carte.",
-  hintTokensTutorial: "Gettoni Indizi",
-  hintTokensTutorialContent:
-    "Alcune azioni hanno un costo.\n\n- Dare un indizio costa 1 gettone blu.\n- Scartare una carta conferisce un gettone blu.\n- Giocare un 5 conferisce un gettone blu come bonus.",
-  strikeTokensTutorial: "Gettoni Strike",
-  strikeTokensTutorialContent:
-    "Se giocate una carta sbagliata, essa verrà scartata\n e sarà aggiunto un gettone strike.\nRaggiungere 3 gettoni strike risulta in una sconfitta immediata.",
-  yourTurnTutorial: "Durante il tuo turno",
-  yourTurnTutorialContent:
-    "Hai 3 opzioni:\n\n- Tocca una carta della tua mano per giocarla...\n- ... o scartarla\n- Tocca le carte di un compagno di squadra per dargli un indizio.",
-  skip: "✕ Salta",
   offline: "Sei offline !",
   apologies: "Ci dispiace, qualcosa è andato storto 😕",
   errorWillInvestigate:
@@ -233,8 +208,4 @@ export const it = {
   contributeLanguage: "Contribuisci!",
   next: "Avanti",
   new: "Nuovo",
-  learnHanab: "Imparare",
-  learnHanabTime: "~5 mn",
-  learnHanabEnglish: "Questa sezione è in fase di sviluppo e non è ancora stata tradotta in tutte le lingue.",
-  learnWhileWaiting: "Imparare le basi di Hanab in attesa",
 };

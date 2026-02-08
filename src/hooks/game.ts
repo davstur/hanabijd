@@ -23,7 +23,6 @@ export function useGame() {
     return {
       ...fillEmptyValues(getStateAtTurn(game, replay.cursor)),
       originalGame: game,
-      reviewComments: [...game.reviewComments],
     };
   }
 
@@ -47,7 +46,7 @@ export function useSelfPlayer(game: IGameState): IPlayer | undefined {
   }
 
   if (game.options.gameMode === GameMode.NETWORK) {
-    return game.players.find((p) => p.id === playerId);
+    return game.players.find((p) => p.name === playerId);
   }
 
   if (game.options.gameMode === GameMode.PASS_AND_PLAY) {

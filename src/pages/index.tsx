@@ -8,7 +8,7 @@ import Button, { ButtonSize } from "~/components/ui/button";
 import { TextInput } from "~/components/ui/forms";
 import Txt, { TxtSize } from "~/components/ui/txt";
 import { createRoom, joinRoom as joinRoomDb, loadRoom, IRoomMember } from "~/lib/firebase";
-import { readableRoomId, uniqueId } from "~/lib/id";
+import { readableRoomId } from "~/lib/id";
 
 const NAME_KEY = "name";
 const ROOM_KEY = "currentRoom";
@@ -48,21 +48,6 @@ export default function Home() {
     }
   }, [router]);
 
-  function getPlayerId(): string {
-    if (typeof window === "undefined") return uniqueId();
-    let id = localStorage.getItem("playerId");
-    if (id) {
-      try {
-        return JSON.parse(id);
-      } catch {
-        return id;
-      }
-    }
-    id = uniqueId();
-    localStorage.setItem("playerId", JSON.stringify(id));
-    return id;
-  }
-
   function ensureName(action: "create" | "join") {
     if (!playerName.trim()) {
       setNeedsName(true);
@@ -77,7 +62,6 @@ export default function Home() {
 
     const roomId = readableRoomId();
     const member: IRoomMember = {
-      id: getPlayerId(),
       name: playerName.trim(),
       joinedAt: Date.now(),
     };
@@ -104,7 +88,6 @@ export default function Home() {
     }
 
     const member: IRoomMember = {
-      id: getPlayerId(),
       name: playerName.trim(),
       joinedAt: Date.now(),
     };

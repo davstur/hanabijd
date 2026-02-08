@@ -21,7 +21,6 @@ export default interface IGameState {
   actionsLeft: number;
   turnsHistory: ITurn[];
   messages: IMessage[];
-  reviewComments: IReviewComment[];
   createdAt: number;
   startedAt?: number;
   endedAt?: number;
@@ -48,7 +47,6 @@ export interface IGameOptions {
   botsWait: number;
   gameMode: GameMode;
   colorBlindMode: boolean;
-  tutorial?: boolean;
 }
 
 export enum GameVariant {
@@ -161,11 +159,6 @@ export interface IHintAction {
   cardsIndex?: number[];
 }
 
-export interface IReviewComment {
-  playerId: string;
-  afterTurnNumber: number;
-  comment?: string;
-}
 export interface IColorHintAction extends IHintAction {
   type: "color";
   value: IColor;
@@ -190,7 +183,6 @@ export interface IMessage {
 }
 
 export interface IPlayer {
-  id: string;
   name: string;
   hand?: IHand;
   reaction?: string;
@@ -226,7 +218,6 @@ export function rebuildGame(state: Partial<IGameState>) {
   newState.status = state.status;
   newState.createdAt = state.createdAt;
   newState.nextGameId = state.nextGameId ?? null;
-  newState.reviewComments = state.reviewComments;
 
   return newState;
 }
@@ -263,7 +254,6 @@ export function fillEmptyValues(state: IGameState): IGameState {
       })
     ),
     turnsHistory: [],
-    reviewComments: [],
   });
 }
 

@@ -72,7 +72,6 @@ export async function setNotification(game: IGameState, player: IPlayer, notifie
 // --- Rooms ---
 
 export interface IRoomMember {
-  id: string;
   name: string;
   joinedAt: number;
 }
@@ -100,7 +99,7 @@ export async function createRoom(roomId: string, member: IRoomMember) {
   const room: IRoom = {
     id: roomId,
     createdAt: Date.now(),
-    members: { [member.id]: member },
+    members: { [member.name]: member },
     gameIds: [],
   };
   await database().ref(`/rooms/${roomId}`).set(room);
@@ -127,20 +126,7 @@ export function subscribeToRoom(roomId: string, callback: (room: IRoom | null) =
 }
 
 export async function joinRoom(roomId: string, member: IRoomMember) {
-  // Remove any existing member with the same name but a different ID.
-  // This handles players who reconnect after losing their localStorage playerId
-  // (e.g. cleared cache, different browser/device, incognito mode).
-  const membersRef = database().ref(`/rooms/${roomId}/members`);
-  const snapshot = await membersRef.once("value");
-  const members = snapshot.val() || {};
-
-  const removals = Object.entries(members)
-    .filter(([existingId, m]) => existingId !== member.id && (m as IRoomMember).name === member.name)
-    .map(([existingId]) => database().ref(`/rooms/${roomId}/members/${existingId}`).remove());
-
-  await Promise.all(removals);
-
-  await database().ref(`/rooms/${roomId}/members/${member.id}`).set(member);
+  await database().ref(`/rooms/${roomId}/members/${member.name}`).set(member);
 }
 
 export async function leaveRoom(roomId: string, memberId: string) {

@@ -29,7 +29,7 @@ export default function PlayerName(props: Props) {
 
   const game = useGame();
   const selfPlayer = useSelfPlayer(game);
-  const you = !explicit && player.id === selfPlayer?.id;
+  const you = !explicit && player.name === selfPlayer?.name;
 
   return (
     <Txt

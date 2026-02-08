@@ -4,7 +4,6 @@ export const en = {
   turn: "Turn",
   save: "Save",
   clear: "Clear",
-  reviewCommentPlaceholder: "Comment for post-game review",
   welcome: "Welcome",
   newGame: "New game",
   nextGame: "Next Game",
@@ -73,7 +72,6 @@ export const en = {
   deck: "deck",
   loading: "Loading...",
   menu: "Menu",
-  tutorial: "Quick tour",
   rules: "Rules",
   yourTurn: "Your turn",
   youWillStart: "You'll start first",
@@ -101,30 +99,6 @@ export const en = {
   rollbackDisclaimer: "You're about to roll back the last action!",
   cannotRollback: "You cannot rollback the game yet",
   abort: "Abort",
-  introTutorial: "Tutorial",
-  introContent: "Let's take a quick tour!",
-  playedCardsTutorial: "Played Cards",
-  playedCardsTutorialContent:
-    "This will nest the cards that have been played.\nCollectively, reach 5 on each color to win the game.",
-  discardTutorial: "Discard",
-  discardTutorialContent:
-    "Here you will see the cards\nyou and your team discarded.\nAvoid discarding the ones\nyou need to finish the game.",
-  yourGameTutorial: "Your game",
-  yourGameTutorialContent:
-    "These are your cards.\nYou can't see them, but other players can and will give you hints about them.",
-  teammatesTutorial: "Teammates",
-  teammatesTutorialContent:
-    "These are your teammates.\nLike you, they can't see their cards.\nGive them hints to help them play or discard cards.",
-  hintTokensTutorial: "Hint tokens",
-  hintTokensTutorialContent:
-    "Some actions have a cost.\n\n- Giving a hint costs 1 hint token.\n- Discarding a card grants 1 hint token.\n- Playing a 5 gives 1 hint token as a bonus.",
-  strikeTokensTutorial: "Strike tokens",
-  strikeTokensTutorialContent:
-    "Playing a wrong card will discard it and cost you 1 strike token.\nReaching 3 strike tokens will instantly lose the game.",
-  yourTurnTutorial: "It's your turn",
-  yourTurnTutorialContent:
-    "You have 3 options:\n\n- Tap your game to play a card...\n- ... or discard it\n- Tap one of your teammates games to give them a hint.",
-  skip: "✕ Skip",
   offline: "You are offline !",
   apologies: "We're sorry, something went wrong 😕",
   errorWillInvestigate:
@@ -263,130 +237,7 @@ export const en = {
   contributeLanguage: "Contribute!",
   next: "Next",
   new: "New",
-  learnHanab: "Learn",
-  learnHanabTime: "~5 mn",
-  learnWhileWaiting: "Learn the basics of Hanab while waiting",
-  learnHanabEnglish: "Learn Hanab - ",
   userPreferences: "User Preferences",
   soundOnStrike: "Play sound when a strike occurs",
   playFireworksAtGameEnd: "Play fireworks at game end",
-  learn: {
-    welcome: {
-      title: "Learn Hanab in 5 minutes",
-      1: "Welcome! In this brief tutorial, you'll play a game by yourself.",
-      2: "Don't worry, we'll guide you all the way!",
-    },
-    cooperation: {
-      title: "Cooperation",
-      1: "Hanab is a cooperative game.\n\nYou play with other players to reach a common goal.",
-    },
-    colorBlind: {
-      label: "Having trouble seeing colors? Toggle color-blind mode",
-    },
-    cards: {
-      title: "Cards",
-      1: {
-        1: "Cards are numbered from",
-        2: "to",
-        3: "and colored",
-        4: "or",
-      },
-      2: "At the start of the game, each player will be dealt 5 cards.",
-      3: "You can't see your own cards, but you can see other players cards",
-    },
-    goal: {
-      title: "Goal",
-      1: "As a team, play all cards from each color.",
-      2: "Piles from each color must be built in ascending order.",
-      3: "For instance, in the example above, you must play",
-      4: "before playing",
-      5: ".",
-    },
-    actions: {
-      title: "Actions",
-      0: "At your turn, you have the choice between 3 actions",
-      play: {
-        title: "1. Play",
-        1: "Play a card from your hand on the board.",
-        2: "If the card was not playable, the card is discarded and your team gains a strike token:",
-        3: "Draw a new card from the deck.",
-      },
-      hint: {
-        title: "2. Hint",
-        1: "Give indications about cards in one of your teammates hand.",
-        2: "Giving a hint costs a hint token:",
-        3: "You can hint about one color or one value.",
-        4: "For instance, in the hand below:",
-        5: "You could give the following hints:",
-        6: "Your cards A & B are blue",
-        7: "Your cards A & C are 2s",
-        8: "Your card E is yellow",
-        9: "You have no green cards",
-      },
-      discard: {
-        title: "3. Discard",
-        1: "Throw away a card from your hand. It will be lost forever.",
-        2: "Gain one hint token:",
-        3: "Draw a new card from the deck.",
-      },
-    },
-    tokens: {
-      title: "Tokens",
-      1: "Hint tokens allow you to give hints.",
-      2: "At the start of the game, your team has 8 tokens.",
-      3: "Strike tokens are gained when someone plays an unplayable card.",
-      4: "After reaching 3 strike tokens, you instantly lose the game.",
-    },
-    ready: {
-      title: "Ready?",
-      1: "Let's jump into a trial game to try all this out!",
-      2: "Hanab is a game with endless options and possibilities. There is no right choice when playing.",
-      3: "This tutorial aims to help you understand a basic play style you'll be able to use with your friends.",
-      4: "The conventions mentioned afterwards are not part of the official rules, but rather a system some players created to be more efficient. If you'd like to discover those by yourself, you can leave this tutorial right now and jump right into a game.",
-    },
-  },
-  tutorialActions: {
-    beginning: {
-      content:
-        "At the beginning of the game, you know nothing about your hand, so discarding or playing a card could be dangerous.\nIt is safer to give a hint. Adam here has two playable cards:<3/>and<5/>.\nLet's tell him by hinting him 1s.",
-      todo: 'Tap Adam\'s game, select <1/>, then click "Hint"',
-    },
-    playFirstRed: {
-      content:
-        'Nice! Adam played his first card from the hint you gave him.\nJane also gave you a <3/> hint on 2 cards. It might mean those cards are interesting to play right now.\n<6>Convention: Left-most principle</6>When receiving a "play" hint on multiple cards, let\'s assume it the leftmost one is the interesting one.',
-      todo: "Select your game, then play your second card.",
-    },
-    playSecondRed: {
-      content:
-        "All right. We still know that our third card is red.\n<2>Convention: optimism</2>When receiving a hint on multiple cards, let's assume that they're all playable, one by one, from left to right. If it's not the case, let's trust our team to give us a \"stop\" hint to prevent us from making a mistake.\nLet's be optimisic and assume that our third card is <6/>",
-      todo: "Select your game, then play your third card.",
-    },
-    hint: {
-      content:
-        "We don't know anything about our hand and we still have 4 hints <1/> left to give hints.\n\nAdam know that his 3rd card is blue. Maybe that if you hint Jane about her <6/> and she plays it, Adam will understand he can play his <8/>",
-      todo: "Tap Jane's game and hint her <1/>s",
-    },
-    interpret: {
-      content:
-        "Hmmm, looks like Adam didn't understand you. No big deal though, no mistakes have been made.\nWe received a <3/> hint. Can you guess what it means?",
-      todo: "Interpret the hint you just received 😉",
-    },
-    discard: {
-      content:
-        "Things are progressing nicely, you already played 8 cards. However your team is running low on hints and you'll soon get stuck. In order to gain more hints, you'll have to start discarding cards.\n<2>Convention: right-most discard</2>Discarding a card can be risky since you could accidently throw away an important card and get stuck in the game. Always discard your unknown right-most card as it's the oldest one. Like so, if it was dangerous to discard, your teammates would have had time to let you know.\n",
-      todo: "Discard your right-most card",
-    },
-    play: {
-      content:
-        "Looks like your teammates are a bit wasteful. You're out of hints. They'll probably have to discard next turn.\n",
-      todo: "Play your first card",
-    },
-    save: {
-      content:
-        "😅 Adam just discarded <1/>. There's only one <3/> for each color in the deck so it should never be discarded!\n\nIt might have been predicted using the <8>right-most discard</8> convention. Adam had info about his latest card, so he chose to discard <10/> instead.\n\nAlways be mindful of what your teammates are likely to do next!",
-      todo: "Tell Jane about her <1/>",
-    },
-  },
-  tutorialComplete:
-    "That's it! You should be ready to play now. You can either finish this game or start a new one with friends!\n\nThanks for following along 🎉\n\nYou can access the complete rules and tour by taping the ☰ button",
 };

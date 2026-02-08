@@ -46,7 +46,6 @@ export const de = {
   deck: "Deck",
   loading: "Wird geladen...",
   menu: "Menü",
-  tutorial: "Kurze Tour",
   rules: "Regeln",
   yourTurn: "Du bist an der Reihe",
   youWillStart: "Du bist der Startspieler",
@@ -74,30 +73,6 @@ export const de = {
   rollbackDisclaimer: "Du bist dabei die letzte Aktion rückgängig zu machen!",
   cannotRollback: "Du kannst das Spiel noch nicht rückgängig machen",
   abort: "Abbrechen",
-  introTutorial: "Anleitung",
-  introContent: "Mach eine kurze Tour!",
-  playedCardsTutorial: "Gespielte Karten",
-  playedCardsTutorialContent:
-    "Hier werden die Karten abgelegt die gespielt wurden.\nErreiche zusammen 5 Karten jeder Farbe um das Spiel zu gewinnen.",
-  discardTutorial: "Ablegen",
-  discardTutorialContent:
-    "Hier siehst du die Karten die\ndu und dein Team abgelegt haben.\nVermeide Karten abzulegen die du\nbrauchst um das Spiel zu gewinnen.",
-  yourGameTutorial: "Dein Spiel",
-  yourGameTutorialContent:
-    "Das sind deine Karten.\nDu kannst sie nicht sehen, aber die anderen Spieler können dir Hinweise dazu geben.",
-  teammatesTutorial: "Teammitglieder",
-  teammatesTutorialContent:
-    "Das sind deine Teammitglieder.\nGenau wie du können sie ihre eigenen Karten nicht sehen.\nGib ihnen Hinweise zu ihren Karten.",
-  hintTokensTutorial: "Hinweis Marken",
-  hintTokensTutorialContent:
-    "Manche Aktionen kosten etwas.\n\n- Ein Hinweis kostet 1 Hinweis Marke.\n- Das Abwerfen einer Karte gibt 1 Hinweis Marke zurück.\n- Das Ablegen einer 5 gibt eine zusätzliche Hinweis Marke.",
-  strikeTokensTutorial: "Blitz Marken",
-  strikeTokensTutorialContent:
-    "Das Spielen einer falschen Karte kostet eine Blitz Marke.\nBei Erreichen von 3 Blitz Marken ist das Spiel verloren.",
-  yourTurnTutorial: "Du bist an der Reihe",
-  yourTurnTutorialContent:
-    "Du hast 3 Möglichkeiten:\n\n- Tippe auf dein Deck um eine Karte zu spielen...\n- ... oder wirf eine Karte ab\n- Tippe auf ein Teammitglied um einen Hinweis zu geben.",
-  skip: "✕ Überspringen",
   offline: "Du bist Offline!",
   apologies: "Es tut uns leid. Irgendetwas ist schiefgelaufen 😕",
   errorWillInvestigate:
@@ -235,83 +210,4 @@ export const de = {
   contributeLanguage: "Beitragen!",
   next: "Weiter",
   new: "Neu",
-  learnHanab: "Lernen",
-  learnHanabTime: "~5 min",
-  learnWhileWaiting: "Lerne die Grundlagen von Hanab während du wartest",
-  learnHanabEnglish: "Lerne Hanab - ",
-  learn: {
-    welcome: {
-      title: "Lerne Hanab in 5 Minuten",
-      1: "Willkommen! In diesem kurzen Tutorial lernst du das Spiel kennen.",
-      2: "Keine Angst, wir begleiten dich durch das Tutorial!",
-    },
-    cooperation: {
-      title: "Kooperation",
-      1: "Hanab ist ein gemeinsames Spiel.\n\nDu spielst zusammen mit anderen Spielern um das Spiel zu gewinnen.",
-    },
-    colorBlind: {
-      label: "Probleme Farben zu sehen, aktiviere den Modus für Farbenblinde",
-    },
-    cards: {
-      title: "Karten",
-      1: {
-        1: "Die Karten sind von",
-        2: "bis",
-        3: "nummeriert in den Farben",
-        4: "oder",
-      },
-      2: "Zu Beginn des Spiels erhält jeder Spieler bis zu 5 Karten.",
-      3: "Du kannst deine eigenen Karten nicht sehen, aber die Karten der anderen Spieler.",
-    },
-    goal: {
-      title: "Ziel",
-      1: "Spiele als Team die Karten aller Farben.",
-      2: "Die Karten jeder Farbe müssen in aufsteigender Reihenfolge abgelegt werden.",
-      3: "Als Beispiel muss in obigem Beispiel die",
-      4: "vor der",
-      5: "gespielt werden.",
-    },
-    actions: {
-      title: "Aktionen",
-      0: "Wenn du an der Reihe bist, hast du die Wahl aus drei Aktionen",
-      play: {
-        title: "1. Spielen",
-        1: "Spiele eine Karte von deiner Hand an den Ablege-Stapel",
-        2: "Wenn die Karte nicht spielbar war, bekommt dein Team eine rote Blitzmarke:",
-        3: "Zieh danach eine Karte vom Nachziehstapel.",
-      },
-      hint: {
-        title: "2. Hinweis geben",
-        1: "Gib einem Teammitglied Hinweise auf die Karten in seiner Hand.",
-        2: "Einen Hinweis geben kostet eine blaue Marke:",
-        3: "Du kannst einen Hinweis zu einer Farbe oder zu einer Zahl geben.",
-        4: "Als Beispiel folgende Handkarten:",
-        5: "Du kannst die folgenden Hinweise geben:",
-        6: "Deine Karten A & B sind blau",
-        7: "Deine Karten A & C sind 2en",
-        8: "Deine Karte E ist gelb",
-        9: "Du hast keine grünen Karten",
-      },
-      discard: {
-        title: "3. Karte abwerfen",
-        1: "Wirf eine Karte von deiner Hand ab. Diese Karte ist dann endgültig abgeworfen.",
-        2: "Du bekommst eine blaue Marke zurück:",
-        3: "Zieh eine neue Karte vom Nachziehstapel auf.",
-      },
-    },
-    tokens: {
-      title: "Marken",
-      1: "Blaue Hinweis Marken erlauben dir Hinweise zu geben.",
-      2: "Zu Beginn des Spiels hat das Team 8 blaue Marken.",
-      3: "Blitz Marken (rot) erhält man wenn jemand eine unpassende Karte auf die Ablagestapel spielen möchte.",
-      4: "Bei Erreichen von 3 Blitz Marken ist das Spiel verloren und damit beendet.",
-    },
-    ready: {
-      title: "Fertig?",
-      1: "Lass uns das Gelernte in einem ersten Beispiel ausprobieren!",
-      2: "Hanab ist ein Spiel mit vielen Möglichkeiten und Optionen. Es gibt kein richtig oder falsch beim Spielen.",
-      3: "Diese Anleitung soll helfen das Basisspiel zu verstehen, ein eigener Spiel-Stil wird sich im Laufe des Spiels finden.",
-      4: "Die angegbenen Regeln sind nicht Teil des offiziellen Spiels, aber eine effizientere Möglichkeit für Spieler. Wenn du diese selbst ausprobieren möchtest, verlasse das Tutorial und starte direkt ein Spiel.",
-    },
-  },
 };

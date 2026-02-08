@@ -1,34 +1,32 @@
 import { useRouter } from "next/router";
 import React, { useMemo, useState } from "react";
 import GameIndex from "~/components/GameIndex";
-import { TutorialProvider } from "~/components/tutorial";
 import { ReplayContext } from "~/hooks/replay";
 import { Session, SessionContext } from "~/hooks/session";
-import { uniqueId } from "~/lib/id";
+import { useRequireName } from "~/hooks/useRequireName";
 
-function getLocalPlayerId(): string {
-  if (typeof window === "undefined") return uniqueId();
-  let id = localStorage.getItem("playerId");
-  if (id) {
+function getLocalPlayerName(): string {
+  if (typeof window === "undefined") return "";
+  const stored = localStorage.getItem("name");
+  if (stored) {
     try {
-      return JSON.parse(id);
+      return JSON.parse(stored);
     } catch {
-      return id;
+      return stored;
     }
   }
-  id = uniqueId();
-  localStorage.setItem("playerId", JSON.stringify(id));
-  return id;
+  return "";
 }
 
 export default function Play() {
   const router = useRouter();
   const gameId = router.query.gameId as string;
+  useRequireName();
 
   const [replayCursor, setReplayCursor] = useState<number>(null);
 
   const session = useMemo<Session>(() => {
-    return { playerId: getLocalPlayerId() };
+    return { playerId: getLocalPlayerName() };
   }, []);
 
   const host = typeof window !== "undefined" ? window.location.origin : "";
@@ -36,12 +34,10 @@ export default function Play() {
   if (!gameId) return null;
 
   return (
-    <TutorialProvider>
-      <SessionContext.Provider value={session}>
-        <ReplayContext.Provider value={{ cursor: replayCursor, moveCursor: setReplayCursor }}>
-          <GameIndex gameId={gameId} host={host} />
-        </ReplayContext.Provider>
-      </SessionContext.Provider>
-    </TutorialProvider>
+    <SessionContext.Provider value={session}>
+      <ReplayContext.Provider value={{ cursor: replayCursor, moveCursor: setReplayCursor }}>
+        <GameIndex gameId={gameId} host={host} />
+      </ReplayContext.Provider>
+    </SessionContext.Provider>
   );
 }

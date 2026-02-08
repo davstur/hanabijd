@@ -5,6 +5,7 @@ import PlayerAvatar from "~/components/playerAvatar";
 import Button, { ButtonSize } from "~/components/ui/button";
 import Txt, { TxtSize } from "~/components/ui/txt";
 import useLocalStorage from "~/hooks/localStorage";
+import { useRequireName } from "~/hooks/useRequireName";
 import {
   IRoom,
   IRoomMember,
@@ -15,26 +16,10 @@ import {
 } from "~/lib/firebase";
 import IGameState, { GameVariant, IGameStatus } from "~/lib/state";
 import { getMaximumScore, getScore } from "~/lib/actions";
-import { uniqueId } from "~/lib/id";
 import { isPushSubscribed, isPushSupported, subscribeToPush, unsubscribeFromPush } from "~/lib/notifications";
 
 const NAME_KEY = "name";
 const ROOM_KEY = "currentRoom";
-
-function getPlayerId(): string {
-  if (typeof window === "undefined") return uniqueId();
-  let id = localStorage.getItem("playerId");
-  if (id) {
-    try {
-      return JSON.parse(id);
-    } catch {
-      return id;
-    }
-  }
-  id = uniqueId();
-  localStorage.setItem("playerId", JSON.stringify(id));
-  return id;
-}
 
 function getPlayerName(): string {
   if (typeof window === "undefined") return "";
@@ -106,6 +91,7 @@ export default function RoomPage() {
   const router = useRouter();
   const { roomId } = router.query;
   const { t } = useTranslation();
+  useRequireName();
 
   const [room, setRoom] = useState<IRoom | null>(null);
   const [games, setGames] = useState<IGameState[]>([]);
@@ -139,18 +125,14 @@ export default function RoomPage() {
 
       // Auto-join room if not already a member
       if (roomData) {
-        const playerId = getPlayerId();
+        const name = getPlayerName();
         const members = roomData.members || {};
-        if (!members[playerId]) {
-          const name = getPlayerName();
-          if (name) {
-            const member: IRoomMember = {
-              id: playerId,
-              name,
-              joinedAt: Date.now(),
-            };
-            joinRoomDb(roomId, member);
-          }
+        if (name && !members[name]) {
+          const member: IRoomMember = {
+            name,
+            joinedAt: Date.now(),
+          };
+          joinRoomDb(roomId, member);
         }
         // Store room in localStorage
         localStorage.setItem(ROOM_KEY, JSON.stringify(roomId));
@@ -172,8 +154,7 @@ export default function RoomPage() {
 
   async function handleLeaveRoom() {
     if (!roomId || typeof roomId !== "string") return;
-    const playerId = getPlayerId();
-    await leaveRoom(roomId, playerId);
+    await leaveRoom(roomId, getPlayerName());
     setCurrentRoom(null);
     localStorage.removeItem(ROOM_KEY);
     router.push("/");
@@ -255,7 +236,7 @@ export default function RoomPage() {
       <div className="mb4">
         <Txt className="ttu mb2 db" size={TxtSize.SMALL} value={t("members")} />
         {members.map((member) => (
-          <span key={member.id} className="mb1 flex items-center lavender">
+          <span key={member.name} className="mb1 flex items-center lavender">
             <PlayerAvatar className="mr2" name={member.name} />
             <Txt size={TxtSize.SMALL} value={member.name} />
           </span>
@@ -283,7 +264,7 @@ export default function RoomPage() {
             <div className="flex items-center">
               <div className="flex items-center mr2" style={{ gap: 4 }}>
                 {game.players.length > 0 ? (
-                  game.players.map((p) => <PlayerAvatar key={p.id} name={p.name} />)
+                  game.players.map((p) => <PlayerAvatar key={p.name} name={p.name} />)
                 ) : (
                   <Txt size={TxtSize.SMALL} value="..." />
                 )}
@@ -295,7 +276,7 @@ export default function RoomPage() {
               {game.status === IGameStatus.ONGOING && (
                 <Button
                   size={ButtonSize.TINY}
-                  text={game.players.some((p) => p.id === getPlayerId()) ? t("rejoinGame") : t("watch")}
+                  text={game.players.some((p) => p.name === getPlayerName()) ? t("rejoinGame") : t("watch")}
                 />
               )}
               {game.status === IGameStatus.OVER && <Button size={ButtonSize.TINY} text={t("view", "View")} />}

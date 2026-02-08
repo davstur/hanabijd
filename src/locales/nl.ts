@@ -45,7 +45,6 @@ export const nl = {
   deck: "kaarten",
   loading: "Laden...",
   menu: "Menu",
-  tutorial: "Tutorial",
   rules: "Regels",
   yourTurn: "Jouw beurt",
   youWillStart: "Jij begint als eerste",
@@ -71,30 +70,6 @@ export const nl = {
   rollbackDisclaimer: "Je staat op het punt de laatste actie ongedaan te maken!",
   cannotRollback: "Je kan nog geen actie ongedaan maken",
   abort: "Afbreken",
-  introTutorial: "Tutorial",
-  introContent: "Leer hoe je moet spelen!",
-  playedCardsTutorial: "Gespeelde kaarten",
-  playedCardsTutorialContent:
-    "Hier worden alle kaarten verzameld die werden gespeeld.\nWerk samen en bereik 5 voor elke kleur om het spel te winnen.",
-  discardTutorial: "Weggooien",
-  discardTutorialContent:
-    "Hier zie je de kaarten\ndie jij en je team weggooiden.\nVermijd om kaarten weg te gooien\ndie jullie nodig hebben om het spel tot een goed einde te brengen.",
-  yourGameTutorial: "Jouw spel",
-  yourGameTutorialContent:
-    "Dit zijn jouw kaarten.\nJij kan ze niet zien, maar andere spelers wel en zullen jou er hints over geven.",
-  teammatesTutorial: "Teamgenoten",
-  teammatesTutorialContent:
-    "Dit zijn jouw teamgenoten.\nZoals jij, kunnen zij ook hun eigen kaarten niet zien.\nGeef hen hints waarmee ze kaarten kunnen spelen of weggooien.",
-  hintTokensTutorial: "Hint tokens",
-  hintTokensTutorialContent:
-    "Sommige acties hebben een kost.\n\n- Een hint geven kost 1 hint token.\n- Een kaart weggooien levert 1 hint token op.\n- Een 5 spelen levert 1 hint token als bonus op.",
-  strikeTokensTutorial: "strafpunten",
-  strikeTokensTutorialContent:
-    "Wanneer je een verkeerde kaart speelt, wordt deze weggegooid en krijg je 1 strafpunt.\nWanneer je 3 strafpunten hebt, verlies je het spel onmiddellijk.",
-  yourTurnTutorial: "Het is jouw beurt",
-  yourTurnTutorialContent:
-    "Je hebt 3 opties:\n\n- Tik op je spel om een kaart te spelen...\n- ... of weg te gooien\n- Tik op één van je teamgenoten om hen hints te geven.",
-  skip: "✕ Overslaan",
   offline: "Je bent offline !",
   apologies: "Het spijt ons. Er is iets fout gegaan 😕",
   errorWillInvestigate:
@@ -226,8 +201,4 @@ export const nl = {
   contributeLanguage: "Bijdragen!",
   next: "Volgende",
   new: "Nieuw",
-  learnHanab: "Leer",
-  learnHanabTime: "~5 mn",
-  learnHanabEnglish: "Dit onderdeel is in ontwikkeling en is nog niet in alle talen vertaald.",
-  learnWhileWaiting: "Leer de basis van Hanab tijdens het wachten",
 };

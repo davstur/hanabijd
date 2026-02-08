@@ -1,6 +1,6 @@
 import Fireworks from "fireworks-canvas";
 import { useRouter } from "next/router";
-import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ActionAreaType, ISelectedArea } from "~/components/actionArea";
 import DiscardArea from "~/components/discardArea";
@@ -11,21 +11,17 @@ import MenuArea from "~/components/menuArea";
 import PlayersBoard from "~/components/playersBoard";
 import ReplayViewer from "~/components/replayViewer";
 import RollbackArea from "~/components/rollbackArea";
-import Tutorial, { ITutorialStep, TutorialContext } from "~/components/tutorial";
-import TutorialInstructions from "~/components/tutorialInstructions";
 import Button, { ButtonSize } from "~/components/ui/button";
 import Txt, { TxtSize } from "~/components/ui/txt";
 import { useCurrentPlayer, useGame, useSelfPlayer } from "~/hooks/game";
 import useLocalStorage from "~/hooks/localStorage";
 import { useNotifications } from "~/hooks/notifications";
 import { useReplay } from "~/hooks/replay";
-import { useSession } from "~/hooks/session";
 import { useUserPreferences } from "~/hooks/userPreferences";
 import { commitAction, getMaximumPossibleScore, getScore, joinGame, newGame, recreateGame } from "~/lib/actions";
 import { play } from "~/lib/ai";
 import { cheat } from "~/lib/ai-cheater";
 import { setNotification, setReaction, updateGame } from "~/lib/firebase";
-import { uniqueId } from "~/lib/id";
 import IGameState, { GameMode, IAction, IGameHintsLevel, IGameStatus, IPlayer } from "~/lib/state";
 import { logFailedPromise } from "~/lib/errors";
 
@@ -42,7 +38,6 @@ export function Game(props: Props) {
   const [displayStats, setDisplayStats] = useState(false);
   const [reachableScore, setReachableScore] = useState<number>(null);
   const [interturn, setInterturn] = useState(false);
-  const { playerId } = useSession();
   const [, setGameId] = useLocalStorage("gameId", null);
   const [selectedArea, selectArea] = useState<ISelectedArea>({
     id: "logs",
@@ -54,7 +49,6 @@ export function Game(props: Props) {
   const currentPlayer = useCurrentPlayer(game);
   const selfPlayer = useSelfPlayer(game);
   const replay = useReplay();
-  const tutorial = useContext(TutorialContext);
   const [userPreferences] = useUserPreferences();
   useNotifications();
 
@@ -123,7 +117,6 @@ export function Game(props: Props) {
 
     game.players.forEach((player) => {
       sameGame = joinGame(sameGame, {
-        id: player.id,
         name: player.name,
         bot: true,
       });
@@ -143,19 +136,6 @@ export function Game(props: Props) {
     game.options.variant,
     game.players,
   ]);
-
-  const fillBots = useCallback(async () => {
-    let newState = game;
-    const botsName = ["Jane", "Adam"];
-
-    for (let i = 1; i < newState.options.playersCount; i++) {
-      const playerId = uniqueId();
-
-      newState = joinGame(newState, { id: playerId, name: botsName[i - 1] + " 🤖", bot: true });
-
-      await updateGame(newState);
-    }
-  }, [game]);
 
   /**
    * Display fireworks animation when game ends
@@ -179,30 +159,6 @@ export function Game(props: Props) {
     return () => clearTimeout(timeout);
   }, [game.status, game.playedCards.length, userPreferences.showFireworksAtGameEnd]);
 
-  /**
-   * Automatically start tutorial when player joins
-   */
-  const startTutorial = useCallback(() => {
-    const newState = {
-      ...game,
-      status: IGameStatus.ONGOING,
-      startedAt: Date.now(),
-    };
-
-    updateGame(newState).catch(logFailedPromise);
-  }, [game]);
-
-  useEffect(() => {
-    if (!game.options.tutorial) return;
-
-    if (game.players.length === 1 && game.status === IGameStatus.LOBBY) {
-      fillBots().catch(logFailedPromise);
-    }
-    if (game.players.length === game.options.playersCount && game.status === IGameStatus.LOBBY) {
-      startTutorial();
-    }
-  }, [fillBots, startTutorial, game.players.length, game.options.tutorial, game.status, game.options.playersCount]);
-
   function changeToNextGame() {
     onStopReplay();
     const nextGameId = liveGame().nextGameId;
@@ -220,8 +176,8 @@ export function Game(props: Props) {
     setDisplayStats(false);
   }, [game.nextGameId]);
 
-  function onJoinGame(player: Omit<IPlayer, "id">) {
-    const newState = joinGame(game, { id: playerId, ...player });
+  function onJoinGame(player: Pick<IPlayer, "name" | "bot">) {
+    const newState = joinGame(game, player);
 
     onGameChange({ ...newState, synced: false });
     updateGame(newState).catch(logFailedPromise);
@@ -230,13 +186,8 @@ export function Game(props: Props) {
   }
 
   function onAddBot() {
-    const playerId = uniqueId();
     const botsCount = game.players.filter((p) => p.bot).length;
-
-    const bot = {
-      name: `AI #${botsCount + 1}`,
-    };
-    const newState = joinGame(game, { id: playerId, ...bot, bot: true });
+    const newState = joinGame(game, { name: `AI #${botsCount + 1}`, bot: true });
 
     onGameChange({ ...newState, synced: false });
     updateGame(newState).catch(logFailedPromise);
@@ -305,14 +256,14 @@ export function Game(props: Props) {
   }
 
   function onSelectPlayer(player, cardIndex) {
-    const self = player.id === selfPlayer?.id;
+    const self = player.name === selfPlayer?.name;
 
     if (displayStats) {
       return;
     }
 
     onSelectArea({
-      id: self ? `game-${player.id}-${cardIndex}` : `game-${player.id}`,
+      id: self ? `game-${player.name}-${cardIndex}` : `game-${player.name}`,
       type: self ? ActionAreaType.SELF_PLAYER : ActionAreaType.OTHER_PLAYER,
       player,
       cardIndex,
@@ -429,9 +380,7 @@ export function Game(props: Props) {
               <div className="flex justify-between h-100 pa1 pa2-l">
                 <Logs interturn={interturn} />
                 <div className="flex flex-column justify-between items-end">
-                  <Tutorial placement="left" step={ITutorialStep.DISCARD_PILE}>
-                    <DiscardArea />
-                  </Tutorial>
+                  <DiscardArea />
                   <Button
                     void
                     className="tracked-tight"
@@ -478,8 +427,6 @@ export function Game(props: Props) {
             </div>
           </div>
         )}
-
-        {game.status === IGameStatus.ONGOING && game.options.tutorial && tutorial.isOver && <TutorialInstructions />}
 
         {replay.cursor !== null && (
           <div className="flex flex-column bg-black-50 bt b--yellow pv3 ph6.5-m">
