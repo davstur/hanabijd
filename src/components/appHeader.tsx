@@ -2,6 +2,7 @@ import { useRouter } from "next/router";
 import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import LanguageSelector from "~/components/languageSelector";
+import PlayerAvatar, { AvatarSize } from "~/components/playerAvatar";
 import Txt, { TxtSize } from "~/components/ui/txt";
 
 export default function AppHeader() {
@@ -64,8 +65,8 @@ export default function AppHeader() {
         <LanguageSelector outlined />
         {playerName && (
           <div ref={menuRef} className="relative ml2">
-            <span className="pointer underline-hover" onClick={() => setShowMenu(!showMenu)}>
-              <Txt size={TxtSize.XSMALL} value={playerName} />
+            <span className="pointer" onClick={() => setShowMenu(!showMenu)}>
+              <PlayerAvatar name={playerName} size={AvatarSize.MEDIUM} />
             </span>
             {showMenu && (
               <div
