@@ -1,6 +1,7 @@
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import PlayerAvatar from "~/components/playerAvatar";
 import Button, { ButtonSize } from "~/components/ui/button";
 import Txt, { TxtSize } from "~/components/ui/txt";
 import useLocalStorage from "~/hooks/localStorage";
@@ -255,7 +256,8 @@ export default function RoomPage() {
       <div className="mb4">
         <Txt className="ttu mb2 db" size={TxtSize.SMALL} value={t("members")} />
         {members.map((member) => (
-          <span key={member.id} className="mb1 db lavender">
+          <span key={member.id} className="mb1 flex items-center lavender">
+            <PlayerAvatar className="mr2" name={member.name} />
             <Txt size={TxtSize.SMALL} value={member.name} />
           </span>
         ))}
@@ -280,7 +282,13 @@ export default function RoomPage() {
             onClick={() => handleJoinGame(game.id)}
           >
             <div className="flex items-center">
-              <Txt className="mr2" size={TxtSize.SMALL} value={game.players.map((p) => p.name).join(", ") || "..."} />
+              <div className="flex items-center mr2" style={{ gap: 4 }}>
+                {game.players.length > 0 ? (
+                  game.players.map((p) => <PlayerAvatar key={p.id} name={p.name} />)
+                ) : (
+                  <Txt size={TxtSize.SMALL} value="..." />
+                )}
+              </div>
               <GameStatusBadge game={game} />
             </div>
             <div className="flex items-center">
