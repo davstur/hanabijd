@@ -171,8 +171,8 @@ export default function AppHeader() {
                     </div>
                   </label>
                 )}
-                <span className="db pa1 mb1 hover-bg-white-10 br1">
-                  <LanguageSelector outlined />
+                <span className="pointer db pa1 mb1 hover-bg-white-10 br1">
+                  <LanguageSelector className="f7 f6-l h-auto pa0" outlined />
                 </span>
                 <span className="pointer db pa1 hover-bg-white-10 br1" onClick={handleLogout}>
                   <Txt size={TxtSize.XSMALL} value={t("logout")} />

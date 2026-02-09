@@ -19,10 +19,11 @@ export const Languages = {
 
 interface Props {
   outlined?: boolean;
+  className?: string;
 }
 
 export default function LanguageSelector(props: Props) {
-  const { outlined = false } = props;
+  const { outlined = false, className } = props;
 
   const { t } = useTranslation();
 
@@ -34,6 +35,7 @@ export default function LanguageSelector(props: Props) {
   return (
     <label className="db" title={t("selectLanguage")}>
       <Select
+        className={className}
         options={languages}
         outlined={outlined}
         value={i18n.language}
