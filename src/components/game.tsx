@@ -360,7 +360,11 @@ export function Game(props: Props) {
     <>
       <div className="game bg-main-dark relative flex flex-column w-100 h-100">
         <div className="bg-black-50 pa2 pv2-l ph6.5-m">
-          <GameBoard onMenuClick={onMenuClick} onRollbackClick={onRollbackClick} />
+          <GameBoard
+            onHistoryClick={() => setShowHistory(true)}
+            onMenuClick={onMenuClick}
+            onRollbackClick={onRollbackClick}
+          />
         </div>
         <div className="flex flex-column bg-black-50 bb b--yellow ph6.5-m">
           {selectedArea.type === ActionAreaType.MENU && <MenuArea onCloseArea={onCloseArea} />}
@@ -372,18 +376,6 @@ export function Game(props: Props) {
           {selectedArea.type === ActionAreaType.ROLLBACK && (
             <div className="h4 pa2 ph3-l">
               <RollbackArea onCloseArea={onCloseArea} />
-            </div>
-          )}
-
-          {game.status !== IGameStatus.LOBBY && selectedArea.type !== ActionAreaType.ROLLBACK && (
-            <div className="flex items-center pa1 pa2-l">
-              <Button
-                void
-                className="tracked-tight"
-                size={ButtonSize.TINY}
-                text={t("playHistory")}
-                onClick={() => setShowHistory(true)}
-              />
             </div>
           )}
         </div>

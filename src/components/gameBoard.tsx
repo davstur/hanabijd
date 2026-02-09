@@ -12,6 +12,7 @@ import { getMaximumPossibleScore, getMaximumScore, getScore } from "~/lib/action
 import { IGameStatus } from "~/lib/state";
 
 interface Props {
+  onHistoryClick?: () => void;
   onMenuClick?: () => void;
   onRollbackClick?: () => void;
 }
@@ -19,7 +20,7 @@ interface Props {
 export { CardWrapper } from "~/components/card";
 
 export default function GameBoard(props: Props) {
-  const { onMenuClick, onRollbackClick } = props;
+  const { onHistoryClick, onMenuClick, onRollbackClick } = props;
   const { t } = useTranslation();
 
   const game = useGame();
@@ -31,13 +32,17 @@ export default function GameBoard(props: Props) {
   return (
     <div>
       <div className="flex justify-between items-center">
-        <div>
+        <div className="flex items-center">
           <Txt uppercase id="score" value={t("score", { score, maxPossibleScore })} />
 
           {maxScore !== maxPossibleScore && <Txt uppercase className="strike ml1 gray" value={maxScore} />}
 
           {game.actionsLeft > 0 && game.actionsLeft <= game.options.playersCount && (
             <Txt uppercase className="red ml2" value={t("turnsLeftDisclaimer", { count: game.actionsLeft })} />
+          )}
+
+          {onHistoryClick && (
+            <Button void className="ml2" size={ButtonSize.TINY} text={t("playHistory")} onClick={onHistoryClick} />
           )}
         </div>
         <div className="flex">
