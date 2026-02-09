@@ -190,7 +190,9 @@ export default function AppHeader() {
   return (
     <>
       {/* Default horizontal header */}
-      <div className={`app-header-horizontal flex items-center justify-between pv2 ph3 bb b--yellow-light${isLandscapeSidebar ? " landscape-game-hide" : ""}`}>
+      <div
+        className={`app-header-horizontal flex items-center justify-between pv2 ph3 bb b--yellow-light${isLandscapeSidebar ? " landscape-game-hide" : ""}`}
+      >
         {leftNavContent}
         {avatarContent}
       </div>
