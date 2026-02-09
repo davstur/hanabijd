@@ -366,7 +366,7 @@ export function Game(props: Props) {
             onRollbackClick={onRollbackClick}
           />
         </div>
-        <div className="flex flex-column bg-black-50 bb b--yellow ph6.5-m">
+        <div className="flex flex-column bg-black-50 bb b--yellow ph6.5-m pv-portrait-divider">
           {selectedArea.type === ActionAreaType.MENU && <MenuArea onCloseArea={onCloseArea} />}
 
           {game.status === IGameStatus.LOBBY && (

@@ -37,7 +37,7 @@ export default function PlayersBoard(props: Props) {
   return (
     <>
       {otherPlayers.map((otherPlayer, i) => (
-        <div key={i} className="bb b--yellow bg-main-dark">
+        <div key={i} className="bb b--yellow bg-main-dark pv-portrait-divider">
           <PlayerGame
             active={currentPlayer === otherPlayer}
             displayStats={displayStats}
@@ -52,7 +52,7 @@ export default function PlayersBoard(props: Props) {
         </div>
       ))}
       {selfPlayer && (
-        <div className="mb4">
+        <div className="mb4 pt-portrait-divider">
           <PlayerGame
             active={currentPlayer === selfPlayer}
             cardIndex={cardIndex}

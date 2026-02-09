@@ -18,7 +18,7 @@ export default function Vignettes(props: Props) {
   const hintableNumbers = game.options.variant === GameVariant.SEQUENCE ? numbers.slice(1) : numbers;
 
   return (
-    <div className="flex flex-column items-center ml6-l">
+    <div className="vignettes-container flex flex-column items-center ml6-l">
       <div className="flex flex-row mb1">
         {colors.map((color, i) => (
           <Vignette

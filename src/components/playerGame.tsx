@@ -300,15 +300,6 @@ export default function PlayerGame(props: Props) {
           )}
           {!displayStats && (
             <div className="relative flex items-center justify-end flex-grow-1 dib">
-              {selected && (
-                <Txt
-                  className="lavender absolute top--1 right-2 dib"
-                  size={TxtSize.XSMALL}
-                  style={{ marginTop: "-1px" }}
-                  value="⟶"
-                />
-              )}
-
               {/* When game has ended (even in replay mode)
               Enable user to view their game */}
               {(game.endedAt || game.originalGame?.endedAt) && player === selfPlayer && (
@@ -442,31 +433,32 @@ export default function PlayerGame(props: Props) {
         }}
       >
         {canPlay && selected && player !== selfPlayer && selfPlayer === currentPlayer && (
-          <div className="flex flex-column items-end pb2 mr2">
-            <Vignettes pendingHint={pendingHint} onSelect={(action) => setPendingHint(action)} />
+          <div className="hint-area flex flex-column items-end pb2 mr2">
+            <div className="hint-row flex items-center">
+              <Vignettes pendingHint={pendingHint} onSelect={(action) => setPendingHint(action)} />
 
-            <div className="mt2 flex items-center">
-              {pendingHint.value && game.tokens.hints !== 0 && (
-                <Txt italic className="mr3" value={textualHint(game, pendingHint, player.hand, t)} />
-              )}
-              {game.tokens.hints === 0 && <Txt className="mr3 orange" value={t("noTokens")} />}
-              {!pendingHint.value && game.tokens.hints > 0 && <Txt className="mr3" value={t("selectVignette")} />}
+              <div className="hint-button-group flex items-center ml2">
+                {pendingHint.value && game.tokens.hints !== 0 && (
+                  <Txt italic className="mr3" value={textualHint(game, pendingHint, player.hand, t)} />
+                )}
+                {game.tokens.hints === 0 && <Txt className="mr3 orange" value={t("noTokens")} />}
 
-              <Button
-                disabled={!pendingHint.type || game.tokens.hints === 0}
-                id="give-hint"
-                text={t("hint")}
-                onClick={() => {
-                  onCommitAction({
-                    action: "hint",
-                    from: currentPlayer.index,
-                    to: player.index,
-                    ...pendingHint,
-                  });
-                  setPendingHint({ value: null, type: null } as IHintAction);
-                  selectCard(null);
-                }}
-              />
+                <Button
+                  disabled={!pendingHint.type || game.tokens.hints === 0}
+                  id="give-hint"
+                  text={t("hint")}
+                  onClick={() => {
+                    onCommitAction({
+                      action: "hint",
+                      from: currentPlayer.index,
+                      to: player.index,
+                      ...pendingHint,
+                    });
+                    setPendingHint({ value: null, type: null } as IHintAction);
+                    selectCard(null);
+                  }}
+                />
+              </div>
             </div>
           </div>
         )}
@@ -483,6 +475,20 @@ export default function PlayerGame(props: Props) {
             position: relative;
             top: 0;
             right: 0;
+          }
+        }
+
+        .hint-row {
+          flex-direction: row;
+        }
+
+        @media screen and (orientation: landscape) and (max-height: 500px) {
+          .vignettes-container {
+            flex-direction: row !important;
+            gap: 0.5rem;
+          }
+          .vignettes-container > div {
+            margin-bottom: 0 !important;
           }
         }
       `}</style>

@@ -5,6 +5,7 @@ import DiscardArea from "~/components/discardArea";
 import HomeButton from "~/components/homeButton";
 import PlayedCards from "~/components/playedCards";
 import TokenSpace from "~/components/tokenSpace";
+import Turn from "~/components/turn";
 import Button, { ButtonSize } from "~/components/ui/button";
 import Txt, { TxtSize } from "~/components/ui/txt";
 import { useGame, useSelfPlayer } from "~/hooks/game";
@@ -29,8 +30,21 @@ export default function GameBoard(props: Props) {
   const maxScore = getMaximumScore(game);
   const maxPossibleScore = getMaximumPossibleScore(game);
 
+  const recentTurns = (
+    <div className="flex-1 overflow-hidden" style={{ minWidth: 0 }}>
+      {game.turnsHistory.slice(-2).map((turn, i, arr) => {
+        const turnNumber = game.turnsHistory.length - arr.length + i + 1;
+        return (
+          <div key={turnNumber} className="recent-turn-line">
+            <Turn avatarOnly showDrawn={false} showPosition={false} turn={turn} turnNumber={turnNumber} />
+          </div>
+        );
+      })}
+    </div>
+  );
+
   return (
-    <div>
+    <div className="gameboard-rows">
       <div className="flex justify-between items-center">
         <div className="flex items-center">
           <Txt uppercase id="score" value={t("score", { score, maxPossibleScore })} />
@@ -63,7 +77,12 @@ export default function GameBoard(props: Props) {
         <div className="flex flex-column mb3">
           <PlayedCards cards={game.playedCards} />
         </div>
-        <div className="flex items-end ml2 order-last-portrait">
+        {/* Recent turns: only visible in landscape row 2 */}
+        <div className="flex items-start ml2 dn-portrait self-start">
+          {recentTurns}
+        </div>
+        {/* Discard area: only visible in landscape row 2 */}
+        <div className="flex items-end ml2 dn-portrait">
           <DiscardArea />
         </div>
         <div className="flex flex-row mt2 justify-right items-end ml2">
@@ -87,6 +106,14 @@ export default function GameBoard(props: Props) {
             <TokenSpace hints={game.tokens.hints} strikes={game.tokens.strikes} />
             <Txt className="gray mt1" value={t("tokens")} />
           </div>
+        </div>
+      </div>
+
+      {/* Row 3 (portrait only): last 2 moves + discard */}
+      <div className="flex items-start justify-between mt1 db-portrait dn-landscape">
+        {recentTurns}
+        <div className="flex items-end ml2 flex-shrink-0">
+          <DiscardArea />
         </div>
       </div>
     </div>
