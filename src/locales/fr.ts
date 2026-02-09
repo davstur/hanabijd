@@ -30,6 +30,8 @@ export const fr = {
   preventLossContent: "Ton action fait perdre un point · Continuer ?",
   rewind: "Remonter le 🕑",
   backToGame: "Retour au jeu",
+  playHistory: "Historique",
+  close: "Fermer",
   theirTurn: "C'est à {{currentPlayerName}}",
   go: "Go !",
   estimatedMaxScore: "Score max estimé pour cette série : {{reachableScore}}.",

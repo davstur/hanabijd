@@ -30,6 +30,8 @@ export const es = {
   preventLossContent: "Esta acción os hará perder un punto - ¿Continuar?",
   rewind: "🕑 Turnos anteriores",
   backToGame: "Volver al juego",
+  playHistory: "Historial",
+  close: "Cerrar",
   theirTurn: "¡Le toca a {{currentPlayerName}}!",
   go: "¡Vamos!",
   estimatedMaxScore: "Puntuación máxima est. para este mazo: {{reachableScore}}",

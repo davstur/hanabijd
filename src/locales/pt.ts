@@ -30,6 +30,8 @@ export const pt = {
   preventLossContent: "Você fez besteira · Continua?",
   rewind: "🕑 Voltar",
   backToGame: "Voltar ao jogo",
+  playHistory: "Histórico",
+  close: "Fechar",
   theirTurn: "É a vez de {{currentPlayerName}}!",
   go: "Vamos!",
   estimatedMaxScore: "Pontuação máxima estimada para essa mesa: {{reachableScore}}.",

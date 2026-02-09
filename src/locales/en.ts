@@ -57,6 +57,8 @@ export const en = {
   preventLossContent: "You made a mistake. Keep going?",
   rewind: "🕑 Rewind",
   backToGame: "Back to game",
+  playHistory: "History",
+  close: "Close",
   theirTurn: "It's {{currentPlayerName}} turn!",
   go: "Go",
   estimatedMaxScore: "Estimated max score for this shuffle: {{reachableScore}}.",

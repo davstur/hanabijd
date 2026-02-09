@@ -30,6 +30,8 @@ export const de = {
   preventLossContent: "Verloren · Weitermachen?",
   rewind: "🕑 Rückgängig machen",
   backToGame: "Zurück zum Spiel",
+  playHistory: "Verlauf",
+  close: "Schließen",
   theirTurn: "{{currentPlayerName}} ist an der Reihe!",
   go: "Los",
   estimatedMaxScore: "Geschätzte Maximal-Punkte für dieses Spiel: {{reachableScore}}.",
