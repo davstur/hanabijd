@@ -1,6 +1,5 @@
 import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import DiscardArea from "~/components/discardArea";
 import Logs from "~/components/logs";
 import Button, { ButtonSize } from "~/components/ui/button";
 import { useReplay } from "~/hooks/replay";
@@ -47,12 +46,7 @@ export default function PlayHistoryPopup(props: Props) {
         <Button size={ButtonSize.TINY} text={t("close")} onClick={onClose} />
       </div>
       <div className="flex flex-grow-1 overflow-y-scroll pa2">
-        <div className="flex-grow-1">
-          <Logs interturn={interturn} />
-        </div>
-        <div className="flex flex-column items-end ml2">
-          <DiscardArea />
-        </div>
+        <Logs interturn={interturn} />
       </div>
     </div>
   );

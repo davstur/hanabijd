@@ -155,8 +155,8 @@
 /*
  * Landscape utilities for mobile
  */
-.dn-landscape {
-  display: none;
+.order-last-portrait {
+  order: 1;
 }
 
 @media (orientation: landscape) and (max-height: 500px) {
@@ -164,7 +164,7 @@
     flex-wrap: nowrap;
   }
 
-  .dn-landscape {
-    display: flex;
+  .order-last-portrait {
+    order: 0;
   }
 }
