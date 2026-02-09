@@ -102,18 +102,20 @@ export default function Summary() {
 
   return (
     <GameContext.Provider value={game}>
-      <div className="flex flex-column items-center mb5">
-        <Button
-          void
-          className="absolute left-0 top-1"
-          size={ButtonSize.MEDIUM}
-          text={`< ${t("back")}`}
-          onClick={() => onBackClick()}
-        />
-        <Txt className="mt4" size={TxtSize.LARGE} value={t("summary")} />
-        <div className="flex flex-column items-center mt4">
+      <div className="flex flex-column items-center mb5 w-100">
+        <div className="relative flex items-center justify-center w-100 mt3">
+          <Button
+            void
+            className="absolute left-0"
+            size={ButtonSize.MEDIUM}
+            text={`< ${t("back")}`}
+            onClick={() => onBackClick()}
+          />
+          <Txt size={TxtSize.LARGE} value={t("summary")} />
+        </div>
+        <div className="flex flex-column items-center mt4 w-100 ph3">
           <Txt size={TxtSize.MEDIUM} value={t("summarySubtitle")} />
-          <Txt className="mt2" size={TxtSize.MEDIUM}>
+          <Txt className="mt2 tc" size={TxtSize.MEDIUM} style={{ overflowWrap: "anywhere" }}>
             <Trans i18nKey="partySetup">
               Players: {{ players: game.players.length }} · Mode: {{ variant: gameVariantToText(game.options.variant) }}{" "}
               · Shuffle #{{ shuffle: game.options.seed }}
@@ -149,7 +151,7 @@ export default function Summary() {
         </Section>
 
         <Section className="tc" title={t("tryOutTitle")}>
-          <div>
+          <div style={{ overflowWrap: "anywhere" }}>
             <Trans i18nKey="partySetup">
               Players: {{ players: game.players.length }} · Mode: {{ variant: gameVariantToText(game.options.variant) }}{" "}
               · Shuffle #{{ shuffle: game.options.seed }}
