@@ -43,11 +43,18 @@ export default function AppHeader() {
   useEffect(() => {
     if (!showMenu && !showLeftMenu) return;
     function handleClickOutside(e: MouseEvent) {
-      if (showMenu && menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setShowMenu(false);
+      const target = e.target as Node;
+      if (showMenu) {
+        const containers = document.querySelectorAll('[data-menu="avatar"]');
+        if (containers.length === 0 || !Array.from(containers).some((el) => el.contains(target))) {
+          setShowMenu(false);
+        }
       }
-      if (showLeftMenu && leftMenuRef.current && !leftMenuRef.current.contains(e.target as Node)) {
-        setShowLeftMenu(false);
+      if (showLeftMenu) {
+        const containers = document.querySelectorAll('[data-menu="left"]');
+        if (containers.length === 0 || !Array.from(containers).some((el) => el.contains(target))) {
+          setShowLeftMenu(false);
+        }
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -98,7 +105,7 @@ export default function AppHeader() {
   const isLandscapeSidebar = isGamePage;
 
   const leftNavContent = gameId ? (
-    <div ref={leftMenuRef} className="relative">
+    <div data-menu="left" ref={leftMenuRef} className="relative">
       <span className="pointer flex items-center" onClick={() => setShowLeftMenu(!showLeftMenu)}>
         <Txt className="ttu txt-yellow landscape-sidebar-hide-name" size={TxtSize.SMALL} value={t("game")} />
         <Txt className="landscape-sidebar-hide" size={TxtSize.SMALL} value={gameId} />
@@ -115,7 +122,7 @@ export default function AppHeader() {
       )}
     </div>
   ) : roomId ? (
-    <div ref={leftMenuRef} className="relative">
+    <div data-menu="left" ref={leftMenuRef} className="relative">
       <span className="pointer flex items-center" onClick={() => setShowLeftMenu(!showLeftMenu)}>
         <Txt className="ttu txt-yellow mr2" size={TxtSize.SMALL} value={t("room")} />
         <Txt size={TxtSize.SMALL} value={roomId} />
@@ -139,7 +146,7 @@ export default function AppHeader() {
     <div className="flex items-center">
       {!playerName && <LanguageSelector outlined />}
       {playerName && (
-        <div ref={menuRef} className="relative ml2">
+        <div data-menu="avatar" ref={menuRef} className="relative ml2">
           <span className="pointer" onClick={() => setShowMenu(!showMenu)}>
             <PlayerAvatar name={playerName} size={AvatarSize.MEDIUM} />
           </span>
