@@ -20,48 +20,44 @@ export default function Logs(props: Props) {
   const selfPlayer = useSelfPlayer(game);
 
   const animate = !replay.cursor;
-  const firstMessages = game.messages.filter((message) => message.turn === 0).reverse();
+  const recentTurns = game.turnsHistory.slice(-3);
+  const turnOffset = game.turnsHistory.length - recentTurns.length;
 
   return (
     <div className="flex-grow-1 overflow-y-scroll">
       <div className="relative">
-        <AnimatePresence>
-          {[...game.turnsHistory].reverse().map((turn, i) => {
-            const key = game.turnsHistory.length - i;
-
-            const messages = game.messages.filter((message) => message.turn === game.turnsHistory.length - i).reverse();
-            const turnNumber = game.turnsHistory.length - i;
-            return (
-              <motion.div
-                key={key}
-                animate={{ y: 0 }}
-                exit={animate ? { y: -100 } : undefined}
-                initial={animate ? { y: -100 } : false}
-                transition={{ duration: 0.2 }}
-              >
-                {messages.map((message) => {
-                  return <Message key={message.id} message={message} />;
-                })}
-                <Turn
-                  avatarOnly
-                  key={key}
-                  showDrawn={!interturn && game.players[turn.action.from].name !== selfPlayer?.name}
-                  turn={turn}
-                  turnNumber={turnNumber}
-                />
-              </motion.div>
-            );
-          })}
-        </AnimatePresence>
-        {firstMessages.map((message) => {
-          return <Message key={message.id} message={message} />;
-        })}
-
         <Txt
           className="lavender"
           size={TxtSize.SMALL}
           value={game.turnsHistory.length ? t("gameStarted") : t("gameStarts")}
         />
+        <AnimatePresence>
+          {recentTurns.map((turn, i) => {
+            const turnNumber = turnOffset + i + 1;
+            const messages = game.messages.filter((message) => message.turn === turnNumber).reverse();
+
+            return (
+              <motion.div
+                key={turnNumber}
+                animate={{ y: 0 }}
+                exit={animate ? { y: -100 } : undefined}
+                initial={animate ? { y: -100 } : false}
+                transition={{ duration: 0.2 }}
+              >
+                <Turn
+                  avatarOnly
+                  key={turnNumber}
+                  showDrawn={!interturn && game.players[turn.action.from].name !== selfPlayer?.name}
+                  turn={turn}
+                  turnNumber={turnNumber}
+                />
+                {messages.map((message) => {
+                  return <Message key={message.id} message={message} />;
+                })}
+              </motion.div>
+            );
+          })}
+        </AnimatePresence>
       </div>
     </div>
   );

@@ -54,9 +54,6 @@ export default function PlayerAvatar(props: Props) {
         fontSize,
         fontWeight: 700,
         lineHeight: `${size}px`,
-        verticalAlign: "baseline",
-        position: "relative",
-        top: `${size * -0.325}px`,
         userSelect: "none",
       }}
       title={name}
