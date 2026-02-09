@@ -94,94 +94,163 @@ export default function AppHeader() {
     }
   }
 
-  return (
-    <div className="flex items-center justify-between pv2 ph3 bb b--yellow-light">
-      {gameId ? (
-        <div ref={leftMenuRef} className="relative">
-          <span className="pointer flex items-center" onClick={() => setShowLeftMenu(!showLeftMenu)}>
-            <Txt className="ttu txt-yellow mr2" size={TxtSize.SMALL} value={t("game")} />
-            <Txt size={TxtSize.SMALL} value={gameId} />
+  const isGamePage = !!gameId;
+  const isLandscapeSidebar = isGamePage;
+
+  const leftNavContent = gameId ? (
+    <div ref={leftMenuRef} className="relative">
+      <span className="pointer flex items-center" onClick={() => setShowLeftMenu(!showLeftMenu)}>
+        <Txt className="ttu txt-yellow landscape-sidebar-hide-name" size={TxtSize.SMALL} value={t("game")} />
+        <Txt className="landscape-sidebar-hide" size={TxtSize.SMALL} value={gameId} />
+      </span>
+      {showLeftMenu && (
+        <div
+          className="absolute left-0 mt1 pa2 br2 shadow-1 z-999 landscape-sidebar-menu"
+          style={{ background: "#1a1a3e", border: "1px solid rgba(255,255,255,0.15)", minWidth: "6rem" }}
+        >
+          <span className="pointer db pa1 hover-bg-white-10 br1" onClick={handleLeaveGame}>
+            <Txt size={TxtSize.XSMALL} value={t("leaveGame", "Leave game")} />
           </span>
-          {showLeftMenu && (
-            <div
-              className="absolute left-0 mt1 pa2 br2 shadow-1 z-999"
-              style={{ background: "#1a1a3e", border: "1px solid rgba(255,255,255,0.15)", minWidth: "6rem" }}
-            >
-              <span className="pointer db pa1 hover-bg-white-10 br1" onClick={handleLeaveGame}>
-                <Txt size={TxtSize.XSMALL} value={t("leaveGame", "Leave game")} />
-              </span>
-            </div>
-          )}
         </div>
-      ) : roomId ? (
-        <div ref={leftMenuRef} className="relative">
-          <span className="pointer flex items-center" onClick={() => setShowLeftMenu(!showLeftMenu)}>
-            <Txt className="ttu txt-yellow mr2" size={TxtSize.SMALL} value={t("room")} />
-            <Txt size={TxtSize.SMALL} value={roomId} />
-          </span>
-          {showLeftMenu && (
-            <div
-              className="absolute left-0 mt1 pa2 br2 shadow-1 z-999"
-              style={{ background: "#1a1a3e", border: "1px solid rgba(255,255,255,0.15)", minWidth: "6rem" }}
-            >
-              <span className="pointer db pa1 hover-bg-white-10 br1" onClick={handleLeaveRoom}>
-                <Txt size={TxtSize.XSMALL} value={t("leaveRoom")} />
-              </span>
-            </div>
-          )}
-        </div>
-      ) : (
-        <div />
       )}
-      <div className="flex items-center">
-        {!playerName && <LanguageSelector outlined />}
-        {playerName && (
-          <div ref={menuRef} className="relative ml2">
-            <span className="pointer" onClick={() => setShowMenu(!showMenu)}>
-              <PlayerAvatar name={playerName} size={AvatarSize.MEDIUM} />
-            </span>
-            {showMenu && (
-              <div
-                className="absolute right-0 mt1 pa2 br2 shadow-1 z-999"
-                style={{ background: "#1a1a3e", border: "1px solid rgba(255,255,255,0.15)", minWidth: "6rem" }}
-              >
-                {notifSupported && (
-                  <label className="pointer db pa1 mb1 hover-bg-white-10 br1 flex items-center justify-between">
-                    <Txt className="mr2" size={TxtSize.XSMALL} value={t("notifications")} />
-                    <div
-                      className="relative br-pill flex-shrink-0"
-                      style={{
-                        width: 36,
-                        height: 20,
-                        background: notifEnabled ? "#19a974" : "rgba(255,255,255,0.2)",
-                        transition: "background 0.2s",
-                      }}
-                      onClick={handleNotifToggle}
-                    >
-                      <div
-                        className="absolute br-100 bg-white"
-                        style={{
-                          width: 16,
-                          height: 16,
-                          top: 2,
-                          left: notifEnabled ? 18 : 2,
-                          transition: "left 0.2s",
-                        }}
-                      />
-                    </div>
-                  </label>
-                )}
-                <span className="pointer db pa1 mb1 hover-bg-white-10 br1">
-                  <LanguageSelector className="f7 f6-l h-auto pa0" outlined />
-                </span>
-                <span className="pointer db pa1 hover-bg-white-10 br1" onClick={handleLogout}>
-                  <Txt size={TxtSize.XSMALL} value={t("logout")} />
-                </span>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
     </div>
+  ) : roomId ? (
+    <div ref={leftMenuRef} className="relative">
+      <span className="pointer flex items-center" onClick={() => setShowLeftMenu(!showLeftMenu)}>
+        <Txt className="ttu txt-yellow mr2" size={TxtSize.SMALL} value={t("room")} />
+        <Txt size={TxtSize.SMALL} value={roomId} />
+      </span>
+      {showLeftMenu && (
+        <div
+          className="absolute left-0 mt1 pa2 br2 shadow-1 z-999"
+          style={{ background: "#1a1a3e", border: "1px solid rgba(255,255,255,0.15)", minWidth: "6rem" }}
+        >
+          <span className="pointer db pa1 hover-bg-white-10 br1" onClick={handleLeaveRoom}>
+            <Txt size={TxtSize.XSMALL} value={t("leaveRoom")} />
+          </span>
+        </div>
+      )}
+    </div>
+  ) : (
+    <div />
+  );
+
+  const avatarContent = (
+    <div className="flex items-center">
+      {!playerName && <LanguageSelector outlined />}
+      {playerName && (
+        <div ref={menuRef} className="relative ml2">
+          <span className="pointer" onClick={() => setShowMenu(!showMenu)}>
+            <PlayerAvatar name={playerName} size={AvatarSize.MEDIUM} />
+          </span>
+          {showMenu && (
+            <div
+              className="absolute right-0 mt1 pa2 br2 shadow-1 z-999 landscape-sidebar-avatar-menu"
+              style={{ background: "#1a1a3e", border: "1px solid rgba(255,255,255,0.15)", minWidth: "6rem" }}
+            >
+              {notifSupported && (
+                <label className="pointer db pa1 mb1 hover-bg-white-10 br1 flex items-center justify-between">
+                  <Txt className="mr2" size={TxtSize.XSMALL} value={t("notifications")} />
+                  <div
+                    className="relative br-pill flex-shrink-0"
+                    style={{
+                      width: 36,
+                      height: 20,
+                      background: notifEnabled ? "#19a974" : "rgba(255,255,255,0.2)",
+                      transition: "background 0.2s",
+                    }}
+                    onClick={handleNotifToggle}
+                  >
+                    <div
+                      className="absolute br-100 bg-white"
+                      style={{
+                        width: 16,
+                        height: 16,
+                        top: 2,
+                        left: notifEnabled ? 18 : 2,
+                        transition: "left 0.2s",
+                      }}
+                    />
+                  </div>
+                </label>
+              )}
+              <span className="pointer db pa1 mb1 hover-bg-white-10 br1">
+                <LanguageSelector className="f7 f6-l h-auto pa0" outlined />
+              </span>
+              <span className="pointer db pa1 hover-bg-white-10 br1" onClick={handleLogout}>
+                <Txt size={TxtSize.XSMALL} value={t("logout")} />
+              </span>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+
+  return (
+    <>
+      {/* Default horizontal header */}
+      <div className={`app-header-horizontal flex items-center justify-between pv2 ph3 bb b--yellow-light${isLandscapeSidebar ? " landscape-game-hide" : ""}`}>
+        {leftNavContent}
+        {avatarContent}
+      </div>
+
+      {/* Landscape sidebar for game page */}
+      {isLandscapeSidebar && (
+        <div className="app-header-sidebar landscape-game-show flex flex-column justify-between items-center pv2 ph1 br b--yellow-light">
+          {leftNavContent}
+          {avatarContent}
+        </div>
+      )}
+
+      <style global jsx>{`
+        .app-header-sidebar {
+          display: none;
+        }
+        .landscape-sidebar-hide {
+          margin-left: 0.5rem;
+        }
+        @media screen and (orientation: landscape) and (max-height: 500px) {
+          .landscape-game-hide {
+            display: none !important;
+          }
+          .app-header-sidebar {
+            display: flex !important;
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2.75rem;
+            z-index: 100;
+            background: #00153f;
+            align-items: center;
+          }
+          .landscape-sidebar-hide {
+            display: none !important;
+          }
+          .landscape-sidebar-hide-name {
+            margin-right: 0;
+            font-size: 0.7rem;
+          }
+          .landscape-sidebar-menu {
+            left: 100% !important;
+            top: 0 !important;
+            margin-top: 0 !important;
+            margin-left: 0.25rem;
+          }
+          .landscape-sidebar-avatar-menu {
+            left: 100% !important;
+            right: auto !important;
+            bottom: 0 !important;
+            top: auto !important;
+            margin-top: 0 !important;
+            margin-left: 0.25rem;
+          }
+          .app-header-sidebar ~ * {
+            margin-left: 2.75rem;
+          }
+        }
+      `}</style>
+    </>
   );
 }

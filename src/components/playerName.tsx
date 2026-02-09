@@ -1,6 +1,7 @@
 import classnames from "classnames";
 import React from "react";
 import { useTranslation } from "react-i18next";
+import PlayerAvatar, { AvatarSize } from "~/components/playerAvatar";
 import Txt, { TxtSize } from "~/components/ui/txt";
 import { useGame, useSelfPlayer } from "~/hooks/game";
 import { IPlayer } from "~/lib/state";
@@ -21,15 +22,20 @@ interface Props {
   explicit?: boolean;
   className?: string;
   reaction?: string;
+  avatarOnly?: boolean;
 }
 
 export default function PlayerName(props: Props) {
-  const { player, size = PlayerNameSize.SMALL, explicit = false, className } = props;
+  const { player, size = PlayerNameSize.SMALL, explicit = false, className, avatarOnly = false } = props;
   const { t } = useTranslation();
 
   const game = useGame();
   const selfPlayer = useSelfPlayer(game);
   const you = !explicit && player.name === selfPlayer?.name;
+
+  if (avatarOnly) {
+    return <PlayerAvatar className={className} name={player.name} size={AvatarSize.TINY} />;
+  }
 
   return (
     <Txt

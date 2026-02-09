@@ -159,6 +159,14 @@
   order: 1;
 }
 
+/* Portrait: show/hide utilities */
+.dn-portrait {
+  display: flex;
+}
+.db-portrait {
+  display: none;
+}
+
 @media (orientation: landscape) and (max-height: 500px) {
   .flex-nowrap-landscape {
     flex-wrap: nowrap;
@@ -167,4 +175,38 @@
   .order-last-portrait {
     order: 0;
   }
+
+  .dn-landscape {
+    display: none !important;
+  }
+}
+
+@media (orientation: portrait), (min-height: 501px) {
+  .dn-portrait {
+    display: none !important;
+  }
+
+  .db-portrait {
+    display: flex !important;
+  }
+
+  .gameboard-rows > * + * {
+    margin-top: 0.75rem;
+  }
+
+  .pv-portrait-divider {
+    padding-top: 0.4rem;
+    padding-bottom: 0.4rem;
+  }
+
+  .pt-portrait-divider {
+    padding-top: 0.4rem;
+  }
+}
+
+.recent-turn-line {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 35ch;
 }

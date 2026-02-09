@@ -73,6 +73,7 @@ function Meta() {
   return (
     <Head>
       <title>{title}</title>
+      <meta content="width=device-width, initial-scale=1" name="viewport" />
       <style>
         @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&display=swap'); @import
         url('https://fonts.googleapis.com/css2?family=Kalam&display=swap');

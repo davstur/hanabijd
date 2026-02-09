@@ -31,7 +31,6 @@ export const ru = {
   waitForOthers: "Ждать остальных или ",
   gameStarted: "Игра началась!",
   gameStarts: "Игра начинается!",
-  discardPile: "сброс ({{ discardLength }})",
   preventLossContent: "Ты облажался · Продолжить?",
   rewind: "🕑 Перемотать",
   backToGame: "Назад к игре",
@@ -45,7 +44,7 @@ export const ru = {
   hideStats: "Скрыть статистику",
   showStats: "Показать статистику",
   gameOver: "Игра окончена! • Ваш счет {{playedCardsLength}} 🎉",
-  score: "Ханаби • Счет: {{score}} / {{maxPossibleScore}}",
+  score: "Счет: {{score}} / {{maxPossibleScore}}",
   turnsLeftDisclaimer_0: "· 1 ход остался", // _0 is for 1 turn left
   turnsLeftDisclaimer_1: "· {{count}} хода осталось", // _1 is for 2, 3, 4 turns left
   turnsLeftDisclaimer_2: "· {{count}} ходов осталось", // _2 is for 0, 5 turns left
@@ -63,7 +62,6 @@ export const ru = {
   eightTokens: "8 жетонов",
   cannotDiscard: "Вы не можете сбросить",
   noTokens: "Не осталось жетонов для подсказок",
-  selectVignette: "Выберите цвет или достоинство для подсказки",
   hint: "Подсказка",
   negativeHintColor: "У вас нет карт с цветом: {{ color }}",
   negativeHintNumber: "У вас нет {{ number }}",

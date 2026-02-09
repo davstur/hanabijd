@@ -24,10 +24,11 @@ interface Props {
   showDrawn: boolean;
   showPosition?: boolean;
   turnNumber?: number;
+  avatarOnly?: boolean;
 }
 
 export default function Turn(props: Props) {
-  const { turn, showDrawn, showPosition = true } = props;
+  const { turn, showDrawn, showPosition = true, avatarOnly = false } = props;
   const game = useGame();
   const selfPlayer = useSelfPlayer(game);
 
@@ -35,7 +36,11 @@ export default function Turn(props: Props) {
   const isViewingOwnReceivedHint = isHintAction(turn.action) && turn.action.to === selfPlayer?.index;
 
   const playerNameFrom = (
-    <PlayerName explicit={game.options.gameMode === GameMode.PASS_AND_PLAY} player={game.players[turn.action.from]} />
+    <PlayerName
+      avatarOnly={avatarOnly}
+      explicit={game.options.gameMode === GameMode.PASS_AND_PLAY}
+      player={game.players[turn.action.from]}
+    />
   );
 
   let textualTurn: React.ReactNode;
@@ -43,7 +48,11 @@ export default function Turn(props: Props) {
 
   if (isHintAction(turn.action)) {
     const playerNameTo = (
-      <PlayerName explicit={game.options.gameMode === GameMode.PASS_AND_PLAY} player={game.players[turn.action.to]} />
+      <PlayerName
+        avatarOnly={avatarOnly}
+        explicit={game.options.gameMode === GameMode.PASS_AND_PLAY}
+        player={game.players[turn.action.to]}
+      />
     );
 
     if (isViewingOwnActions) {
@@ -137,7 +146,7 @@ export default function Turn(props: Props) {
   }
 
   return (
-    <div className="dib">
+    <div className="dib" style={{ lineHeight: 1.8 }}>
       {props.turnNumber ? <Txt className={classnames("di gray")}>{props.turnNumber}</Txt> : ""}
       <span>&nbsp;</span>
       <Txt className="di">

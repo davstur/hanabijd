@@ -9,7 +9,7 @@ export function ReceivedHintsView(props: { hints: ITurn<IHintAction>[]; style?: 
         {props.hints.map((turn, i) => {
           return (
             <div key={i} className="nb1">
-              <Turn showDrawn={false} showPosition={false} turn={turn} />
+              <Turn avatarOnly showDrawn={false} showPosition={false} turn={turn} />
             </div>
           );
         })}

@@ -43,6 +43,7 @@ export default function Logs(props: Props) {
                   return <Message key={message.id} message={message} />;
                 })}
                 <Turn
+                  avatarOnly
                   key={key}
                   showDrawn={!interturn && game.players[turn.action.from].name !== selfPlayer?.name}
                   turn={turn}
