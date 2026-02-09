@@ -46,7 +46,7 @@ export default function PlayHistoryPopup(props: Props) {
         <Button size={ButtonSize.TINY} text={t("close")} onClick={onClose} />
       </div>
       <div className="flex flex-grow-1 overflow-y-scroll pa2">
-        <Logs interturn={interturn} />
+        <Logs showAll interturn={interturn} />
       </div>
     </div>
   );
