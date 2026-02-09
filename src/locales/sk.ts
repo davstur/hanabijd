@@ -31,6 +31,8 @@ export const sk = {
   preventLossContent: "Vybuchli ste · Chcete pokračovať?",
   rewind: "🕑 Prehrať históriu",
   backToGame: "Naspäť do hry",
+  playHistory: "História",
+  close: "Zavrieť",
   theirTurn: "{{currentPlayerName}} je práve na rade!",
   go: "Ďalej",
   estimatedMaxScore: "Odhadované skóre pre tento balíček: {{reachableScore}}.",

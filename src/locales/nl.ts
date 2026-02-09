@@ -29,6 +29,8 @@ export const nl = {
   preventLossContent: "Je hebt het verknald · Blijven verderspelen?",
   rewind: "🕑 Terugspoelen",
   backToGame: "Terug naar het spel",
+  playHistory: "Geschiedenis",
+  close: "Sluiten",
   theirTurn: "{{currentPlayerName}} is aan de beurt!",
   go: "Gaan!",
   estimatedMaxScore: "Geschatte maximale score voor deze shuffle: {{reachableScore}}.",

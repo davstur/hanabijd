@@ -3,11 +3,10 @@ import { useRouter } from "next/router";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ActionAreaType, ISelectedArea } from "~/components/actionArea";
-import DiscardArea from "~/components/discardArea";
 import GameBoard from "~/components/gameBoard";
 import Lobby from "~/components/lobby";
-import Logs from "~/components/logs";
 import MenuArea from "~/components/menuArea";
+import PlayHistoryPopup from "~/components/playHistoryPopup";
 import PlayersBoard from "~/components/playersBoard";
 import ReplayViewer from "~/components/replayViewer";
 import RollbackArea from "~/components/rollbackArea";
@@ -38,6 +37,7 @@ export function Game(props: Props) {
   const [displayStats, setDisplayStats] = useState(false);
   const [reachableScore, setReachableScore] = useState<number>(null);
   const [interturn, setInterturn] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
   const [, setGameId] = useLocalStorage("gameId", null);
   const [selectedArea, selectArea] = useState<ISelectedArea>({
     id: "logs",
@@ -360,7 +360,11 @@ export function Game(props: Props) {
     <>
       <div className="game bg-main-dark relative flex flex-column w-100 h-100">
         <div className="bg-black-50 pa2 pv2-l ph6.5-m">
-          <GameBoard onMenuClick={onMenuClick} onRollbackClick={onRollbackClick} />
+          <GameBoard
+            onHistoryClick={() => setShowHistory(true)}
+            onMenuClick={onMenuClick}
+            onRollbackClick={onRollbackClick}
+          />
         </div>
         <div className="flex flex-column bg-black-50 bb b--yellow ph6.5-m">
           {selectedArea.type === ActionAreaType.MENU && <MenuArea onCloseArea={onCloseArea} />}
@@ -372,30 +376,6 @@ export function Game(props: Props) {
           {selectedArea.type === ActionAreaType.ROLLBACK && (
             <div className="h4 pa2 ph3-l">
               <RollbackArea onCloseArea={onCloseArea} />
-            </div>
-          )}
-
-          {game.status !== IGameStatus.LOBBY && selectedArea.type !== ActionAreaType.ROLLBACK && (
-            <div className="h4 pt0-l overflow-y-scroll">
-              <div className="flex justify-between h-100 pa1 pa2-l">
-                <Logs interturn={interturn} />
-                <div className="flex flex-column justify-between items-end">
-                  <DiscardArea />
-                  <Button
-                    void
-                    className="tracked-tight"
-                    size={ButtonSize.TINY}
-                    text={replay.cursor === null ? t("rewind") : t("backToGame")}
-                    onClick={() => {
-                      if (replay.cursor === null) {
-                        onReplay();
-                      } else {
-                        onStopReplay();
-                      }
-                    }}
-                  />
-                </div>
-              </div>
             </div>
           )}
         </div>
@@ -489,6 +469,14 @@ export function Game(props: Props) {
               </div>
             </div>
           </div>
+        )}
+        {showHistory && (
+          <PlayHistoryPopup
+            interturn={interturn}
+            onClose={() => setShowHistory(false)}
+            onReplay={onReplay}
+            onStopReplay={onStopReplay}
+          />
         )}
       </div>
 

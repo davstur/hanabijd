@@ -151,3 +151,20 @@
 }
 
 .bw1\.5 { border-width: 0.15rem; }
+
+/*
+ * Landscape utilities for mobile
+ */
+.dn-landscape {
+  display: none;
+}
+
+@media (orientation: landscape) and (max-height: 500px) {
+  .flex-nowrap-landscape {
+    flex-wrap: nowrap;
+  }
+
+  .dn-landscape {
+    display: flex;
+  }
+}

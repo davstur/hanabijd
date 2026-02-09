@@ -30,6 +30,8 @@ export const it = {
   preventLossContent: "Hai sbagliato · Vuoi continuare?",
   rewind: "🕑 Turni precedenti",
   backToGame: "Torna alla partita",
+  playHistory: "Cronologia",
+  close: "Chiudi",
   theirTurn: "E' il turno di {{currentPlayerName}}!",
   go: "Vai!",
   estimatedMaxScore: "Punteggio massimo stimato per questo miscuglio: {{reachableScore}}.",

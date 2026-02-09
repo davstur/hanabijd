@@ -31,6 +31,8 @@ export const zh = {
   preventLossContent: "你失误了。确定继续吗？",
   rewind: "🕑 回放",
   backToGame: "返回游戏",
+  playHistory: "历史记录",
+  close: "关闭",
   theirTurn: "{{currentPlayerName}} 的回合!",
   go: "Go", // Natural to mix with Chinese
   estimatedMaxScore: "这摞牌预计最高分数：{{reachableScore}}.",
