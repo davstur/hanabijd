@@ -7,6 +7,7 @@ Reference: hanabi-learning-environment/hanabi_lib/canonical_encoders.cc
 from __future__ import annotations
 
 from hanabi_game import (
+    HAND_SIZE,
     NUM_COLORS,
     NUM_RANKS,
     CARD_COUNT_PER_RANK,
@@ -30,6 +31,8 @@ def _encode_hands(state: HanabiState, observer: int) -> list[int]:
 
     For each player (in relative order starting from observer+1),
     encode each card slot. Missing cards get zero-vectors.
+    Then append num_players bits indicating which players have
+    fewer cards than the max hand size.
     """
     bits: list[int] = []
     card_bits = NUM_COLORS * NUM_RANKS  # 25
@@ -43,11 +46,20 @@ def _encode_hands(state: HanabiState, observer: int) -> list[int]:
             else:
                 bits.extend([0] * card_bits)
 
+    # Missing card bits: one per player indicating fewer than hand_size cards
+    for offset in range(state.num_players):
+        player = (observer + offset) % state.num_players
+        bits.append(1 if len(state.hands[player]) < state.hand_size else 0)
+
     return bits
 
 
 def _encode_board(state: HanabiState) -> list[int]:
-    """Encode board state: fireworks, info tokens, life tokens, deck size."""
+    """Encode board state: fireworks, info tokens, life tokens, deck size.
+
+    Deck thermometer uses MaxDeckSize - NumPlayers * HandSize bits,
+    since dealt cards can never be in the deck.
+    """
     bits: list[int] = []
 
     # Fireworks: thermometer encoding per color (5 colors x 5 bits)
@@ -64,9 +76,10 @@ def _encode_board(state: HanabiState) -> list[int]:
     for i in range(MAX_LIFE_TOKENS):
         bits.append(1 if i < state.life_tokens else 0)
 
-    # Deck size: thermometer (50 bits for classic)
+    # Deck size: thermometer (MaxDeckSize - NumPlayers * HandSize bits)
+    max_draw_pile = MAX_DECK_SIZE - state.num_players * state.hand_size
     deck_len = len(state.deck)
-    for i in range(MAX_DECK_SIZE):
+    for i in range(max_draw_pile):
         bits.append(1 if i < deck_len else 0)
 
     return bits
@@ -96,28 +109,38 @@ def _encode_discards(state: HanabiState) -> list[int]:
 
 
 def _encode_last_action(state: HanabiState, observer: int) -> list[int]:
-    """Encode the last action taken, from the perspective of observer."""
+    """Encode the last action taken, from the perspective of observer.
+
+    Sub-fields (matching HLE canonical_encoders.cc):
+      1. Acting player (num_players one-hot, relative to observer)
+      2. Action type (4 one-hot: PLAY, DISCARD, REVEAL_COLOR, REVEAL_RANK)
+      3. Target player (num_players one-hot, for hints)
+      4. Color revealed (NUM_COLORS one-hot, for color hints only)
+      5. Rank revealed (NUM_RANKS one-hot, for rank hints only)
+      6. Outcome / cards revealed (hand_size bitmask, for hints)
+      7. Position played/discarded (hand_size one-hot, for play/discard)
+      8. Card identity (25-bit one-hot, for play/discard)
+      9. Scored + info_added (2 bits)
+    """
     card_bits = NUM_COLORS * NUM_RANKS  # 25
 
     if state.last_action is None:
-        # No last action (start of game)
-        # acting player one-hot + action type one-hot + rest zeros
         total_bits = _last_action_size(state.num_players)
         return [0] * total_bits
 
     la = state.last_action
     bits: list[int] = []
 
-    # Acting player: one-hot relative to observer
+    # 1. Acting player: one-hot relative to observer
     acting_offset = (la.player - observer) % state.num_players
     for i in range(state.num_players):
         bits.append(1 if i == acting_offset else 0)
 
-    # Action type: one-hot (4 types)
-    for t in [ActionType.DISCARD, ActionType.PLAY, ActionType.REVEAL_COLOR, ActionType.REVEAL_RANK]:
+    # 2. Action type: one-hot (HLE order: PLAY, DISCARD, REVEAL_COLOR, REVEAL_RANK)
+    for t in [ActionType.PLAY, ActionType.DISCARD, ActionType.REVEAL_COLOR, ActionType.REVEAL_RANK]:
         bits.append(1 if la.action_type == t else 0)
 
-    # Target player: one-hot relative to observer (for hints)
+    # 3. Target player: one-hot relative to observer (for hints only)
     if la.action_type in (ActionType.REVEAL_COLOR, ActionType.REVEAL_RANK):
         target_offset = (la.target_player - observer) % state.num_players
         for i in range(state.num_players):
@@ -125,41 +148,41 @@ def _encode_last_action(state: HanabiState, observer: int) -> list[int]:
     else:
         bits.extend([0] * state.num_players)
 
-    # Color revealed/played: one-hot
+    # 4. Color revealed: one-hot (only for REVEAL_COLOR)
     if la.action_type == ActionType.REVEAL_COLOR:
         for c in range(NUM_COLORS):
             bits.append(1 if c == la.color else 0)
-    elif la.action_type in (ActionType.PLAY, ActionType.DISCARD):
-        for c in range(NUM_COLORS):
-            bits.append(1 if c == la.card_color else 0)
     else:
         bits.extend([0] * NUM_COLORS)
 
-    # Rank revealed/played: one-hot
+    # 5. Rank revealed: one-hot (only for REVEAL_RANK)
     if la.action_type == ActionType.REVEAL_RANK:
         for r in range(NUM_RANKS):
             bits.append(1 if r == la.rank else 0)
-    elif la.action_type in (ActionType.PLAY, ActionType.DISCARD):
-        for r in range(NUM_RANKS):
-            bits.append(1 if r == la.card_rank else 0)
     else:
         bits.extend([0] * NUM_RANKS)
 
-    # Card index played/discarded: one-hot (hand_size)
-    if la.action_type in (ActionType.PLAY, ActionType.DISCARD):
-        for i in range(state.hand_size):
-            bits.append(1 if i == la.card_index else 0)
-    else:
-        bits.extend([0] * state.hand_size)
-
-    # Cards revealed by hint: bitmask (hand_size)
+    # 6. Outcome / cards revealed by hint: bitmask (hand_size, for hints)
     if la.action_type in (ActionType.REVEAL_COLOR, ActionType.REVEAL_RANK):
         for i in range(state.hand_size):
             bits.append(1 if i < len(la.cards_revealed) and la.cards_revealed[i] else 0)
     else:
         bits.extend([0] * state.hand_size)
 
-    # Play scored / info added
+    # 7. Position played/discarded: one-hot (hand_size, for play/discard)
+    if la.action_type in (ActionType.PLAY, ActionType.DISCARD):
+        for i in range(state.hand_size):
+            bits.append(1 if i == la.card_index else 0)
+    else:
+        bits.extend([0] * state.hand_size)
+
+    # 8. Card identity: 25-bit one-hot (for play/discard)
+    if la.action_type in (ActionType.PLAY, ActionType.DISCARD) and la.card_color >= 0 and la.card_rank >= 0:
+        bits.extend(_encode_card(la.card_color, la.card_rank))
+    else:
+        bits.extend([0] * card_bits)
+
+    # 9. Play scored / info added
     bits.append(1 if la.scored else 0)
     bits.append(1 if la.info_added else 0)
 
@@ -169,14 +192,16 @@ def _encode_last_action(state: HanabiState, observer: int) -> list[int]:
 def _last_action_size(num_players: int) -> int:
     """Size of last action encoding."""
     hs = 5 if num_players <= 3 else 4
+    card_bits = NUM_COLORS * NUM_RANKS  # 25
     return (
-        num_players  # acting player
-        + 4          # action type
+        num_players    # acting player
+        + 4            # action type
         + num_players  # target player
-        + NUM_COLORS   # color
-        + NUM_RANKS    # rank
-        + hs           # card index
-        + hs           # cards revealed
+        + NUM_COLORS   # color revealed
+        + NUM_RANKS    # rank revealed
+        + hs           # outcome / cards revealed
+        + hs           # position played/discarded
+        + card_bits    # card identity (25 bits)
         + 2            # scored + info_added
     )
 
@@ -230,7 +255,7 @@ def encode_observation(state: HanabiState, observer: int, include_own_hand: bool
     """Build the full canonical observation vector for the given observer.
 
     The order matches the HLE canonical encoder:
-    1. Other players' hands
+    1. Other players' hands + missing card indicators
     2. Board (fireworks, tokens, deck)
     3. Discards
     4. Last action
@@ -253,8 +278,8 @@ def observation_size(num_players: int, include_own_hand: bool = True) -> int:
     hs = 5 if num_players <= 3 else 4
     card_bits = NUM_COLORS * NUM_RANKS  # 25
 
-    hands = (num_players - 1) * hs * card_bits
-    board = NUM_COLORS * NUM_RANKS + MAX_INFO_TOKENS + MAX_LIFE_TOKENS + MAX_DECK_SIZE
+    hands = (num_players - 1) * hs * card_bits + num_players
+    board = NUM_COLORS * NUM_RANKS + MAX_INFO_TOKENS + MAX_LIFE_TOKENS + (MAX_DECK_SIZE - num_players * hs)
     discards = sum(CARD_COUNT_PER_RANK) * NUM_COLORS
     last_action = _last_action_size(num_players)
     knowledge = num_players * hs * 35
