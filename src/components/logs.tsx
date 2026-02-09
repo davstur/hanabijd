@@ -9,10 +9,11 @@ import { IMessage } from "~/lib/state";
 
 interface Props {
   interturn: boolean;
+  showAll?: boolean;
 }
 
 export default function Logs(props: Props) {
-  const { interturn } = props;
+  const { interturn, showAll } = props;
   const { t } = useTranslation();
 
   const game = useGame();
@@ -20,7 +21,7 @@ export default function Logs(props: Props) {
   const selfPlayer = useSelfPlayer(game);
 
   const animate = !replay.cursor;
-  const recentTurns = game.turnsHistory.slice(-3);
+  const recentTurns = showAll ? game.turnsHistory : game.turnsHistory.slice(-3);
   const turnOffset = game.turnsHistory.length - recentTurns.length;
 
   return (
