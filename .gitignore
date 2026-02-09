@@ -15,3 +15,7 @@ tsconfig.tsbuildinfo
 .claude/
 .playwright-mcp/
 pglite-debug.log
+
+# SAD server
+sad-server/__pycache__/
+sad-server/models/
