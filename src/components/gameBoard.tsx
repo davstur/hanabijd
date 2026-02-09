@@ -78,9 +78,7 @@ export default function GameBoard(props: Props) {
           <PlayedCards cards={game.playedCards} />
         </div>
         {/* Recent turns: only visible in landscape row 2 */}
-        <div className="flex items-start ml2 dn-portrait self-start">
-          {recentTurns}
-        </div>
+        <div className="flex items-start ml2 dn-portrait self-start">{recentTurns}</div>
         {/* Discard area: only visible in landscape row 2 */}
         <div className="flex items-end ml2 dn-portrait">
           <DiscardArea />
