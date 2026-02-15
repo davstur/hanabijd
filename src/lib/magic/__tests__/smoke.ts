@@ -3,7 +3,7 @@
  * Run with: node --import tsx src/lib/magic/__tests__/smoke.ts
  */
 
-import { parseDeckList, resolveDeckList, PREBUILT_DECKS } from "../decks";
+import { parseDeckList, PREBUILT_DECKS } from "../decks";
 import {
   newMagicGame,
   newMagicLobby,
@@ -198,10 +198,16 @@ const handCard2 = g.players[0].hand[0];
 g = moveCard(g, 0, handCard2.instanceId, MagicZone.HAND, MagicZone.BATTLEFIELD);
 g = tapCard(g, 0, handCard.instanceId);
 g = tapCard(g, 0, handCard2.instanceId);
-assert(g.players[0].battlefield.every((c) => c.tapped), "Both tapped");
+assert(
+  g.players[0].battlefield.every((c) => c.tapped),
+  "Both tapped"
+);
 
 g = untapAll(g, 0);
-assert(g.players[0].battlefield.every((c) => !c.tapped), "All untapped");
+assert(
+  g.players[0].battlefield.every((c) => !c.tapped),
+  "All untapped"
+);
 
 // ---------------------------------------------------------------------------
 // Face down / Flip
@@ -229,16 +235,10 @@ assert(g.players[0].battlefield[0].flipped === false, "Flip no-op without imageB
 console.log("\n--- Counters ---");
 
 g = adjustCounter(g, 0, handCard.instanceId, 1);
-assert(
-  g.players[0].battlefield.find((c) => c.instanceId === handCard.instanceId)!.counters === 1,
-  "1 counter added"
-);
+assert(g.players[0].battlefield.find((c) => c.instanceId === handCard.instanceId)!.counters === 1, "1 counter added");
 
 g = adjustCounter(g, 0, handCard.instanceId, 3);
-assert(
-  g.players[0].battlefield.find((c) => c.instanceId === handCard.instanceId)!.counters === 4,
-  "4 counters total"
-);
+assert(g.players[0].battlefield.find((c) => c.instanceId === handCard.instanceId)!.counters === 4, "4 counters total");
 
 g = adjustCounter(g, 0, handCard.instanceId, -2);
 assert(
@@ -271,9 +271,7 @@ assert(g.players[0].life === -3, "Life can go negative");
 // ---------------------------------------------------------------------------
 console.log("\n--- Shuffle ---");
 
-const libraryBefore = g.players[0].library.map((c) => c.instanceId).join(",");
 g = shuffleLibrary(g, 0);
-const libraryAfter = g.players[0].library.map((c) => c.instanceId).join(",");
 assert(g.players[0].library.length === lib.length, "Library size unchanged after shuffle");
 // With 50+ cards, it's extremely unlikely shuffle produces same order
 // but we can't guarantee it, so just check size is correct

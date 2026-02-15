@@ -261,6 +261,48 @@ export function adjustCounter(
 }
 
 // ---------------------------------------------------------------------------
+// Card / token positioning
+// ---------------------------------------------------------------------------
+
+export function moveCardPosition(
+  state: IMagicGameState,
+  playerIndex: number,
+  cardInstanceId: string,
+  x: number,
+  y: number
+): IMagicGameState {
+  const s = clone(state);
+  const p = s.players[playerIndex];
+  if (!p) return s;
+
+  const card = p.battlefield.find((c) => c.instanceId === cardInstanceId);
+  if (card) {
+    card.x = x;
+    card.y = y;
+  }
+  return s;
+}
+
+export function moveTokenPosition(
+  state: IMagicGameState,
+  playerIndex: number,
+  tokenInstanceId: string,
+  x: number,
+  y: number
+): IMagicGameState {
+  const s = clone(state);
+  const p = s.players[playerIndex];
+  if (!p) return s;
+
+  const token = p.tokens.find((t) => t.instanceId === tokenInstanceId);
+  if (token) {
+    token.x = x;
+    token.y = y;
+  }
+  return s;
+}
+
+// ---------------------------------------------------------------------------
 // Life
 // ---------------------------------------------------------------------------
 

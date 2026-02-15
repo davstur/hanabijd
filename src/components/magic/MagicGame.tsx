@@ -16,6 +16,8 @@ import {
   drawCard,
   flipCard,
   moveCard,
+  moveCardPosition,
+  moveTokenPosition,
   mulligan,
   passTurn,
   removeToken,
@@ -142,6 +144,12 @@ export default function MagicGame({ game, selfPlayerIndex }: Props) {
   function handleCreateToken(token: Omit<IMagicToken, "instanceId" | "tapped" | "counters">) {
     update(createToken(game, selfPlayerIndex, token));
   }
+  function handleCardDrop(cardInstanceId: string, x: number, y: number) {
+    update(moveCardPosition(game, selfPlayerIndex, cardInstanceId, x, y));
+  }
+  function handleTokenDrop(tokenInstanceId: string, x: number, y: number) {
+    update(moveTokenPosition(game, selfPlayerIndex, tokenInstanceId, x, y));
+  }
   function handleRemoveToken(tokenInstanceId: string) {
     update(removeToken(game, selfPlayerIndex, tokenInstanceId));
   }
@@ -212,6 +220,7 @@ export default function MagicGame({ game, selfPlayerIndex }: Props) {
           tokens={selfPlayer.tokens}
           onCardClick={handleCardClick}
           onCardContext={(card, e) => handleCardContext(card, MagicZone.BATTLEFIELD, e)}
+          onCardDrop={handleCardDrop}
           onTokenClick={(token) => {
             update(tapToken(game, selfPlayerIndex, token.instanceId));
           }}
@@ -221,6 +230,7 @@ export default function MagicGame({ game, selfPlayerIndex }: Props) {
               handleRemoveToken(token.instanceId);
             }
           }}
+          onTokenDrop={handleTokenDrop}
         />
       </div>
 

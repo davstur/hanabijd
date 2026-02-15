@@ -34,6 +34,10 @@ export interface IMagicCardRef {
   flipped: boolean;
   /** Generic counters (e.g. +1/+1). */
   counters: number;
+  /** X position on the battlefield (percentage 0–100). */
+  x?: number;
+  /** Y position on the battlefield (percentage 0–100). */
+  y?: number;
 }
 
 // ---------------------------------------------------------------------------
@@ -51,6 +55,10 @@ export interface IMagicToken {
   counters: number;
   /** Power / Toughness text, e.g. "1/1" */
   pt?: string;
+  /** X position on the battlefield (percentage 0–100). */
+  x?: number;
+  /** Y position on the battlefield (percentage 0–100). */
+  y?: number;
 }
 
 // ---------------------------------------------------------------------------
