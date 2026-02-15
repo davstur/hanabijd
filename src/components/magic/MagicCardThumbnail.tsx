@@ -1,0 +1,104 @@
+import classnames from "classnames";
+import React from "react";
+import { IMagicCardRef, IMagicToken } from "~/lib/magic/state";
+
+const CARD_BACK_URL = "https://backs.scryfall.io/large/59/23/5923060e-3cfa-4059-9a13-089a79a27e17.jpg?1689900726";
+
+interface CardProps {
+  card: IMagicCardRef;
+  onClick?: () => void;
+  onContextMenu?: (e: React.MouseEvent) => void;
+  small?: boolean;
+}
+
+export function MagicCardThumbnail({ card, onClick, onContextMenu, small }: CardProps) {
+  const imgSrc = card.faceDown ? CARD_BACK_URL : card.flipped && card.imageBack ? card.imageBack : card.imageSmall;
+
+  return (
+    <div
+      className={classnames("relative pointer", { "o-80": card.tapped })}
+      style={{
+        width: small ? 50 : 73,
+        height: small ? 70 : 102,
+        transform: card.tapped ? "rotate(90deg)" : undefined,
+        transformOrigin: "center center",
+        transition: "transform 0.2s",
+        flexShrink: 0,
+      }}
+      onClick={onClick}
+      onContextMenu={onContextMenu}
+    >
+      <img
+        alt={card.faceDown ? "Card back" : card.name}
+        src={imgSrc}
+        style={{
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+          borderRadius: small ? 3 : 5,
+        }}
+      />
+      {card.counters > 0 && (
+        <span
+          className="absolute bg-yellow main-dark fw7 f7 flex items-center justify-center br-100"
+          style={{ bottom: 2, right: 2, width: 18, height: 18, fontSize: 10 }}
+        >
+          {card.counters}
+        </span>
+      )}
+    </div>
+  );
+}
+
+interface TokenProps {
+  token: IMagicToken;
+  onClick?: () => void;
+  onContextMenu?: (e: React.MouseEvent) => void;
+}
+
+export function MagicTokenThumbnail({ token, onClick, onContextMenu }: TokenProps) {
+  return (
+    <div
+      className={classnames("relative pointer", { "o-80": token.tapped })}
+      style={{
+        width: 73,
+        height: 102,
+        transform: token.tapped ? "rotate(90deg)" : undefined,
+        transformOrigin: "center center",
+        transition: "transform 0.2s",
+        flexShrink: 0,
+      }}
+      onClick={onClick}
+      onContextMenu={onContextMenu}
+    >
+      {token.imageSmall ? (
+        <img
+          alt={token.name}
+          src={token.imageSmall}
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            borderRadius: 5,
+          }}
+        />
+      ) : (
+        <div
+          className="flex flex-column items-center justify-center bg-white-20 br2 h-100"
+          style={{ border: "1px solid rgba(255,255,255,0.3)" }}
+        >
+          <span className="white f7 tc fw6">{token.name}</span>
+          {token.pt && <span className="white f7">{token.pt}</span>}
+        </div>
+      )}
+      {token.counters > 0 && (
+        <span
+          className="absolute bg-yellow main-dark fw7 f7 flex items-center justify-center br-100"
+          style={{ bottom: 2, right: 2, width: 18, height: 18, fontSize: 10 }}
+        >
+          {token.counters}
+        </span>
+      )}
+    </div>
+  );
+}

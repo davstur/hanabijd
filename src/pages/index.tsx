@@ -1,3 +1,4 @@
+import classnames from "classnames";
 import Head from "next/head";
 import Image from "next/legacy/image";
 import { useRouter } from "next/router";
@@ -9,6 +10,7 @@ import { TextInput } from "~/components/ui/forms";
 import Txt, { TxtSize } from "~/components/ui/txt";
 import { createRoom, joinRoom as joinRoomDb, loadRoom, IRoomMember } from "~/lib/firebase";
 import { readableRoomId } from "~/lib/id";
+import { RoomGameType } from "~/lib/state";
 
 const NAME_KEY = "name";
 const ROOM_KEY = "currentRoom";
@@ -23,6 +25,7 @@ export default function Home() {
   const [pendingAction, setPendingAction] = useState<"create" | "join" | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [showJoinForm, setShowJoinForm] = useState(false);
+  const [showGameTypeSelect, setShowGameTypeSelect] = useState(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -57,15 +60,18 @@ export default function Home() {
     return true;
   }
 
-  async function handleCreateRoom() {
+  function handleCreateRoomClick() {
     if (!ensureName("create")) return;
+    setShowGameTypeSelect(true);
+  }
 
+  async function handleCreateRoom(gameType: RoomGameType) {
     const roomId = readableRoomId();
     const member: IRoomMember = {
       name: playerName.trim(),
       joinedAt: Date.now(),
     };
-    await createRoom(roomId, member);
+    await createRoom(roomId, member, gameType);
     localStorage.setItem(NAME_KEY, JSON.stringify(playerName.trim()));
     localStorage.setItem(ROOM_KEY, JSON.stringify(roomId));
     router.push(`/rooms/${roomId}`);
@@ -101,7 +107,7 @@ export default function Home() {
     e.preventDefault();
     if (!playerName.trim()) return;
     if (pendingAction === "create") {
-      handleCreateRoom();
+      setShowGameTypeSelect(true);
     } else if (pendingAction === "join") {
       handleJoinRoom();
     }
@@ -158,6 +164,41 @@ export default function Home() {
               <Button primary disabled={!playerName.trim()} text={t("confirm", "OK")} />
             </div>
           </form>
+        ) : showGameTypeSelect ? (
+          <div className="flex flex-column items-center mt5">
+            <Txt className="mb4" size={TxtSize.MEDIUM} value={t("whatToPlay", "What do you want to play?")} />
+            <div className="flex items-center" style={{ gap: "1rem" }}>
+              <button
+                className={classnames(
+                  "pointer br3 pa3 ph4 shadow-2 bn flex flex-column items-center grow",
+                  "bg-cta main-dark"
+                )}
+                onClick={() => handleCreateRoom(RoomGameType.HANABI)}
+              >
+                <span className="f2 mb2">🎆</span>
+                <Txt size={TxtSize.MEDIUM} value="Hanab" />
+                <span className="f7 mt1 o-80">{t("cooperative", "Cooperative card game")}</span>
+              </button>
+              <button
+                className={classnames(
+                  "pointer br3 pa3 ph4 shadow-2 bn flex flex-column items-center grow",
+                  "bg-cta main-dark"
+                )}
+                onClick={() => handleCreateRoom(RoomGameType.MAGIC)}
+              >
+                <span className="f2 mb2">🧙</span>
+                <Txt size={TxtSize.MEDIUM} value="Magic" />
+                <span className="f7 mt1 o-80">{t("magicSubtitle", "The Gathering")}</span>
+              </button>
+            </div>
+            <Button
+              void
+              className="mt4"
+              size={ButtonSize.SMALL}
+              text={`< ${t("back", "Back")}`}
+              onClick={() => setShowGameTypeSelect(false)}
+            />
+          </div>
         ) : (
           <main className="flex flex-column mt5 items-center">
             {!showJoinForm && (
@@ -166,7 +207,7 @@ export default function Home() {
                 className="mb4"
                 size={ButtonSize.LARGE}
                 text={t("createRoom", "Create a room")}
-                onClick={handleCreateRoom}
+                onClick={handleCreateRoomClick}
               />
             )}
 
