@@ -23,7 +23,9 @@ export function parseDeckList(text: string): IMagicDeckEntry[] {
   const entries: IMagicDeckEntry[] = [];
   for (const raw of text.split("\n")) {
     const line = raw.trim();
-    if (!line || line.startsWith("//") || /^(sideboard|sb:)/i.test(line)) continue;
+    if (!line || line.startsWith("//")) continue;
+    // Stop at sideboard sections
+    if (/^(sideboard|sb:)/i.test(line)) break;
 
     const match = line.match(/^(\d+)x?\s+(.+)$/);
     if (match) {
