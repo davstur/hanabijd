@@ -22,7 +22,7 @@ export default function Logs(props: Props) {
 
   const animate = !replay.cursor;
   const recentTurns = showAll ? game.turnsHistory : game.turnsHistory.slice(-3);
-  const turnOffset = game.turnsHistory.length - recentTurns.length;
+  const displayTurns = showAll ? recentTurns : [...recentTurns].reverse();
 
   return (
     <div className="flex-grow-1 overflow-y-scroll">
@@ -33,8 +33,8 @@ export default function Logs(props: Props) {
           value={game.turnsHistory.length ? t("gameStarted") : t("gameStarts")}
         />
         <AnimatePresence>
-          {recentTurns.map((turn, i) => {
-            const turnNumber = turnOffset + i + 1;
+          {displayTurns.map((turn) => {
+            const turnNumber = game.turnsHistory.indexOf(turn) + 1;
             const messages = game.messages.filter((message) => message.turn === turnNumber).reverse();
 
             return (

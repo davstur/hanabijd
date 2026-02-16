@@ -9,6 +9,7 @@ import IGameState, {
   IGameHintsLevel,
   IPlayer,
   rebuildGame,
+  RoomGameType,
 } from "~/lib/state";
 
 function database() {
@@ -90,15 +91,17 @@ export interface IRoomGameConfig {
 export interface IRoom {
   id: string;
   createdAt: number;
+  gameType: RoomGameType;
   members: { [memberId: string]: IRoomMember };
   gameIds: string[];
   lastGameConfig?: IRoomGameConfig;
 }
 
-export async function createRoom(roomId: string, member: IRoomMember) {
+export async function createRoom(roomId: string, member: IRoomMember, gameType: RoomGameType = RoomGameType.HANABI) {
   const room: IRoom = {
     id: roomId,
     createdAt: Date.now(),
+    gameType,
     members: { [member.name]: member },
     gameIds: [],
   };

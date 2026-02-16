@@ -63,6 +63,11 @@ export enum GameMode {
   PASS_AND_PLAY = "pass_and_play",
 }
 
+export enum RoomGameType {
+  HANABI = "hanabi",
+  MAGIC = "magic",
+}
+
 export enum IGameHintsLevel {
   // Direct hints & game deductions are displayed (TBD)
   ALL = "all",
