@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import PlayerAvatar from "~/components/playerAvatar";
 import Button, { ButtonSize } from "~/components/ui/button";
 import Txt, { TxtSize } from "~/components/ui/txt";
+import { getPlayerName } from "~/hooks/magic/game";
 import { useRequireName } from "~/hooks/useRequireName";
 import {
   IRoom,
@@ -20,21 +21,7 @@ import { subscribeToMagicGame, updateMagicGame } from "~/lib/magic/firebase";
 import IMagicGameState, { MagicGameStatus } from "~/lib/magic/state";
 import IGameState, { GameMode, GameVariant, IGameStatus, RoomGameType } from "~/lib/state";
 
-const NAME_KEY = "name";
 const ROOM_KEY = "currentRoom";
-
-function getPlayerName(): string {
-  if (typeof window === "undefined") return "";
-  const stored = localStorage.getItem(NAME_KEY);
-  if (stored) {
-    try {
-      return JSON.parse(stored);
-    } catch {
-      return stored;
-    }
-  }
-  return "";
-}
 
 const VariantKeys: Record<string, string> = {
   [GameVariant.CLASSIC]: "classicVariant",
@@ -128,6 +115,57 @@ function MagicGameStatusBadge({ game }: { game: IMagicGameState }) {
   return null;
 }
 
+/** Shared row component for both Hanabi and Magic game lists. */
+function GameListRow({
+  gameId,
+  players,
+  status,
+  statusBadge,
+  onJoinGame,
+}: {
+  gameId: string;
+  players: { name: string }[];
+  status: string;
+  statusBadge: React.ReactNode;
+  onJoinGame: (id: string) => void;
+}) {
+  const { t } = useTranslation();
+  const isLobby = status === IGameStatus.LOBBY || status === MagicGameStatus.LOBBY;
+  const isOngoing = status === IGameStatus.ONGOING || status === MagicGameStatus.ONGOING;
+  const isOver = status === IGameStatus.OVER || status === MagicGameStatus.OVER;
+
+  function getActionLabel(): string {
+    if (isLobby) return t("join", "Join");
+    if (isOver) return t("view", "View");
+    if (isOngoing) {
+      return players.some((p) => p.name === getPlayerName()) ? t("rejoinGame") : t("watch");
+    }
+    return "";
+  }
+
+  return (
+    <div
+      className="flex justify-between items-center mb2 pa2 br2 pointer hover-bg-white-10"
+      style={{ background: "rgba(255,255,255,0.05)" }}
+      onClick={() => onJoinGame(gameId)}
+    >
+      <div className="flex items-center">
+        <div className="flex items-center mr2" style={{ gap: 4 }}>
+          {players.length > 0 ? (
+            players.map((p) => <PlayerAvatar key={p.name} name={p.name} />)
+          ) : (
+            <Txt size={TxtSize.SMALL} value="..." />
+          )}
+        </div>
+        {statusBadge}
+      </div>
+      <div className="flex items-center">
+        <Button size={ButtonSize.TINY} text={getActionLabel()} />
+      </div>
+    </div>
+  );
+}
+
 export default function RoomPage() {
   const router = useRouter();
   const { roomId } = router.query;
@@ -207,6 +245,7 @@ export default function RoomPage() {
   }, [room?.gameIds?.length, isMagic]);
 
   async function handleCreateGame() {
+    if (typeof roomId !== "string") return;
     if (isMagic) {
       const gameId = readableUniqueId();
       const lobby = newMagicLobby(gameId, 2, 20, GameMode.NETWORK);
@@ -296,63 +335,25 @@ export default function RoomPage() {
         )}
         {!isMagic &&
           (games as IGameState[]).map((game) => (
-            <div
+            <GameListRow
               key={game.id}
-              className="flex justify-between items-center mb2 pa2 br2 pointer hover-bg-white-10"
-              style={{ background: "rgba(255,255,255,0.05)" }}
-              onClick={() => handleJoinGame(game.id)}
-            >
-              <div className="flex items-center">
-                <div className="flex items-center mr2" style={{ gap: 4 }}>
-                  {game.players.length > 0 ? (
-                    game.players.map((p) => <PlayerAvatar key={p.name} name={p.name} />)
-                  ) : (
-                    <Txt size={TxtSize.SMALL} value="..." />
-                  )}
-                </div>
-                <GameStatusBadge game={game} />
-              </div>
-              <div className="flex items-center">
-                {game.status === IGameStatus.LOBBY && <Button size={ButtonSize.TINY} text={t("join", "Join")} />}
-                {game.status === IGameStatus.ONGOING && (
-                  <Button
-                    size={ButtonSize.TINY}
-                    text={game.players.some((p) => p.name === getPlayerName()) ? t("rejoinGame") : t("watch")}
-                  />
-                )}
-                {game.status === IGameStatus.OVER && <Button size={ButtonSize.TINY} text={t("view", "View")} />}
-              </div>
-            </div>
+              gameId={game.id}
+              players={game.players}
+              status={game.status}
+              statusBadge={<GameStatusBadge game={game} />}
+              onJoinGame={handleJoinGame}
+            />
           ))}
         {isMagic &&
           magicGames.map((game) => (
-            <div
+            <GameListRow
               key={game.id}
-              className="flex justify-between items-center mb2 pa2 br2 pointer hover-bg-white-10"
-              style={{ background: "rgba(255,255,255,0.05)" }}
-              onClick={() => handleJoinGame(game.id)}
-            >
-              <div className="flex items-center">
-                <div className="flex items-center mr2" style={{ gap: 4 }}>
-                  {game.players.length > 0 ? (
-                    game.players.map((p) => <PlayerAvatar key={p.name} name={p.name} />)
-                  ) : (
-                    <Txt size={TxtSize.SMALL} value="..." />
-                  )}
-                </div>
-                <MagicGameStatusBadge game={game} />
-              </div>
-              <div className="flex items-center">
-                {game.status === MagicGameStatus.LOBBY && <Button size={ButtonSize.TINY} text={t("join", "Join")} />}
-                {game.status === MagicGameStatus.ONGOING && (
-                  <Button
-                    size={ButtonSize.TINY}
-                    text={game.players.some((p) => p.name === getPlayerName()) ? t("rejoinGame") : t("watch")}
-                  />
-                )}
-                {game.status === MagicGameStatus.OVER && <Button size={ButtonSize.TINY} text={t("view", "View")} />}
-              </div>
-            </div>
+              gameId={game.id}
+              players={game.players}
+              status={game.status}
+              statusBadge={<MagicGameStatusBadge game={game} />}
+              onJoinGame={handleJoinGame}
+            />
           ))}
       </div>
     </div>
