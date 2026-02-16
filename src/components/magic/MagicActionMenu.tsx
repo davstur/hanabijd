@@ -15,21 +15,21 @@ interface MenuItem {
   payload?: unknown;
 }
 
+const ZONE_LABELS: { zone: MagicZone; label: string }[] = [
+  { zone: MagicZone.HAND, label: "To Hand" },
+  { zone: MagicZone.BATTLEFIELD, label: "To Battlefield" },
+  { zone: MagicZone.GRAVEYARD, label: "To Graveyard" },
+  { zone: MagicZone.EXILE, label: "To Exile" },
+];
+
 export default function MagicActionMenu({ card, currentZone, position, onAction, onClose }: Props) {
   const items: MenuItem[] = [];
 
   // Move-to options (show all zones except current)
-  if (currentZone !== MagicZone.HAND) {
-    items.push({ label: "To Hand", action: "move", payload: MagicZone.HAND });
-  }
-  if (currentZone !== MagicZone.BATTLEFIELD) {
-    items.push({ label: "To Battlefield", action: "move", payload: MagicZone.BATTLEFIELD });
-  }
-  if (currentZone !== MagicZone.GRAVEYARD) {
-    items.push({ label: "To Graveyard", action: "move", payload: MagicZone.GRAVEYARD });
-  }
-  if (currentZone !== MagicZone.EXILE) {
-    items.push({ label: "To Exile", action: "move", payload: MagicZone.EXILE });
+  for (const { zone, label } of ZONE_LABELS) {
+    if (zone !== currentZone) {
+      items.push({ label, action: "move", payload: zone });
+    }
   }
   if (currentZone !== MagicZone.LIBRARY) {
     items.push({ label: "Top of Library", action: "move", payload: { zone: MagicZone.LIBRARY, position: "top" } });

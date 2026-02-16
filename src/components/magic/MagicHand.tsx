@@ -48,17 +48,20 @@ function DraggableHandCard({
     setDragging(false);
   }, []);
 
-  const handlePointerDown = useCallback((e: React.PointerEvent) => {
-    if (e.button !== 0) return;
-    if (!onPlayCard) return;
-    dragState.current = {
-      startX: e.clientX,
-      startY: e.clientY,
-      pointerId: e.pointerId,
-      dragging: false,
-      cancelled: false,
-    };
-  }, [onPlayCard]);
+  const handlePointerDown = useCallback(
+    (e: React.PointerEvent) => {
+      if (e.button !== 0) return;
+      if (!onPlayCard) return;
+      dragState.current = {
+        startX: e.clientX,
+        startY: e.clientY,
+        pointerId: e.pointerId,
+        dragging: false,
+        cancelled: false,
+      };
+    },
+    [onPlayCard]
+  );
 
   const handlePointerMove = useCallback((e: React.PointerEvent) => {
     const ds = dragState.current;
@@ -103,38 +106,41 @@ function DraggableHandCard({
     }
   }, []);
 
-  const handlePointerUp = useCallback((e: React.PointerEvent) => {
-    const ds = dragState.current;
-    dragState.current = null;
-    resetDrag();
+  const handlePointerUp = useCallback(
+    (e: React.PointerEvent) => {
+      const ds = dragState.current;
+      dragState.current = null;
+      resetDrag();
 
-    if (!ds) return;
-    if (!ds.dragging) {
-      if (!ds.cancelled) {
-        const now = Date.now();
-        if (now - lastTapTime.current < 300) {
-          // Double tap — cancel pending single tap, fire zoom
-          if (singleTapTimer.current) {
-            clearTimeout(singleTapTimer.current);
-            singleTapTimer.current = null;
+      if (!ds) return;
+      if (!ds.dragging) {
+        if (!ds.cancelled) {
+          const now = Date.now();
+          if (now - lastTapTime.current < 300) {
+            // Double tap — cancel pending single tap, fire zoom
+            if (singleTapTimer.current) {
+              clearTimeout(singleTapTimer.current);
+              singleTapTimer.current = null;
+            }
+            onCardClick(card);
+            lastTapTime.current = 0;
+          } else {
+            lastTapTime.current = now;
+            // Delay single tap (no action for hand cards, just wait for potential double)
+            singleTapTimer.current = setTimeout(() => {
+              singleTapTimer.current = null;
+            }, 300);
           }
-          onCardClick(card);
-          lastTapTime.current = 0;
-        } else {
-          lastTapTime.current = now;
-          // Delay single tap (no action for hand cards, just wait for potential double)
-          singleTapTimer.current = setTimeout(() => {
-            singleTapTimer.current = null;
-          }, 300);
         }
+        return;
       }
-      return;
-    }
 
-    if (isOverSelfBattlefield(e.clientX, e.clientY) && onPlayCard) {
-      onPlayCard(card);
-    }
-  }, [card, onCardClick, onPlayCard, resetDrag]);
+      if (isOverSelfBattlefield(e.clientX, e.clientY) && onPlayCard) {
+        onPlayCard(card);
+      }
+    },
+    [card, onCardClick, onPlayCard, resetDrag]
+  );
 
   const handlePointerCancel = useCallback(() => {
     dragState.current = null;

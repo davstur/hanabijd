@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useState } from "react";
 import MagicActionMenu from "~/components/magic/MagicActionMenu";
 import MagicBattlefield from "~/components/magic/MagicBattlefield";
 import MagicCardZoom from "~/components/magic/MagicCardZoom";
@@ -66,19 +66,15 @@ export default function MagicGame({ game, selfPlayerIndex }: Props) {
 
   const isOver = game.status === MagicGameStatus.OVER;
 
-  // ---- State update helper ----
-  const update = useCallback((newState: IMagicGameState) => {
+  /** Apply a state transition and persist to Firebase. */
+  function commit(newState: IMagicGameState): void {
     updateMagicGame(newState);
-  }, []);
+  }
 
   // ---- Card click: zoom ----
   function handleCardClick(card: IMagicCardRef) {
     if (card.faceDown) return;
     setZoomCard(card);
-  }
-
-  function handleTokenClick(token: IMagicToken) {
-    setZoomToken(token);
   }
 
   // ---- Card context menu ----
@@ -96,23 +92,23 @@ export default function MagicGame({ game, selfPlayerIndex }: Props) {
       case "move": {
         if (typeof payload === "object" && payload !== null && "zone" in payload) {
           const { zone: toZone, position } = payload as { zone: MagicZone; position: "top" | "bottom" };
-          update(moveCard(game, selfPlayerIndex, card.instanceId, zone, toZone, position));
+          commit(moveCard(game, selfPlayerIndex, card.instanceId, zone, toZone, position));
         } else {
-          update(moveCard(game, selfPlayerIndex, card.instanceId, zone, payload as MagicZone));
+          commit(moveCard(game, selfPlayerIndex, card.instanceId, zone, payload as MagicZone));
         }
         break;
       }
       case "tap":
-        update(tapCard(game, selfPlayerIndex, card.instanceId));
+        commit(tapCard(game, selfPlayerIndex, card.instanceId));
         break;
       case "faceDown":
-        update(toggleFaceDown(game, selfPlayerIndex, card.instanceId));
+        commit(toggleFaceDown(game, selfPlayerIndex, card.instanceId));
         break;
       case "flip":
-        update(flipCard(game, selfPlayerIndex, card.instanceId));
+        commit(flipCard(game, selfPlayerIndex, card.instanceId));
         break;
       case "counter":
-        update(adjustCounter(game, selfPlayerIndex, card.instanceId, payload as number));
+        commit(adjustCounter(game, selfPlayerIndex, card.instanceId, payload as number));
         break;
       case "zoom":
         setZoomCard(card);
@@ -122,45 +118,24 @@ export default function MagicGame({ game, selfPlayerIndex }: Props) {
   }
 
   // ---- Toolbar actions ----
-  function handleDraw() {
-    update(drawCard(game, selfPlayerIndex));
-  }
-  function handleUntapAll() {
-    update(untapAll(game, selfPlayerIndex));
-  }
-  function handleShuffle() {
-    update(shuffleLibrary(game, selfPlayerIndex));
-  }
-  function handleMulligan() {
-    update(mulligan(game, selfPlayerIndex));
-  }
-  function handlePassTurn() {
-    update(passTurn(game));
-  }
   function handleRestart() {
     if (window.confirm("Restart the game? Both players' boards will be reset.")) {
-      update(restartGame(game));
+      commit(restartGame(game));
     }
   }
   function handleConcede() {
     if (window.confirm("Are you sure you want to concede?")) {
-      update(concedeGame(game, selfPlayerIndex));
+      commit(concedeGame(game, selfPlayerIndex));
     }
   }
-  function handleLifeChange(newLife: number) {
-    update(setLife(game, selfPlayerIndex, newLife));
-  }
   function handleCreateToken(token: Omit<IMagicToken, "instanceId" | "tapped" | "counters">) {
-    update(createToken(game, selfPlayerIndex, token));
+    commit(createToken(game, selfPlayerIndex, token));
   }
   function handleCardDrop(cardInstanceId: string, x: number, y: number) {
-    update(moveCardPosition(game, selfPlayerIndex, cardInstanceId, x, y));
+    commit(moveCardPosition(game, selfPlayerIndex, cardInstanceId, x, y));
   }
   function handleTokenDrop(tokenInstanceId: string, x: number, y: number) {
-    update(moveTokenPosition(game, selfPlayerIndex, tokenInstanceId, x, y));
-  }
-  function handleRemoveToken(tokenInstanceId: string) {
-    update(removeToken(game, selfPlayerIndex, tokenInstanceId));
+    commit(moveTokenPosition(game, selfPlayerIndex, tokenInstanceId, x, y));
   }
 
   if (!selfPlayer) {
@@ -223,7 +198,7 @@ export default function MagicGame({ game, selfPlayerIndex }: Props) {
             e.preventDefault();
             setZoomCard(card);
           }}
-          onTokenClick={handleTokenClick}
+          onTokenClick={(token) => setZoomToken(token)}
           onTokenContext={(token, e) => {
             e.preventDefault();
             setZoomToken(token);
@@ -238,17 +213,15 @@ export default function MagicGame({ game, selfPlayerIndex }: Props) {
           isActiveTurn={game.currentPlayer === selfPlayerIndex}
           isOwn
           tokens={selfPlayer.tokens}
-          onCardClick={(card) => update(tapCard(game, selfPlayerIndex, card.instanceId))}
+          onCardClick={(card) => commit(tapCard(game, selfPlayerIndex, card.instanceId))}
           onCardContext={(card, e) => handleCardContext(card, MagicZone.BATTLEFIELD, e)}
           onCardDoubleClick={handleCardClick}
           onCardDrop={handleCardDrop}
-          onTokenClick={(token) => {
-            update(tapToken(game, selfPlayerIndex, token.instanceId));
-          }}
+          onTokenClick={(token) => commit(tapToken(game, selfPlayerIndex, token.instanceId))}
           onTokenContext={(token, e) => {
             e.preventDefault();
             if (window.confirm(`Remove ${token.name} token?`)) {
-              handleRemoveToken(token.instanceId);
+              commit(removeToken(game, selfPlayerIndex, token.instanceId));
             }
           }}
           onTokenDrop={handleTokenDrop}
@@ -284,9 +257,9 @@ export default function MagicGame({ game, selfPlayerIndex }: Props) {
           cards={selfPlayer.hand}
           onCardClick={handleCardClick}
           onCardContext={(card, e) => handleCardContext(card, MagicZone.HAND, e)}
-          onPlayCard={(card) => {
-            update(moveCard(game, selfPlayerIndex, card.instanceId, MagicZone.HAND, MagicZone.BATTLEFIELD));
-          }}
+          onPlayCard={(card) =>
+            commit(moveCard(game, selfPlayerIndex, card.instanceId, MagicZone.HAND, MagicZone.BATTLEFIELD))
+          }
         />
       </div>
 
@@ -294,19 +267,19 @@ export default function MagicGame({ game, selfPlayerIndex }: Props) {
       <div className="ph2 pb2 flex items-center justify-between" style={{ gap: 8 }}>
         <div className="flex items-center" style={{ gap: 8 }}>
           <span className="white fw6 f6">{selfPlayer.name}</span>
-          <MagicLifeCounter life={selfPlayer.life} onChange={handleLifeChange} />
+          <MagicLifeCounter life={selfPlayer.life} onChange={(life) => commit(setLife(game, selfPlayerIndex, life))} />
         </div>
         {!isOver && (
           <MagicToolbar
             isMyTurn={game.currentPlayer === selfPlayerIndex}
             onConcede={handleConcede}
             onCreateToken={() => setShowTokenDialog(true)}
-            onDraw={handleDraw}
-            onMulligan={handleMulligan}
-            onPassTurn={handlePassTurn}
+            onDraw={() => commit(drawCard(game, selfPlayerIndex))}
+            onMulligan={() => commit(mulligan(game, selfPlayerIndex))}
+            onPassTurn={() => commit(passTurn(game))}
             onRestart={handleRestart}
-            onShuffle={handleShuffle}
-            onUntapAll={handleUntapAll}
+            onShuffle={() => commit(shuffleLibrary(game, selfPlayerIndex))}
+            onUntapAll={() => commit(untapAll(game, selfPlayerIndex))}
           />
         )}
       </div>
@@ -382,45 +355,61 @@ export default function MagicGame({ game, selfPlayerIndex }: Props) {
 
               <div className="fw6 yellow mb1">Turn Phases</div>
               <ol className="mt0 mb3 pl3">
-                <li className="mb1"><b>Beginning</b> — Untap all your cards, then draw a card.</li>
-                <li className="mb1"><b>Main Phase 1</b> — Play lands, cast creatures, sorceries, enchantments.</li>
-                <li className="mb1"><b>Combat</b> — Declare attackers (tap them). Opponent declares blockers. Deal damage.</li>
-                <li className="mb1"><b>Main Phase 2</b> — Same as Main 1.</li>
-                <li className="mb1"><b>End</b> — Discard down to 7 cards if needed. Pass the turn.</li>
+                <li className="mb1">
+                  <b>Beginning</b> — Untap all your cards, then draw a card.
+                </li>
+                <li className="mb1">
+                  <b>Main Phase 1</b> — Play lands, cast creatures, sorceries, enchantments.
+                </li>
+                <li className="mb1">
+                  <b>Combat</b> — Declare attackers (tap them). Opponent declares blockers. Deal damage.
+                </li>
+                <li className="mb1">
+                  <b>Main Phase 2</b> — Same as Main 1.
+                </li>
+                <li className="mb1">
+                  <b>End</b> — Discard down to 7 cards if needed. Pass the turn.
+                </li>
               </ol>
 
               <div className="fw6 yellow mb1">Lands &amp; Mana</div>
               <p className="mt0 mb3">
-                Play <b>one land per turn</b> (only during your main phases). Tap lands to produce mana.
-                Mana is spent to cast spells — the cost is shown in the top-right corner of each card.
+                Play <b>one land per turn</b> (only during your main phases). Tap lands to produce mana. Mana is spent
+                to cast spells — the cost is shown in the top-right corner of each card.
               </p>
 
               <div className="fw6 yellow mb1">Creatures</div>
               <p className="mt0 mb3">
-                Have <b>power/toughness</b> (e.g. 3/2 = deals 3 damage, dies to 2 damage).
-                Creatures have <b>summoning sickness</b> — they can{"'"}t attack or use tap abilities the turn they enter.
+                Have <b>power/toughness</b> (e.g. 3/2 = deals 3 damage, dies to 2 damage). Creatures have{" "}
+                <b>summoning sickness</b> — they can{"'"}t attack or use tap abilities the turn they enter.
               </p>
 
               <div className="fw6 yellow mb1">Combat</div>
               <p className="mt0 mb3">
-                Tap creatures to attack — they deal damage equal to their power.
-                Unblocked attackers deal damage to the opponent.
-                Blocked creatures deal damage to each other.
+                Tap creatures to attack — they deal damage equal to their power. Unblocked attackers deal damage to the
+                opponent. Blocked creatures deal damage to each other.
               </p>
 
               <div className="fw6 yellow mb1">Card Types</div>
               <ul className="mt0 mb3 pl3">
-                <li className="mb1"><b>Instant</b> — Can be cast any time, even on opponent{"'"}s turn.</li>
-                <li className="mb1"><b>Sorcery</b> — Cast only during your main phases. Goes to graveyard after.</li>
-                <li className="mb1"><b>Enchantment</b> — Stays on the battlefield with ongoing effects.</li>
-                <li className="mb1"><b>Artifact</b> — Colorless permanents with various abilities.</li>
+                <li className="mb1">
+                  <b>Instant</b> — Can be cast any time, even on opponent{"'"}s turn.
+                </li>
+                <li className="mb1">
+                  <b>Sorcery</b> — Cast only during your main phases. Goes to graveyard after.
+                </li>
+                <li className="mb1">
+                  <b>Enchantment</b> — Stays on the battlefield with ongoing effects.
+                </li>
+                <li className="mb1">
+                  <b>Artifact</b> — Colorless permanents with various abilities.
+                </li>
               </ul>
 
               <div className="fw6 yellow mb1">Starting the Game</div>
               <p className="mt0 mb2">
-                Each player starts with <b>20 life</b> and draws <b>7 cards</b>.
-                If you don{"'"}t like your hand, you can mulligan (shuffle back and draw 7 again, but put 1 card
-                on the bottom for each mulligan).
+                Each player starts with <b>20 life</b> and draws <b>7 cards</b>. If you don{"'"}t like your hand, you
+                can mulligan (shuffle back and draw 7 again, but put 1 card on the bottom for each mulligan).
               </p>
             </div>
           </div>
