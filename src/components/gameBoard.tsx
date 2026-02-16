@@ -32,8 +32,8 @@ export default function GameBoard(props: Props) {
 
   const recentTurns = (
     <div className="flex-1 overflow-hidden" style={{ minWidth: 0 }}>
-      {game.turnsHistory.slice(-2).map((turn, i, arr) => {
-        const turnNumber = game.turnsHistory.length - arr.length + i + 1;
+      {[...game.turnsHistory.slice(-2)].reverse().map((turn) => {
+        const turnNumber = game.turnsHistory.indexOf(turn) + 1;
         return (
           <div key={turnNumber} className="recent-turn-line">
             <Turn avatarOnly showDrawn={false} showPosition={false} turn={turn} turnNumber={turnNumber} />
