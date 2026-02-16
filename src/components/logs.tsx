@@ -23,7 +23,6 @@ export default function Logs(props: Props) {
   const animate = !replay.cursor;
   const recentTurns = showAll ? game.turnsHistory : game.turnsHistory.slice(-3);
   const displayTurns = showAll ? recentTurns : [...recentTurns].reverse();
-  const turnOffset = game.turnsHistory.length - recentTurns.length;
 
   return (
     <div className="flex-grow-1 overflow-y-scroll">
