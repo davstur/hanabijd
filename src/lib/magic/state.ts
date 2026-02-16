@@ -9,29 +9,21 @@ import { GameMode } from "~/lib/state";
  */
 
 // ---------------------------------------------------------------------------
-// Card
+// Shared base for cards and tokens on the battlefield
 // ---------------------------------------------------------------------------
 
-/** Minimal card reference stored in Firebase. */
-export interface IMagicCardRef {
-  /** Scryfall UUID — used to fetch images / oracle data. */
-  scryfallId: string;
-  /** Unique instance id within this game (same card can appear N times). */
+/** Fields shared by cards and tokens. */
+export interface IMagicBattlefieldItem {
+  /** Unique instance id within this game. */
   instanceId: string;
-  /** Card name (cached so the UI can render without an API call). */
+  /** Display name (cached so the UI can render without an API call). */
   name: string;
   /** Small image URI (146×204) for thumbnails. */
   imageSmall: string;
   /** Normal image URI (488×680) for zoom. */
   imageNormal: string;
-  /** Back-face image URI for DFCs (null for single-faced cards). */
-  imageBack?: string;
-  /** Whether the card is tapped (rotated 90°). */
+  /** Whether the item is tapped (rotated 90°). */
   tapped: boolean;
-  /** Whether the card is face-down. */
-  faceDown: boolean;
-  /** Whether a DFC is showing its back face. */
-  flipped: boolean;
   /** Generic counters (e.g. +1/+1). */
   counters: number;
   /** X position on the battlefield (percentage 0–100). */
@@ -41,24 +33,30 @@ export interface IMagicCardRef {
 }
 
 // ---------------------------------------------------------------------------
+// Card
+// ---------------------------------------------------------------------------
+
+/** Minimal card reference stored in Firebase. */
+export interface IMagicCardRef extends IMagicBattlefieldItem {
+  /** Scryfall UUID — used to fetch images / oracle data. */
+  scryfallId: string;
+  /** Back-face image URI for DFCs (null for single-faced cards). */
+  imageBack?: string;
+  /** Whether the card is face-down. */
+  faceDown: boolean;
+  /** Whether a DFC is showing its back face. */
+  flipped: boolean;
+}
+
+// ---------------------------------------------------------------------------
 // Token
 // ---------------------------------------------------------------------------
 
 /** A token creature on the battlefield. */
-export interface IMagicToken {
-  instanceId: string;
+export interface IMagicToken extends IMagicBattlefieldItem {
   scryfallId?: string;
-  name: string;
-  imageSmall: string;
-  imageNormal: string;
-  tapped: boolean;
-  counters: number;
   /** Power / Toughness text, e.g. "1/1" */
   pt?: string;
-  /** X position on the battlefield (percentage 0–100). */
-  x?: number;
-  /** Y position on the battlefield (percentage 0–100). */
-  y?: number;
 }
 
 // ---------------------------------------------------------------------------
@@ -93,7 +91,6 @@ export interface IMagicPlayer {
 // ---------------------------------------------------------------------------
 
 export interface IMagicGameOptions {
-  id: string;
   playersCount: number;
   startingLife: number;
   gameMode: GameMode;
@@ -137,7 +134,7 @@ export interface IMagicDeckSelection {
 // Full game state
 // ---------------------------------------------------------------------------
 
-export default interface IMagicGameState {
+export interface IMagicGameState {
   id: string;
   gameType: "magic";
   status: MagicGameStatus;

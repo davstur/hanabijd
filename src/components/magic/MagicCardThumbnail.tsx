@@ -4,6 +4,37 @@ import { IMagicCardRef, IMagicToken } from "~/lib/magic/state";
 
 const CARD_BACK_URL = "https://backs.scryfall.io/large/59/23/5923060e-3cfa-4059-9a13-089a79a27e17.jpg?1689900726";
 
+/** Shared counter badge shown on cards and tokens. */
+function CounterBadge({ count }: { count: number }) {
+  if (count <= 0) return null;
+  return (
+    <span
+      className="absolute bg-yellow main-dark fw7 f7 flex items-center justify-center br-100"
+      style={{ bottom: 2, right: 2, width: 18, height: 18, fontSize: 10 }}
+    >
+      {count}
+    </span>
+  );
+}
+
+/** Style for a tappable item (card or token) on the battlefield. */
+function tappableStyle(tapped: boolean, width: number, height: number): React.CSSProperties {
+  return {
+    width,
+    height,
+    transform: tapped ? "rotate(90deg)" : undefined,
+    transformOrigin: "center center",
+    transition: "transform 0.2s",
+    flexShrink: 0,
+  };
+}
+
+function getCardImageSrc(card: IMagicCardRef): string {
+  if (card.faceDown) return CARD_BACK_URL;
+  if (card.flipped && card.imageBack) return card.imageBack;
+  return card.imageSmall;
+}
+
 interface CardProps {
   card: IMagicCardRef;
   onClick?: () => void;
@@ -12,19 +43,14 @@ interface CardProps {
 }
 
 export function MagicCardThumbnail({ card, onClick, onContextMenu, small }: CardProps) {
-  const imgSrc = card.faceDown ? CARD_BACK_URL : card.flipped && card.imageBack ? card.imageBack : card.imageSmall;
+  const imgSrc = getCardImageSrc(card);
+  const w = small ? 50 : 73;
+  const h = small ? 70 : 102;
 
   return (
     <div
       className={classnames("relative pointer", { "o-80": card.tapped })}
-      style={{
-        width: small ? 50 : 73,
-        height: small ? 70 : 102,
-        transform: card.tapped ? "rotate(90deg)" : undefined,
-        transformOrigin: "center center",
-        transition: "transform 0.2s",
-        flexShrink: 0,
-      }}
+      style={tappableStyle(card.tapped, w, h)}
       onClick={onClick}
       onContextMenu={onContextMenu}
     >
@@ -41,14 +67,7 @@ export function MagicCardThumbnail({ card, onClick, onContextMenu, small }: Card
           userSelect: "none",
         }}
       />
-      {card.counters > 0 && (
-        <span
-          className="absolute bg-yellow main-dark fw7 f7 flex items-center justify-center br-100"
-          style={{ bottom: 2, right: 2, width: 18, height: 18, fontSize: 10 }}
-        >
-          {card.counters}
-        </span>
-      )}
+      <CounterBadge count={card.counters} />
     </div>
   );
 }
@@ -63,14 +82,7 @@ export function MagicTokenThumbnail({ token, onClick, onContextMenu }: TokenProp
   return (
     <div
       className={classnames("relative pointer", { "o-80": token.tapped })}
-      style={{
-        width: 73,
-        height: 102,
-        transform: token.tapped ? "rotate(90deg)" : undefined,
-        transformOrigin: "center center",
-        transition: "transform 0.2s",
-        flexShrink: 0,
-      }}
+      style={tappableStyle(token.tapped, 73, 102)}
       onClick={onClick}
       onContextMenu={onContextMenu}
     >
@@ -97,14 +109,7 @@ export function MagicTokenThumbnail({ token, onClick, onContextMenu }: TokenProp
           {token.pt && <span className="white f7">{token.pt}</span>}
         </div>
       )}
-      {token.counters > 0 && (
-        <span
-          className="absolute bg-yellow main-dark fw7 f7 flex items-center justify-center br-100"
-          style={{ bottom: 2, right: 2, width: 18, height: 18, fontSize: 10 }}
-        >
-          {token.counters}
-        </span>
-      )}
+      <CounterBadge count={token.counters} />
     </div>
   );
 }

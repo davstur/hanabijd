@@ -29,7 +29,7 @@ import {
   untapAll,
 } from "~/lib/magic/actions";
 import { updateMagicGame } from "~/lib/magic/firebase";
-import IMagicGameState, { IMagicCardRef, IMagicToken, MagicGameStatus, MagicZone } from "~/lib/magic/state";
+import { IMagicCardRef, IMagicGameState, IMagicToken, MagicGameStatus, MagicZone } from "~/lib/magic/state";
 
 interface Props {
   game: IMagicGameState;

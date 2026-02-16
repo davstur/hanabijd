@@ -1,6 +1,14 @@
 import React, { useEffect, useRef } from "react";
 import { IMagicCardRef, IMagicToken } from "~/lib/magic/state";
 
+function getZoomImageSrc(card?: IMagicCardRef | null, token?: IMagicToken | null): string {
+  if (card) {
+    if (card.flipped && card.imageBack) return card.imageBack;
+    return card.imageNormal;
+  }
+  return token?.imageNormal || "";
+}
+
 interface Props {
   card?: IMagicCardRef | null;
   token?: IMagicToken | null;
@@ -18,8 +26,7 @@ export default function MagicCardZoom({ card, token, onClose }: Props) {
 
   if (!card && !token) return null;
 
-  const imgSrc = card ? (card.flipped && card.imageBack ? card.imageBack : card.imageNormal) : token?.imageNormal || "";
-
+  const imgSrc = getZoomImageSrc(card, token);
   const name = card ? card.name : token?.name || "";
 
   return (

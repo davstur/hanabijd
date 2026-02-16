@@ -11,7 +11,7 @@
 import firebase from "firebase/app";
 import "firebase/database";
 import { cloneDeep } from "lodash";
-import IMagicGameState from "~/lib/magic/state";
+import { IMagicGameState } from "~/lib/magic/state";
 
 // ---------------------------------------------------------------------------
 // Firebase reference

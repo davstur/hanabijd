@@ -195,6 +195,18 @@ function DraggableItem({
   );
 }
 
+function getBattlefieldBackground(isOwn: boolean, isActiveTurn?: boolean): string {
+  const opacity = isActiveTurn ? 0.25 : 0.15;
+  if (isOwn) return `rgba(30,80,30,${opacity})`;
+  return `rgba(80,30,30,${opacity})`;
+}
+
+function getBattlefieldBorder(isOwn: boolean, isActiveTurn?: boolean): string {
+  if (isActiveTurn) return "1px solid rgba(255,200,0,0.5)";
+  if (isOwn) return "1px solid rgba(100,180,100,0.2)";
+  return "1px solid rgba(180,100,100,0.2)";
+}
+
 export default function MagicBattlefield({
   cards,
   tokens,
@@ -227,16 +239,8 @@ export default function MagicBattlefield({
         position: "relative",
         minHeight: 160,
         height: "100%",
-        background: isActiveTurn
-          ? isOwn
-            ? "rgba(30,80,30,0.25)"
-            : "rgba(80,30,30,0.25)"
-          : isOwn
-            ? "rgba(30,80,30,0.15)"
-            : "rgba(80,30,30,0.15)",
-        border: isActiveTurn
-          ? "1px solid rgba(255,200,0,0.5)"
-          : `1px solid ${isOwn ? "rgba(100,180,100,0.2)" : "rgba(180,100,100,0.2)"}`,
+        background: getBattlefieldBackground(isOwn, isActiveTurn),
+        border: getBattlefieldBorder(isOwn, isActiveTurn),
         overflow: "hidden",
       }}
     >

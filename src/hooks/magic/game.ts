@@ -1,23 +1,12 @@
-import React, { useContext } from "react";
-import IMagicGameState, { IMagicPlayer } from "~/lib/magic/state";
+import { IMagicGameState } from "~/lib/magic/state";
 
 // ---------------------------------------------------------------------------
-// Context
+// Shared helper
 // ---------------------------------------------------------------------------
-
-export const MagicGameContext = React.createContext<IMagicGameState | null>(null);
-
-// ---------------------------------------------------------------------------
-// Hooks
-// ---------------------------------------------------------------------------
-
-export function useMagicGame(): IMagicGameState | null {
-  return useContext(MagicGameContext);
-}
 
 const NAME_KEY = "name";
 
-function getPlayerName(): string {
+export function getPlayerName(): string {
   if (typeof window === "undefined") return "";
   const stored = localStorage.getItem(NAME_KEY);
   if (stored) {
@@ -30,14 +19,9 @@ function getPlayerName(): string {
   return "";
 }
 
-/**
- * Returns the current user's player object, or null if they haven't joined.
- */
-export function useMagicSelfPlayer(game: IMagicGameState | null): IMagicPlayer | null {
-  if (!game) return null;
-  const name = getPlayerName();
-  return game.players.find((p) => p.name === name) || null;
-}
+// ---------------------------------------------------------------------------
+// Hooks
+// ---------------------------------------------------------------------------
 
 /**
  * Returns the index of the current user in the players array, or -1.

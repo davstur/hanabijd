@@ -6,8 +6,9 @@
  */
 
 import { cloneDeep } from "lodash";
-import IMagicGameState, {
+import {
   IMagicCardRef,
+  IMagicGameState,
   IMagicPlayer,
   IMagicToken,
   MagicGameStatus,
@@ -86,7 +87,6 @@ export function newMagicGame(args: NewMagicGameArgs): IMagicGameState {
     players,
     currentPlayer: 0,
     options: {
-      id: args.id,
       playersCount: args.playersCount,
       startingLife: args.startingLife,
       gameMode: args.gameMode,
@@ -114,7 +114,6 @@ export function newMagicLobby(
     players: [],
     currentPlayer: 0,
     options: {
-      id,
       playersCount,
       startingLife,
       gameMode,
@@ -264,6 +263,19 @@ export function adjustCounter(
 // Card / token positioning
 // ---------------------------------------------------------------------------
 
+function setPosition(
+  items: { instanceId: string; x?: number; y?: number }[],
+  instanceId: string,
+  x: number,
+  y: number
+): void {
+  const item = items.find((i) => i.instanceId === instanceId);
+  if (item) {
+    item.x = x;
+    item.y = y;
+  }
+}
+
 export function moveCardPosition(
   state: IMagicGameState,
   playerIndex: number,
@@ -274,12 +286,7 @@ export function moveCardPosition(
   const s = clone(state);
   const p = s.players[playerIndex];
   if (!p) return s;
-
-  const card = p.battlefield.find((c) => c.instanceId === cardInstanceId);
-  if (card) {
-    card.x = x;
-    card.y = y;
-  }
+  setPosition(p.battlefield, cardInstanceId, x, y);
   return s;
 }
 
@@ -293,12 +300,7 @@ export function moveTokenPosition(
   const s = clone(state);
   const p = s.players[playerIndex];
   if (!p) return s;
-
-  const token = p.tokens.find((t) => t.instanceId === tokenInstanceId);
-  if (token) {
-    token.x = x;
-    token.y = y;
-  }
+  setPosition(p.tokens, tokenInstanceId, x, y);
   return s;
 }
 

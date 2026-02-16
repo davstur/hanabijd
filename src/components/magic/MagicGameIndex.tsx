@@ -2,24 +2,10 @@ import React, { useEffect, useState } from "react";
 import MagicGame from "~/components/magic/MagicGame";
 import MagicLobby from "~/components/magic/MagicLobby";
 import Txt, { TxtSize } from "~/components/ui/txt";
-import { useMagicSelfPlayerIndex } from "~/hooks/magic/game";
+import { getPlayerName, useMagicSelfPlayerIndex } from "~/hooks/magic/game";
 import { newMagicGame } from "~/lib/magic/actions";
 import { subscribeToMagicGame, updateMagicGame } from "~/lib/magic/firebase";
-import IMagicGameState, { IMagicCardRef, IMagicPlayer, MagicGameStatus } from "~/lib/magic/state";
-
-const NAME_KEY = "name";
-function getPlayerName(): string {
-  if (typeof window === "undefined") return "";
-  const stored = localStorage.getItem(NAME_KEY);
-  if (stored) {
-    try {
-      return JSON.parse(stored);
-    } catch {
-      return stored;
-    }
-  }
-  return "";
-}
+import { IMagicCardRef, IMagicGameState, IMagicPlayer, MagicGameStatus } from "~/lib/magic/state";
 
 interface Props {
   gameId: string;

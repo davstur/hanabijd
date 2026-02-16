@@ -18,7 +18,7 @@ import { getMaximumScore, getScore } from "~/lib/actions";
 import { readableUniqueId } from "~/lib/id";
 import { newMagicLobby } from "~/lib/magic/actions";
 import { subscribeToMagicGame, updateMagicGame } from "~/lib/magic/firebase";
-import IMagicGameState, { MagicGameStatus } from "~/lib/magic/state";
+import { IMagicGameState, MagicGameStatus } from "~/lib/magic/state";
 import IGameState, { GameMode, GameVariant, IGameStatus, RoomGameType } from "~/lib/state";
 
 const ROOM_KEY = "currentRoom";
