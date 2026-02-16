@@ -108,6 +108,7 @@ export default function Home() {
   function handleNameSubmit(e: FormEvent) {
     e.preventDefault();
     if (!playerName.trim()) return;
+    setNeedsName(false);
     if (pendingAction === "create") {
       setShowGameTypeSelect(true);
     } else if (pendingAction === "join") {

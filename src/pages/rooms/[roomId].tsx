@@ -13,6 +13,7 @@ import {
   subscribeToRoomGames,
   joinRoom as joinRoomDb,
 } from "~/lib/firebase";
+import { getMaximumScore, getScore } from "~/lib/actions";
 import { readableUniqueId } from "~/lib/id";
 import { newMagicLobby } from "~/lib/magic/actions";
 import { subscribeToMagicGame, updateMagicGame } from "~/lib/magic/firebase";
