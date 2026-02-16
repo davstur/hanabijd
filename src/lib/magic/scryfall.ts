@@ -40,6 +40,11 @@ export interface ScryfallCard {
   /** For tokens */
   power?: string;
   toughness?: string;
+  set: string;
+  set_name?: string;
+  cmc?: number;
+  colors?: string[];
+  color_identity?: string[];
 }
 
 export interface ScryfallList {
@@ -47,6 +52,17 @@ export interface ScryfallList {
   has_more: boolean;
   next_page?: string;
   total_cards?: number;
+}
+
+export interface ScryfallSet {
+  code: string;
+  name: string;
+  set_type: string;
+  released_at?: string;
+  card_count: number;
+  icon_svg_uri?: string;
+  block?: string;
+  block_code?: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -167,6 +183,66 @@ export async function searchCards(query: string): Promise<ScryfallCard[]> {
   const json: ScryfallList = await res.json();
   for (const card of json.data) cacheCard(card);
   return json.data;
+}
+
+// ---------------------------------------------------------------------------
+// Sets API
+// ---------------------------------------------------------------------------
+
+const PLAYABLE_SET_TYPES = new Set(["core", "expansion", "masters", "draft_innovation"]);
+
+let setsCache: ScryfallSet[] | null = null;
+
+/** Fetch all playable sets, sorted by release date descending. Cached. */
+export async function fetchSets(): Promise<ScryfallSet[]> {
+  if (setsCache) return setsCache;
+
+  const res = await throttledFetch(`${API}/sets`);
+  if (!res.ok) return [];
+  const json: { data: ScryfallSet[] } = await res.json();
+
+  setsCache = json.data
+    .filter((s) => PLAYABLE_SET_TYPES.has(s.set_type) && s.card_count > 0)
+    .sort((a, b) => (b.released_at || "").localeCompare(a.released_at || ""));
+
+  return setsCache;
+}
+
+export interface CardSearchFilters {
+  name?: string;
+  colors?: string[];
+  cmc?: number | null;
+}
+
+/** Search for cards within a specific set, with optional filters. */
+export async function searchCardsInSet(setCode: string, filters: CardSearchFilters = {}): Promise<ScryfallList> {
+  const parts: string[] = [`set:${setCode}`];
+
+  if (filters.name) {
+    parts.push(filters.name);
+  }
+  if (filters.colors && filters.colors.length > 0) {
+    parts.push(`c:${filters.colors.join("")}`);
+  }
+  if (filters.cmc !== undefined && filters.cmc !== null) {
+    parts.push(`cmc=${filters.cmc}`);
+  }
+
+  const query = parts.join(" ");
+  const res = await throttledFetch(`${API}/cards/search?q=${encodeURIComponent(query)}&unique=cards&order=name`);
+  if (!res.ok) return { data: [], has_more: false };
+  const json: ScryfallList = await res.json();
+  for (const card of json.data) cacheCard(card);
+  return json;
+}
+
+/** Fetch the next page of card search results. */
+export async function searchCardsPage(nextPageUrl: string): Promise<ScryfallList> {
+  const res = await throttledFetch(nextPageUrl);
+  if (!res.ok) return { data: [], has_more: false };
+  const json: ScryfallList = await res.json();
+  for (const card of json.data) cacheCard(card);
+  return json;
 }
 
 // ---------------------------------------------------------------------------

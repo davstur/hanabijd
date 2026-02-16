@@ -130,6 +130,14 @@ export interface IMagicDeckSelection {
   cards: IMagicCardRef[];
 }
 
+export interface IMagicSavedDeck {
+  id: string;
+  name: string;
+  cards: IMagicDeckEntry[];
+  createdAt: number;
+  updatedAt: number;
+}
+
 // ---------------------------------------------------------------------------
 // Full game state
 // ---------------------------------------------------------------------------
