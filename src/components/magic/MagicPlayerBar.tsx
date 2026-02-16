@@ -20,12 +20,6 @@ export default function MagicPlayerBar({ player, isCurrent }: Props) {
         <Txt className="white fw6" size={TxtSize.SMALL} value={player.name} />
         <span className="lavender f7">Life: {player.life}</span>
       </div>
-      <div className="flex items-center lavender f7" style={{ gap: 12 }}>
-        <span title="Library">Lib: {player.library.length}</span>
-        <span title="Hand">Hand: {player.hand.length}</span>
-        <span title="Graveyard">GY: {player.graveyard.length}</span>
-        <span title="Exile">Exile: {player.exile.length}</span>
-      </div>
     </div>
   );
 }

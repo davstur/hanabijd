@@ -30,12 +30,15 @@ export function MagicCardThumbnail({ card, onClick, onContextMenu, small }: Card
     >
       <img
         alt={card.faceDown ? "Card back" : card.name}
+        draggable={false}
         src={imgSrc}
         style={{
           width: "100%",
           height: "100%",
           objectFit: "cover",
           borderRadius: small ? 3 : 5,
+          WebkitTouchCallout: "none",
+          userSelect: "none",
         }}
       />
       {card.counters > 0 && (
@@ -74,12 +77,15 @@ export function MagicTokenThumbnail({ token, onClick, onContextMenu }: TokenProp
       {token.imageSmall ? (
         <img
           alt={token.name}
+          draggable={false}
           src={token.imageSmall}
           style={{
             width: "100%",
             height: "100%",
             objectFit: "cover",
             borderRadius: 5,
+            WebkitTouchCallout: "none",
+            userSelect: "none",
           }}
         />
       ) : (

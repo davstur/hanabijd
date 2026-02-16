@@ -52,7 +52,7 @@ function cardRefFromScryfall(card: ScryfallCard): Omit<IMagicCardRef, "instanceI
     name: card.name,
     imageSmall: images.small,
     imageNormal: images.normal,
-    imageBack: images.back,
+    ...(images.back ? { imageBack: images.back } : {}),
     tapped: false,
     faceDown: false,
     flipped: false,

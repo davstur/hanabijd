@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { IMagicCardRef, IMagicToken } from "~/lib/magic/state";
 
 interface Props {
@@ -8,6 +8,14 @@ interface Props {
 }
 
 export default function MagicCardZoom({ card, token, onClose }: Props) {
+  const openedAt = useRef(0);
+
+  useEffect(() => {
+    if (card || token) {
+      openedAt.current = Date.now();
+    }
+  }, [card, token]);
+
   if (!card && !token) return null;
 
   const imgSrc = card ? (card.flipped && card.imageBack ? card.imageBack : card.imageNormal) : token?.imageNormal || "";
@@ -18,12 +26,15 @@ export default function MagicCardZoom({ card, token, onClose }: Props) {
     <div
       className="fixed top-0 left-0 w-100 h-100 flex items-center justify-center z-999"
       style={{ background: "rgba(0,0,0,0.85)" }}
-      onClick={onClose}
+      onClick={() => {
+        if (Date.now() - openedAt.current >= 500) onClose();
+      }}
     >
       <div
-        className="relative"
-        style={{ maxWidth: "min(488px, 90vw)", maxHeight: "90vh" }}
-        onClick={(e) => e.stopPropagation()}
+        style={{
+          maxWidth: "min(488px, 90vw)",
+          maxHeight: "90vh",
+        }}
       >
         {imgSrc ? (
           <img
@@ -32,8 +43,7 @@ export default function MagicCardZoom({ card, token, onClose }: Props) {
             style={{
               width: "100%",
               height: "auto",
-              borderRadius: 12,
-              boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
+              display: "block",
             }}
           />
         ) : (
@@ -41,13 +51,6 @@ export default function MagicCardZoom({ card, token, onClose }: Props) {
             <span className="white f3">{name}</span>
           </div>
         )}
-        <button
-          className="absolute top-0 right-0 ma2 pointer bg-black-50 white bn br-100 flex items-center justify-center"
-          style={{ width: 32, height: 32, fontSize: 18 }}
-          onClick={onClose}
-        >
-          ×
-        </button>
       </div>
     </div>
   );

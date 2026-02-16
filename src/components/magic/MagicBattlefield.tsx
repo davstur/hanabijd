@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import { IMagicCardRef, IMagicToken } from "~/lib/magic/state";
 import { MagicCardThumbnail, MagicTokenThumbnail } from "~/components/magic/MagicCardThumbnail";
 
@@ -6,10 +6,12 @@ interface Props {
   cards: IMagicCardRef[];
   tokens: IMagicToken[];
   isOwn: boolean;
+  isActiveTurn?: boolean;
   onCardClick: (card: IMagicCardRef) => void;
   onCardContext: (card: IMagicCardRef, e: React.MouseEvent) => void;
   onTokenClick: (token: IMagicToken) => void;
   onTokenContext: (token: IMagicToken, e: React.MouseEvent) => void;
+  onCardDoubleClick?: (card: IMagicCardRef) => void;
   onCardDrop?: (cardInstanceId: string, x: number, y: number) => void;
   onTokenDrop?: (tokenInstanceId: string, x: number, y: number) => void;
 }
@@ -47,8 +49,11 @@ function DraggableItem({
   instanceId,
   x,
   y,
+  zIndex,
   onDrop,
+  onBringToFront,
   onClick,
+  onDoubleClick,
   onContextMenu,
 }: {
   children: React.ReactNode;
@@ -56,10 +61,14 @@ function DraggableItem({
   instanceId: string;
   x: number;
   y: number;
+  zIndex: number;
   onDrop?: (id: string, x: number, y: number) => void;
+  onBringToFront?: (id: string) => void;
   onClick?: () => void;
+  onDoubleClick?: () => void;
   onContextMenu?: (e: React.MouseEvent) => void;
 }) {
+  const [dragging, setDragging] = useState(false);
   const dragState = useRef<{
     startPointerX: number;
     startPointerY: number;
@@ -68,6 +77,8 @@ function DraggableItem({
     moved: boolean;
   } | null>(null);
   const elRef = useRef<HTMLDivElement>(null);
+  const lastClickTime = useRef(0);
+  const singleTapTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handlePointerDown = useCallback(
     (e: React.PointerEvent) => {
@@ -97,7 +108,10 @@ function DraggableItem({
 
       // Threshold to distinguish click from drag
       if (!ds.moved && Math.abs(dx) < 4 && Math.abs(dy) < 4) return;
-      ds.moved = true;
+      if (!ds.moved) {
+        ds.moved = true;
+        setDragging(true);
+      }
 
       const rect = container.getBoundingClientRect();
       const pctX = clampX(ds.startPctX + (dx / rect.width) * 100);
@@ -116,12 +130,33 @@ function DraggableItem({
       const ds = dragState.current;
       const container = containerRef.current;
       dragState.current = null;
+      setDragging(false);
 
       if (!ds) return;
 
       if (!ds.moved) {
-        // It was a click, not a drag
-        onClick?.();
+        // It was a click, not a drag — check for double-click
+        const now = Date.now();
+        if (now - lastClickTime.current < 300 && onDoubleClick) {
+          // Double tap — cancel pending single tap and fire double
+          if (singleTapTimer.current) {
+            clearTimeout(singleTapTimer.current);
+            singleTapTimer.current = null;
+          }
+          onDoubleClick();
+          lastClickTime.current = 0;
+        } else {
+          lastClickTime.current = now;
+          // Delay single tap so we can cancel if double tap follows
+          if (onDoubleClick) {
+            singleTapTimer.current = setTimeout(() => {
+              singleTapTimer.current = null;
+              onClick?.();
+            }, 300);
+          } else {
+            onClick?.();
+          }
+        }
         return;
       }
 
@@ -133,9 +168,10 @@ function DraggableItem({
       const pctX = clampX(ds.startPctX + (dx / rect.width) * 100);
       const pctY = clampY(ds.startPctY + (dy / rect.height) * 100);
 
+      onBringToFront?.(instanceId);
       onDrop(instanceId, Math.round(pctX * 10) / 10, Math.round(pctY * 10) / 10);
     },
-    [containerRef, instanceId, onClick, onDrop]
+    [containerRef, instanceId, onClick, onBringToFront, onDoubleClick, onDrop]
   );
 
   return (
@@ -147,7 +183,7 @@ function DraggableItem({
         top: `${y}%`,
         cursor: onDrop ? "grab" : "default",
         touchAction: "none",
-        zIndex: dragState.current?.moved ? 10 : 1,
+        zIndex: dragging ? 9999 : zIndex,
       }}
       onContextMenu={onContextMenu}
       onPointerDown={onDrop ? handlePointerDown : undefined}
@@ -163,8 +199,10 @@ export default function MagicBattlefield({
   cards,
   tokens,
   isOwn,
+  isActiveTurn,
   onCardClick,
   onCardContext,
+  onCardDoubleClick,
   onTokenClick,
   onTokenContext,
   onCardDrop,
@@ -172,6 +210,14 @@ export default function MagicBattlefield({
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const hasCards = cards.length > 0 || tokens.length > 0;
+
+  // Track z-order: most recently dragged item gets highest z-index
+  const [zOrder, setZOrder] = useState<Record<string, number>>({});
+  const zCounter = useRef(1);
+  const bringToFront = useCallback((id: string) => {
+    zCounter.current += 1;
+    setZOrder((prev) => ({ ...prev, [id]: zCounter.current }));
+  }, []);
 
   return (
     <div
@@ -181,8 +227,16 @@ export default function MagicBattlefield({
         position: "relative",
         minHeight: 160,
         height: "100%",
-        background: isOwn ? "rgba(30,80,30,0.15)" : "rgba(80,30,30,0.15)",
-        border: `1px solid ${isOwn ? "rgba(100,180,100,0.2)" : "rgba(180,100,100,0.2)"}`,
+        background: isActiveTurn
+          ? isOwn
+            ? "rgba(30,80,30,0.25)"
+            : "rgba(80,30,30,0.25)"
+          : isOwn
+            ? "rgba(30,80,30,0.15)"
+            : "rgba(80,30,30,0.15)",
+        border: isActiveTurn
+          ? "1px solid rgba(255,200,0,0.5)"
+          : `1px solid ${isOwn ? "rgba(100,180,100,0.2)" : "rgba(180,100,100,0.2)"}`,
         overflow: "hidden",
       }}
     >
@@ -201,8 +255,11 @@ export default function MagicBattlefield({
             instanceId={card.instanceId}
             x={pos.x}
             y={pos.y}
+            zIndex={zOrder[card.instanceId] || 1}
             onClick={() => onCardClick(card)}
+            onBringToFront={bringToFront}
             onContextMenu={(e) => onCardContext(card, e)}
+            onDoubleClick={isOwn && onCardDoubleClick ? () => onCardDoubleClick(card) : undefined}
             onDrop={isOwn ? onCardDrop : undefined}
           >
             <MagicCardThumbnail card={card} />
@@ -219,7 +276,9 @@ export default function MagicBattlefield({
             instanceId={token.instanceId}
             x={pos.x}
             y={pos.y}
+            zIndex={zOrder[token.instanceId] || 1}
             onClick={() => onTokenClick(token)}
+            onBringToFront={bringToFront}
             onContextMenu={(e) => onTokenContext(token, e)}
             onDrop={isOwn ? onTokenDrop : undefined}
           >

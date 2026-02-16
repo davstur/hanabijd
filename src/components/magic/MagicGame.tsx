@@ -4,7 +4,6 @@ import MagicBattlefield from "~/components/magic/MagicBattlefield";
 import MagicCardZoom from "~/components/magic/MagicCardZoom";
 import MagicHand from "~/components/magic/MagicHand";
 import MagicLifeCounter from "~/components/magic/MagicLifeCounter";
-import MagicPlayerBar from "~/components/magic/MagicPlayerBar";
 import MagicTokenDialog from "~/components/magic/MagicTokenDialog";
 import MagicToolbar from "~/components/magic/MagicToolbar";
 import MagicZoneViewer from "~/components/magic/MagicZoneViewer";
@@ -50,10 +49,20 @@ export default function MagicGame({ game, selfPlayerIndex }: Props) {
   const [viewingZone, setViewingZone] = useState<{ zone: MagicZone; playerIndex: number } | null>(null);
   const [showTokenDialog, setShowTokenDialog] = useState(false);
   const [showLog, setShowLog] = useState(false);
+  const [showRules, setShowRules] = useState(false);
 
   const selfPlayer = game.players[selfPlayerIndex];
   const opponentIndex = selfPlayerIndex === 0 ? 1 : 0;
-  const opponent = game.players[opponentIndex];
+  const opponent = game.players[opponentIndex] || {
+    name: "Opponent",
+    life: game.options.startingLife,
+    library: [],
+    hand: [],
+    battlefield: [],
+    graveyard: [],
+    exile: [],
+    tokens: [],
+  };
 
   const isOver = game.status === MagicGameStatus.OVER;
 
@@ -154,7 +163,7 @@ export default function MagicGame({ game, selfPlayerIndex }: Props) {
     update(removeToken(game, selfPlayerIndex, tokenInstanceId));
   }
 
-  if (!selfPlayer || !opponent) {
+  if (!selfPlayer) {
     return (
       <div className="w-100 h-100 flex items-center justify-center bg-main-dark">
         <Txt size={TxtSize.MEDIUM} value="Waiting for players..." />
@@ -166,7 +175,7 @@ export default function MagicGame({ game, selfPlayerIndex }: Props) {
     <div
       className="w-100 flex flex-column bg-main-dark"
       style={{
-        height: "100vh",
+        height: "100%",
         overflow: "hidden",
         backgroundImage: "linear-gradient(to bottom, #0a1628, #0d1f3c)",
       }}
@@ -174,22 +183,31 @@ export default function MagicGame({ game, selfPlayerIndex }: Props) {
       {/* Game over banner */}
       {isOver && <div className="w-100 tc pa2 bg-red white fw6 f6">Game Over</div>}
 
-      {/* Opponent bar */}
-      <MagicPlayerBar isCurrent={game.currentPlayer === opponentIndex} player={opponent} />
+      {/* Opponent bar: name + life */}
+      <div className="ph2 pt2 pb1 flex items-center justify-between" style={{ gap: 8 }}>
+        <div className="flex items-center" style={{ gap: 8 }}>
+          <span className="white fw6 f6">{opponent.name}</span>
+          <span className="white fw6 f5 tc" style={{ minWidth: 32 }}>
+            {opponent.life}
+          </span>
+        </div>
+      </div>
 
       {/* Opponent zone shortcuts */}
       <div className="flex items-center ph2 mb1" style={{ gap: 6 }}>
+        <span className="lavender f7">Lib: {opponent.library.length}</span>
+        <span className="lavender f7">Hand: {opponent.hand.length}</span>
         <button
           className="pointer bg-white-10 white bn br2 ph2 pv1 f7 grow"
           onClick={() => setViewingZone({ zone: MagicZone.GRAVEYARD, playerIndex: opponentIndex })}
         >
-          Opp GY ({opponent.graveyard.length})
+          GY ({opponent.graveyard.length})
         </button>
         <button
           className="pointer bg-white-10 white bn br2 ph2 pv1 f7 grow"
           onClick={() => setViewingZone({ zone: MagicZone.EXILE, playerIndex: opponentIndex })}
         >
-          Opp Exile ({opponent.exile.length})
+          Exile ({opponent.exile.length})
         </button>
       </div>
 
@@ -197,6 +215,7 @@ export default function MagicGame({ game, selfPlayerIndex }: Props) {
       <div className="ph2 mb1" style={{ flex: "1 1 0", minHeight: 0, overflow: "auto" }}>
         <MagicBattlefield
           cards={opponent.battlefield}
+          isActiveTurn={game.currentPlayer === opponentIndex}
           isOwn={false}
           tokens={opponent.tokens}
           onCardClick={handleCardClick}
@@ -213,13 +232,15 @@ export default function MagicGame({ game, selfPlayerIndex }: Props) {
       </div>
 
       {/* Your battlefield */}
-      <div className="ph2 mb1" style={{ flex: "1 1 0", minHeight: 0, overflow: "auto" }}>
+      <div className="ph2 mb1" data-zone="self-battlefield" style={{ flex: "1 1 0", minHeight: 0, overflow: "auto" }}>
         <MagicBattlefield
           cards={selfPlayer.battlefield}
+          isActiveTurn={game.currentPlayer === selfPlayerIndex}
           isOwn
           tokens={selfPlayer.tokens}
-          onCardClick={handleCardClick}
+          onCardClick={(card) => update(tapCard(game, selfPlayerIndex, card.instanceId))}
           onCardContext={(card, e) => handleCardContext(card, MagicZone.BATTLEFIELD, e)}
+          onCardDoubleClick={handleCardClick}
           onCardDrop={handleCardDrop}
           onTokenClick={(token) => {
             update(tapToken(game, selfPlayerIndex, token.instanceId));
@@ -236,6 +257,7 @@ export default function MagicGame({ game, selfPlayerIndex }: Props) {
 
       {/* Your zone shortcuts */}
       <div className="flex items-center ph2 mb1" style={{ gap: 6 }}>
+        <span className="lavender f7">Lib: {selfPlayer.library.length}</span>
         <button
           className="pointer bg-white-10 white bn br2 ph2 pv1 f7 grow"
           onClick={() => setViewingZone({ zone: MagicZone.GRAVEYARD, playerIndex: selfPlayerIndex })}
@@ -251,6 +273,9 @@ export default function MagicGame({ game, selfPlayerIndex }: Props) {
         <button className="pointer bg-white-10 white bn br2 ph2 pv1 f7 grow" onClick={() => setShowLog(!showLog)}>
           Log
         </button>
+        <button className="pointer bg-white-10 white bn br2 ph2 pv1 f7 grow" onClick={() => setShowRules(true)}>
+          Rules
+        </button>
       </div>
 
       {/* Your hand */}
@@ -259,14 +284,21 @@ export default function MagicGame({ game, selfPlayerIndex }: Props) {
           cards={selfPlayer.hand}
           onCardClick={handleCardClick}
           onCardContext={(card, e) => handleCardContext(card, MagicZone.HAND, e)}
+          onPlayCard={(card) => {
+            update(moveCard(game, selfPlayerIndex, card.instanceId, MagicZone.HAND, MagicZone.BATTLEFIELD));
+          }}
         />
       </div>
 
-      {/* Bottom bar: life + toolbar */}
+      {/* Bottom bar: name + life + toolbar */}
       <div className="ph2 pb2 flex items-center justify-between" style={{ gap: 8 }}>
-        <MagicLifeCounter life={selfPlayer.life} onChange={handleLifeChange} />
+        <div className="flex items-center" style={{ gap: 8 }}>
+          <span className="white fw6 f6">{selfPlayer.name}</span>
+          <MagicLifeCounter life={selfPlayer.life} onChange={handleLifeChange} />
+        </div>
         {!isOver && (
           <MagicToolbar
+            isMyTurn={game.currentPlayer === selfPlayerIndex}
             onConcede={handleConcede}
             onCreateToken={() => setShowTokenDialog(true)}
             onDraw={handleDraw}
@@ -323,6 +355,76 @@ export default function MagicGame({ game, selfPlayerIndex }: Props) {
       {/* Token creation dialog */}
       {showTokenDialog && (
         <MagicTokenDialog onClose={() => setShowTokenDialog(false)} onCreateToken={handleCreateToken} />
+      )}
+
+      {/* Rules reference */}
+      {showRules && (
+        <div
+          className="fixed top-0 left-0 w-100 h-100 flex items-center justify-center z-999"
+          style={{ background: "rgba(0,0,0,0.8)" }}
+          onClick={() => setShowRules(false)}
+        >
+          <div
+            className="bg-main-dark br3 pa3 overflow-y-auto"
+            style={{ maxWidth: "90vw", maxHeight: "80vh", width: 420 }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb3">
+              <Txt size={TxtSize.MEDIUM} value="Quick Rules" />
+              <button className="pointer bg-transparent white bn f4" onClick={() => setShowRules(false)}>
+                ×
+              </button>
+            </div>
+
+            <div className="white f7 lh-copy">
+              <div className="fw6 yellow mb1">Goal</div>
+              <p className="mt0 mb3">Reduce your opponent from 20 life to 0.</p>
+
+              <div className="fw6 yellow mb1">Turn Phases</div>
+              <ol className="mt0 mb3 pl3">
+                <li className="mb1"><b>Beginning</b> — Untap all your cards, then draw a card.</li>
+                <li className="mb1"><b>Main Phase 1</b> — Play lands, cast creatures, sorceries, enchantments.</li>
+                <li className="mb1"><b>Combat</b> — Declare attackers (tap them). Opponent declares blockers. Deal damage.</li>
+                <li className="mb1"><b>Main Phase 2</b> — Same as Main 1.</li>
+                <li className="mb1"><b>End</b> — Discard down to 7 cards if needed. Pass the turn.</li>
+              </ol>
+
+              <div className="fw6 yellow mb1">Lands &amp; Mana</div>
+              <p className="mt0 mb3">
+                Play <b>one land per turn</b> (only during your main phases). Tap lands to produce mana.
+                Mana is spent to cast spells — the cost is shown in the top-right corner of each card.
+              </p>
+
+              <div className="fw6 yellow mb1">Creatures</div>
+              <p className="mt0 mb3">
+                Have <b>power/toughness</b> (e.g. 3/2 = deals 3 damage, dies to 2 damage).
+                Creatures have <b>summoning sickness</b> — they can{"'"}t attack or use tap abilities the turn they enter.
+              </p>
+
+              <div className="fw6 yellow mb1">Combat</div>
+              <p className="mt0 mb3">
+                Tap creatures to attack — they deal damage equal to their power.
+                Unblocked attackers deal damage to the opponent.
+                Blocked creatures deal damage to each other.
+              </p>
+
+              <div className="fw6 yellow mb1">Card Types</div>
+              <ul className="mt0 mb3 pl3">
+                <li className="mb1"><b>Instant</b> — Can be cast any time, even on opponent{"'"}s turn.</li>
+                <li className="mb1"><b>Sorcery</b> — Cast only during your main phases. Goes to graveyard after.</li>
+                <li className="mb1"><b>Enchantment</b> — Stays on the battlefield with ongoing effects.</li>
+                <li className="mb1"><b>Artifact</b> — Colorless permanents with various abilities.</li>
+              </ul>
+
+              <div className="fw6 yellow mb1">Starting the Game</div>
+              <p className="mt0 mb2">
+                Each player starts with <b>20 life</b> and draws <b>7 cards</b>.
+                If you don{"'"}t like your hand, you can mulligan (shuffle back and draw 7 again, but put 1 card
+                on the bottom for each mulligan).
+              </p>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Action log */}

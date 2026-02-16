@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Button, { ButtonSize } from "~/components/ui/button";
 
 interface Props {
+  isMyTurn: boolean;
   onDraw: () => void;
   onUntapAll: () => void;
   onShuffle: () => void;
@@ -13,6 +14,7 @@ interface Props {
 }
 
 export default function MagicToolbar({
+  isMyTurn,
   onDraw,
   onUntapAll,
   onShuffle,
@@ -28,11 +30,11 @@ export default function MagicToolbar({
     <div className="flex flex-wrap items-center" style={{ gap: 6 }}>
       <Button size={ButtonSize.TINY} text="Draw" onClick={onDraw} />
       <Button size={ButtonSize.TINY} text="Untap All" onClick={onUntapAll} />
-      <Button size={ButtonSize.TINY} text="Pass Turn" onClick={onPassTurn} />
-      <Button size={ButtonSize.TINY} text="Token" onClick={onCreateToken} />
+      <Button disabled={!isMyTurn} size={ButtonSize.TINY} text="Pass Turn" onClick={onPassTurn} />
       <Button size={ButtonSize.TINY} text={showMore ? "Less ▲" : "More ▼"} onClick={() => setShowMore(!showMore)} />
       {showMore && (
         <>
+          <Button size={ButtonSize.TINY} text="Token" onClick={onCreateToken} />
           <Button size={ButtonSize.TINY} text="Shuffle" onClick={onShuffle} />
           <Button size={ButtonSize.TINY} text="Mulligan" onClick={onMulligan} />
           <Button size={ButtonSize.TINY} text="Restart" onClick={onRestart} />

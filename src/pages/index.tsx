@@ -8,9 +8,11 @@ import LanguageSelector, { Languages } from "~/components/languageSelector";
 import Button, { ButtonSize } from "~/components/ui/button";
 import { TextInput } from "~/components/ui/forms";
 import Txt, { TxtSize } from "~/components/ui/txt";
-import { createRoom, joinRoom as joinRoomDb, loadRoom, IRoomMember } from "~/lib/firebase";
-import { readableRoomId } from "~/lib/id";
-import { RoomGameType } from "~/lib/state";
+import { addGameToRoom, createRoom, joinRoom as joinRoomDb, loadRoom, IRoomMember } from "~/lib/firebase";
+import { readableRoomId, readableUniqueId } from "~/lib/id";
+import { newMagicLobby } from "~/lib/magic/actions";
+import { updateMagicGame } from "~/lib/magic/firebase";
+import { GameMode, RoomGameType } from "~/lib/state";
 
 const NAME_KEY = "name";
 const ROOM_KEY = "currentRoom";
@@ -184,7 +186,24 @@ export default function Home() {
                   "pointer br3 pa3 ph4 shadow-2 bn flex flex-column items-center grow",
                   "bg-cta main-dark"
                 )}
-                onClick={() => handleCreateRoom(RoomGameType.MAGIC)}
+                onClick={async () => {
+                  const roomId = readableRoomId();
+                  const gameId = readableUniqueId();
+                  const member: IRoomMember = {
+                    name: playerName.trim(),
+                    joinedAt: Date.now(),
+                  };
+
+                  // Create room, game lobby, and link them
+                  await createRoom(roomId, member, RoomGameType.MAGIC);
+                  const lobby = newMagicLobby(gameId, 2, 20, GameMode.NETWORK);
+                  await updateMagicGame(lobby);
+                  await addGameToRoom(roomId, gameId);
+
+                  localStorage.setItem(NAME_KEY, JSON.stringify(playerName.trim()));
+                  localStorage.setItem(ROOM_KEY, JSON.stringify(roomId));
+                  router.push(`/magic/${gameId}`);
+                }}
               >
                 <span className="f2 mb2">🧙</span>
                 <Txt size={TxtSize.MEDIUM} value="Magic" />

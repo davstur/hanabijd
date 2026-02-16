@@ -5,11 +5,19 @@ import PlayerAvatar from "~/components/playerAvatar";
 import Button, { ButtonSize } from "~/components/ui/button";
 import Txt, { TxtSize } from "~/components/ui/txt";
 import { useRequireName } from "~/hooks/useRequireName";
-import { IRoom, IRoomMember, subscribeToRoom, subscribeToRoomGames, joinRoom as joinRoomDb } from "~/lib/firebase";
-import IGameState, { GameVariant, IGameStatus, RoomGameType } from "~/lib/state";
-import { getMaximumScore, getScore } from "~/lib/actions";
+import {
+  IRoom,
+  IRoomMember,
+  addGameToRoom,
+  subscribeToRoom,
+  subscribeToRoomGames,
+  joinRoom as joinRoomDb,
+} from "~/lib/firebase";
+import { readableUniqueId } from "~/lib/id";
+import { newMagicLobby } from "~/lib/magic/actions";
+import { subscribeToMagicGame, updateMagicGame } from "~/lib/magic/firebase";
 import IMagicGameState, { MagicGameStatus } from "~/lib/magic/state";
-import { subscribeToMagicGame } from "~/lib/magic/firebase";
+import IGameState, { GameMode, GameVariant, IGameStatus, RoomGameType } from "~/lib/state";
 
 const NAME_KEY = "name";
 const ROOM_KEY = "currentRoom";
@@ -197,9 +205,13 @@ export default function RoomPage() {
     return () => unsubscribers.forEach((unsub) => unsub());
   }, [room?.gameIds?.length, isMagic]);
 
-  function handleCreateGame() {
+  async function handleCreateGame() {
     if (isMagic) {
-      router.push(`/new-magic-game?room=${roomId}`);
+      const gameId = readableUniqueId();
+      const lobby = newMagicLobby(gameId, 2, 20, GameMode.NETWORK);
+      await updateMagicGame(lobby);
+      await addGameToRoom(roomId, gameId);
+      router.push(`/magic/${gameId}`);
     } else {
       router.push(`/new-game?room=${roomId}`);
     }
