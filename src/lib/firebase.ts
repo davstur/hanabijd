@@ -106,6 +106,7 @@ export async function createRoom(roomId: string, member: IRoomMember, gameType: 
     gameIds: [],
   };
   await database().ref(`/rooms/${roomId}`).set(room);
+  await addPlayerRoomIndex(member.name, roomId, gameType);
   return room;
 }
 
@@ -128,12 +129,14 @@ export function subscribeToRoom(roomId: string, callback: (room: IRoom | null) =
   return () => ref.off();
 }
 
-export async function joinRoom(roomId: string, member: IRoomMember) {
+export async function joinRoom(roomId: string, member: IRoomMember, gameType?: RoomGameType) {
   await database().ref(`/rooms/${roomId}/members/${member.name}`).set(member);
+  await addPlayerRoomIndex(member.name, roomId, gameType || RoomGameType.HANABI);
 }
 
 export async function leaveRoom(roomId: string, memberId: string) {
   await database().ref(`/rooms/${roomId}/members/${memberId}`).remove();
+  await removePlayerRoomIndex(memberId, roomId);
 }
 
 export async function addGameToRoom(roomId: string, gameId: string) {
@@ -177,6 +180,33 @@ export function subscribeToRoomGames(gameIds: string[], callback: (games: IGameS
 
   return () => unsubscribers.forEach((unsub) => unsub());
 }
+
+// --- Player-Room Index ---
+
+export interface IPlayerRoomEntry {
+  roomId: string;
+  joinedAt: number;
+  gameType: RoomGameType;
+}
+
+export async function addPlayerRoomIndex(playerName: string, roomId: string, gameType: RoomGameType) {
+  const entry: IPlayerRoomEntry = { roomId, joinedAt: Date.now(), gameType };
+  await database().ref(`/playerRooms/${playerName}/${roomId}`).set(entry);
+}
+
+export async function removePlayerRoomIndex(playerName: string, roomId: string) {
+  await database().ref(`/playerRooms/${playerName}/${roomId}`).remove();
+}
+
+export async function loadPlayerRooms(playerName: string): Promise<IPlayerRoomEntry[]> {
+  const ref = database().ref(`/playerRooms/${playerName}`);
+  const snapshot = await ref.once("value");
+  const data = snapshot.val();
+  if (!data) return [];
+  return Object.values(data) as IPlayerRoomEntry[];
+}
+
+// --- Room Config ---
 
 export async function saveRoomGameConfig(roomId: string, config: IRoomGameConfig) {
   try {

@@ -21,8 +21,6 @@ import { subscribeToMagicGame, updateMagicGame } from "~/lib/magic/firebase";
 import { IMagicGameState, MagicGameStatus } from "~/lib/magic/state";
 import IGameState, { GameMode, GameVariant, IGameStatus, RoomGameType } from "~/lib/state";
 
-const ROOM_KEY = "currentRoom";
-
 const VariantKeys: Record<string, string> = {
   [GameVariant.CLASSIC]: "classicVariant",
   [GameVariant.MULTICOLOR]: "multicolorVariant",
@@ -196,10 +194,8 @@ export default function RoomPage() {
             name,
             joinedAt: Date.now(),
           };
-          joinRoomDb(roomId, member);
+          joinRoomDb(roomId, member, roomData.gameType);
         }
-        // Store room in localStorage
-        localStorage.setItem(ROOM_KEY, JSON.stringify(roomId));
       }
     });
 
@@ -300,15 +296,7 @@ export default function RoomPage() {
       {/* Room header */}
       <div className="mb3 flex items-center justify-between">
         <Txt className="lavender" size={TxtSize.SMALL} value={isMagic ? "Magic: The Gathering" : "Hanab"} />
-        <Button
-          void
-          size={ButtonSize.TINY}
-          text={t("leaveRoom", "Leave")}
-          onClick={() => {
-            localStorage.removeItem(ROOM_KEY);
-            router.push("/");
-          }}
-        />
+        <Button void size={ButtonSize.TINY} text={t("leaveRoom", "Leave")} onClick={() => router.push("/")} />
       </div>
 
       {/* Members */}
