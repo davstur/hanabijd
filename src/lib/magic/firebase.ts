@@ -11,7 +11,7 @@
 import firebase from "firebase/app";
 import "firebase/database";
 import { cloneDeep } from "lodash";
-import { IMagicGameState } from "~/lib/magic/state";
+import { IMagicGameState, IMagicSavedDeck } from "~/lib/magic/state";
 
 // ---------------------------------------------------------------------------
 // Firebase reference
@@ -91,4 +91,24 @@ export async function updateMagicGame(game: IMagicGameState): Promise<void> {
     console.error(`DB Error: updateMagicGame\n ${e}`);
     throw e;
   }
+}
+
+// ---------------------------------------------------------------------------
+// Saved decks
+// ---------------------------------------------------------------------------
+
+export async function saveMagicDeck(playerName: string, deck: IMagicSavedDeck): Promise<void> {
+  await database().ref(`/magic-decks/${playerName}/${deck.id}`).set(deck);
+}
+
+export async function loadMagicDecks(playerName: string): Promise<IMagicSavedDeck[]> {
+  const ref = database().ref(`/magic-decks/${playerName}`);
+  const event = await ref.once("value");
+  const val = event.val();
+  if (!val) return [];
+  return Object.values(val) as IMagicSavedDeck[];
+}
+
+export async function deleteMagicDeck(playerName: string, deckId: string): Promise<void> {
+  await database().ref(`/magic-decks/${playerName}/${deckId}`).remove();
 }
