@@ -10,6 +10,7 @@ import {
   IRoom,
   IRoomMember,
   addGameToRoom,
+  leaveRoom,
   subscribeToRoom,
   subscribeToRoomGames,
   joinRoom as joinRoomDb,
@@ -20,6 +21,8 @@ import { newMagicLobby } from "~/lib/magic/actions";
 import { subscribeToMagicGame, updateMagicGame } from "~/lib/magic/firebase";
 import { IMagicGameState, MagicGameStatus } from "~/lib/magic/state";
 import IGameState, { GameMode, GameVariant, IGameStatus, RoomGameType } from "~/lib/state";
+
+const ROOM_KEY = "currentRoom";
 
 const VariantKeys: Record<string, string> = {
   [GameVariant.CLASSIC]: "classicVariant",
@@ -185,17 +188,17 @@ export default function RoomPage() {
       setRoom(roomData);
       setLoading(false);
 
-      // Auto-join room if not already a member
       if (roomData) {
+        // Auto-join room if not already a member
         const name = getPlayerName();
         const members = roomData.members || {};
         if (name && !members[name]) {
-          const member: IRoomMember = {
-            name,
-            joinedAt: Date.now(),
-          };
-          joinRoomDb(roomId, member, roomData.gameType);
+          const member: IRoomMember = { name, joinedAt: Date.now() };
+          joinRoomDb(roomId, member, roomData.gameType).catch((err) => {
+            console.error(`Failed to auto-join room ${roomId}:`, err);
+          });
         }
+        localStorage.setItem(ROOM_KEY, JSON.stringify(roomId));
       }
     });
 
@@ -296,7 +299,19 @@ export default function RoomPage() {
       {/* Room header */}
       <div className="mb3 flex items-center justify-between">
         <Txt className="lavender" size={TxtSize.SMALL} value={isMagic ? "Magic: The Gathering" : "Hanab"} />
-        <Button void size={ButtonSize.TINY} text={t("leaveRoom", "Leave")} onClick={() => router.push("/")} />
+        <Button
+          void
+          size={ButtonSize.TINY}
+          text={t("leaveRoom", "Leave")}
+          onClick={async () => {
+            const name = getPlayerName();
+            if (name && typeof roomId === "string") {
+              await leaveRoom(roomId, name).catch((err) => console.error("Failed to leave room:", err));
+            }
+            localStorage.removeItem(ROOM_KEY);
+            router.push("/");
+          }}
+        />
       </div>
 
       {/* Members */}

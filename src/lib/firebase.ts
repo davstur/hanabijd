@@ -105,8 +105,13 @@ export async function createRoom(roomId: string, member: IRoomMember, gameType: 
     members: { [member.name]: member },
     gameIds: [],
   };
-  await database().ref(`/rooms/${roomId}`).set(room);
-  await addPlayerRoomIndex(member.name, roomId, gameType);
+  const entry: IPlayerRoomEntry = { roomId, joinedAt: Date.now(), gameType };
+  await database()
+    .ref()
+    .update({
+      [`/rooms/${roomId}`]: room,
+      [`/playerRooms/${member.name}/${roomId}`]: entry,
+    });
   return room;
 }
 
@@ -129,9 +134,14 @@ export function subscribeToRoom(roomId: string, callback: (room: IRoom | null) =
   return () => ref.off();
 }
 
-export async function joinRoom(roomId: string, member: IRoomMember, gameType?: RoomGameType) {
-  await database().ref(`/rooms/${roomId}/members/${member.name}`).set(member);
-  await addPlayerRoomIndex(member.name, roomId, gameType || RoomGameType.HANABI);
+export async function joinRoom(roomId: string, member: IRoomMember, gameType: RoomGameType) {
+  const entry: IPlayerRoomEntry = { roomId, joinedAt: Date.now(), gameType };
+  await database()
+    .ref()
+    .update({
+      [`/rooms/${roomId}/members/${member.name}`]: member,
+      [`/playerRooms/${member.name}/${roomId}`]: entry,
+    });
 }
 
 export async function leaveRoom(roomId: string, memberId: string) {
@@ -199,11 +209,14 @@ export async function removePlayerRoomIndex(playerName: string, roomId: string) 
 }
 
 export async function loadPlayerRooms(playerName: string): Promise<IPlayerRoomEntry[]> {
+  if (!playerName.trim()) return [];
   const ref = database().ref(`/playerRooms/${playerName}`);
   const snapshot = await ref.once("value");
   const data = snapshot.val();
   if (!data) return [];
-  return Object.values(data) as IPlayerRoomEntry[];
+  return (Object.values(data) as IPlayerRoomEntry[]).filter(
+    (entry) => entry && typeof entry.roomId === "string" && typeof entry.joinedAt === "number"
+  );
 }
 
 // --- Room Config ---

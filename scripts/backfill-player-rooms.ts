@@ -1,12 +1,16 @@
 /**
  * One-time migration script to backfill the /playerRooms index
- * from existing /rooms data.
+ * from existing /rooms data. Idempotent (safe to re-run), but will
+ * overwrite joinedAt timestamps from room member data.
  *
  * Usage:
  *   npx tsx scripts/backfill-player-rooms.ts
  *
- * Requires NEXT_PUBLIC_FIREBASE_DATABASE_URL (and optionally other
- * Firebase env vars) to be set — reads from .env automatically.
+ * Requires either:
+ *   - NEXT_PUBLIC_FIREBASE_DATABASE_URL alone (local emulator), or
+ *   - The full set of NEXT_PUBLIC_FIREBASE_* env vars (production)
+ *
+ * Reads .env via dotenv.
  */
 
 import { config } from "dotenv";
@@ -52,26 +56,36 @@ async function main() {
   console.log(`Found ${roomIds.length} rooms. Backfilling player-room index...`);
 
   let entriesWritten = 0;
+  let failures = 0;
 
   for (const roomId of roomIds) {
     const room = rooms[roomId];
-    const members = room.members || {};
+    if (!room || typeof room.members !== "object") {
+      console.warn(`Skipping room ${roomId}: no valid members`);
+      continue;
+    }
+    const members = room.members;
     const gameType = room.gameType || "hanabi";
 
     for (const memberName of Object.keys(members)) {
-      const member = members[memberName];
-      const entry = {
-        roomId,
-        joinedAt: member.joinedAt || room.createdAt || Date.now(),
-        gameType,
-      };
-      await db.ref(`/playerRooms/${memberName}/${roomId}`).set(entry);
-      entriesWritten++;
+      try {
+        const member = members[memberName];
+        const entry = {
+          roomId,
+          joinedAt: member.joinedAt || room.createdAt || Date.now(),
+          gameType,
+        };
+        await db.ref(`/playerRooms/${memberName}/${roomId}`).set(entry);
+        entriesWritten++;
+      } catch (err) {
+        console.error(`Failed to write index for ${memberName} in room ${roomId}:`, err);
+        failures++;
+      }
     }
   }
 
-  console.log(`Done. Wrote ${entriesWritten} player-room index entries.`);
-  process.exit(0);
+  console.log(`Done. Wrote ${entriesWritten} entries, ${failures} failures.`);
+  process.exit(failures > 0 ? 1 : 0);
 }
 
 main().catch((err) => {
