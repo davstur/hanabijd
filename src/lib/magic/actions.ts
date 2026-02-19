@@ -115,6 +115,7 @@ export function newMagicLobby(
     status: MagicGameStatus.LOBBY,
     players: [],
     currentPlayer: 0,
+    currentPhase: MagicPhase.BEGINNING,
     options: {
       playersCount,
       startingLife,
@@ -463,7 +464,13 @@ export function concedeGame(state: IMagicGameState, playerIndex: number): IMagic
 // Phase progression
 // ---------------------------------------------------------------------------
 
-const PHASE_ORDER = [MagicPhase.BEGINNING, MagicPhase.MAIN_1, MagicPhase.COMBAT, MagicPhase.MAIN_2, MagicPhase.END];
+export const PHASE_ORDER = [
+  MagicPhase.BEGINNING,
+  MagicPhase.MAIN_1,
+  MagicPhase.COMBAT,
+  MagicPhase.MAIN_2,
+  MagicPhase.END,
+];
 
 export const PHASE_LABELS: Record<MagicPhase, string> = {
   [MagicPhase.BEGINNING]: "Beginning",
@@ -475,7 +482,7 @@ export const PHASE_LABELS: Record<MagicPhase, string> = {
 
 export function nextPhase(state: IMagicGameState): IMagicGameState {
   const s = clone(state);
-  const current = s.currentPhase || MagicPhase.BEGINNING;
+  const current = s.currentPhase;
   const idx = PHASE_ORDER.indexOf(current);
 
   if (idx === PHASE_ORDER.length - 1) {
@@ -487,17 +494,5 @@ export function nextPhase(state: IMagicGameState): IMagicGameState {
     s.currentPhase = PHASE_ORDER[idx + 1];
     addLog(s, s.currentPlayer, `→ ${PHASE_LABELS[s.currentPhase]}`);
   }
-  return s;
-}
-
-// ---------------------------------------------------------------------------
-// Pass turn (legacy — resets phase)
-// ---------------------------------------------------------------------------
-
-export function passTurn(state: IMagicGameState): IMagicGameState {
-  const s = clone(state);
-  s.currentPlayer = (s.currentPlayer + 1) % s.players.length;
-  s.currentPhase = MagicPhase.BEGINNING;
-  addLog(s, s.currentPlayer, "Turn started");
   return s;
 }

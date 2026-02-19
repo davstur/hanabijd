@@ -1,8 +1,6 @@
 import React from "react";
-import { PHASE_LABELS } from "~/lib/magic/actions";
+import { PHASE_LABELS, PHASE_ORDER } from "~/lib/magic/actions";
 import { MagicPhase } from "~/lib/magic/state";
-
-const PHASE_ORDER = [MagicPhase.BEGINNING, MagicPhase.MAIN_1, MagicPhase.COMBAT, MagicPhase.MAIN_2, MagicPhase.END];
 
 interface Props {
   currentPhase: MagicPhase;
@@ -18,24 +16,32 @@ export default function MagicPhaseStepper({ currentPhase, isMyTurn, onNextPhase 
       {PHASE_ORDER.map((phase, i) => {
         const isActive = phase === currentPhase;
         const isPast = i < currentIdx;
-        const isFuture = i > currentIdx;
+        const isNext = isMyTurn && i === currentIdx + 1;
+
+        let bg = "rgba(255,255,255,0.04)";
+        let fg = "rgba(255,255,255,0.25)";
+        if (isActive) {
+          bg = "#d4a017";
+          fg = "#1a1a2e";
+        } else if (isPast) {
+          bg = "rgba(255,255,255,0.08)";
+          fg = "rgba(255,255,255,0.4)";
+        }
 
         return (
           <React.Fragment key={phase}>
             {i > 0 && <span className="white-30 f7 ph1">›</span>}
             <button
               className="bn br2 ph2 pv1 f7 fw6"
-              disabled={!isMyTurn || !isFuture}
+              disabled={!isNext}
               style={{
-                cursor: isMyTurn && isFuture ? "pointer" : "default",
-                background: isActive ? "#d4a017" : isPast ? "rgba(255,255,255,0.08)" : "rgba(255,255,255,0.04)",
-                color: isActive ? "#1a1a2e" : isPast ? "rgba(255,255,255,0.4)" : "rgba(255,255,255,0.25)",
+                cursor: isNext ? "pointer" : "default",
+                background: bg,
+                color: fg,
                 lineHeight: 1,
                 transition: "background 0.15s, color 0.15s",
               }}
-              onClick={() => {
-                if (isMyTurn && isFuture) onNextPhase();
-              }}
+              onClick={onNextPhase}
             >
               {PHASE_LABELS[phase]}
             </button>

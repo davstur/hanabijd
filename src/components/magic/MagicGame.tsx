@@ -30,7 +30,7 @@ import {
   untapAll,
 } from "~/lib/magic/actions";
 import { updateMagicGame } from "~/lib/magic/firebase";
-import { IMagicCardRef, IMagicGameState, IMagicToken, MagicGameStatus, MagicPhase, MagicZone } from "~/lib/magic/state";
+import { IMagicCardRef, IMagicGameState, IMagicToken, MagicGameStatus, MagicZone } from "~/lib/magic/state";
 
 interface Props {
   game: IMagicGameState;
@@ -210,7 +210,7 @@ export default function MagicGame({ game, selfPlayerIndex }: Props) {
       {/* Phase stepper */}
       {!isOver && (
         <MagicPhaseStepper
-          currentPhase={game.currentPhase || MagicPhase.BEGINNING}
+          currentPhase={game.currentPhase}
           isMyTurn={game.currentPlayer === selfPlayerIndex}
           onNextPhase={() => commit(nextPhase(game))}
         />

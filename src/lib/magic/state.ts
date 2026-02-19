@@ -160,7 +160,7 @@ export interface IMagicGameState {
   status: MagicGameStatus;
   players: IMagicPlayer[];
   currentPlayer: number;
-  currentPhase?: MagicPhase;
+  currentPhase: MagicPhase;
   options: IMagicGameOptions;
   createdAt: number;
   startedAt?: number;
