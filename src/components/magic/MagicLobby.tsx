@@ -90,15 +90,16 @@ export default function MagicLobby({ onSelectDeck }: Props) {
         {/* Tabs */}
         <div className="flex mb3" style={{ gap: 4 }}>
           {[
-            { id: "prebuilt" as Tab, label: "Prebuilt Decks" },
-            { id: "my-decks" as Tab, label: "My Decks" },
-            { id: "build" as Tab, label: "Build New" },
+            { id: "prebuilt" as Tab, label: "Prebuilt Decks", desktopOnly: false },
+            { id: "my-decks" as Tab, label: "My Decks", desktopOnly: false },
+            { id: "build" as Tab, label: "Build New", desktopOnly: true },
           ].map((t) => (
             <button
               key={t.id}
               className={classnames("pointer br2 pa2 ph3 bn f6", {
                 "bg-cta main-dark fw6": tab === t.id,
                 "bg-white-10 white": tab !== t.id,
+                "dn db-l": t.desktopOnly,
               })}
               onClick={() => {
                 if (t.id === "build") {

@@ -4,6 +4,7 @@ import MagicBattlefield from "~/components/magic/MagicBattlefield";
 import MagicCardZoom from "~/components/magic/MagicCardZoom";
 import MagicHand from "~/components/magic/MagicHand";
 import MagicLifeCounter from "~/components/magic/MagicLifeCounter";
+import MagicPhaseStepper from "~/components/magic/MagicPhaseStepper";
 import MagicTokenDialog from "~/components/magic/MagicTokenDialog";
 import MagicToolbar from "~/components/magic/MagicToolbar";
 import MagicZoneViewer from "~/components/magic/MagicZoneViewer";
@@ -18,7 +19,7 @@ import {
   moveCardPosition,
   moveTokenPosition,
   mulligan,
-  passTurn,
+  nextPhase,
   removeToken,
   restartGame,
   setLife,
@@ -29,7 +30,7 @@ import {
   untapAll,
 } from "~/lib/magic/actions";
 import { updateMagicGame } from "~/lib/magic/firebase";
-import { IMagicCardRef, IMagicGameState, IMagicToken, MagicGameStatus, MagicZone } from "~/lib/magic/state";
+import { IMagicCardRef, IMagicGameState, IMagicToken, MagicGameStatus, MagicPhase, MagicZone } from "~/lib/magic/state";
 
 interface Props {
   game: IMagicGameState;
@@ -206,6 +207,15 @@ export default function MagicGame({ game, selfPlayerIndex }: Props) {
         />
       </div>
 
+      {/* Phase stepper */}
+      {!isOver && (
+        <MagicPhaseStepper
+          currentPhase={game.currentPhase || MagicPhase.BEGINNING}
+          isMyTurn={game.currentPlayer === selfPlayerIndex}
+          onNextPhase={() => commit(nextPhase(game))}
+        />
+      )}
+
       {/* Your battlefield */}
       <div className="ph2 mb1" data-zone="self-battlefield" style={{ flex: "1 1 0", minHeight: 0, overflow: "auto" }}>
         <MagicBattlefield
@@ -271,12 +281,10 @@ export default function MagicGame({ game, selfPlayerIndex }: Props) {
         </div>
         {!isOver && (
           <MagicToolbar
-            isMyTurn={game.currentPlayer === selfPlayerIndex}
             onConcede={handleConcede}
             onCreateToken={() => setShowTokenDialog(true)}
             onDraw={() => commit(drawCard(game, selfPlayerIndex))}
             onMulligan={() => commit(mulligan(game, selfPlayerIndex))}
-            onPassTurn={() => commit(passTurn(game))}
             onRestart={handleRestart}
             onShuffle={() => commit(shuffleLibrary(game, selfPlayerIndex))}
             onUntapAll={() => commit(untapAll(game, selfPlayerIndex))}

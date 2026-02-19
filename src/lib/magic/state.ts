@@ -107,6 +107,18 @@ export enum MagicGameStatus {
 }
 
 // ---------------------------------------------------------------------------
+// Turn phases
+// ---------------------------------------------------------------------------
+
+export enum MagicPhase {
+  BEGINNING = "beginning",
+  MAIN_1 = "main1",
+  COMBAT = "combat",
+  MAIN_2 = "main2",
+  END = "end",
+}
+
+// ---------------------------------------------------------------------------
 // Log entry
 // ---------------------------------------------------------------------------
 
@@ -148,6 +160,7 @@ export interface IMagicGameState {
   status: MagicGameStatus;
   players: IMagicPlayer[];
   currentPlayer: number;
+  currentPhase?: MagicPhase;
   options: IMagicGameOptions;
   createdAt: number;
   startedAt?: number;
