@@ -34,7 +34,20 @@
       "WebSearch",
       "Bash(printf \"\\\\033]0;[WT] #2: Upgrade all dependencies to latest\\\\007\")",
       "mcp__supabase__search_docs",
-      "Bash(npm uninstall:*)"
+      "Bash(npm uninstall:*)",
+      "Bash(head:*)",
+      "Bash(git pull:*)",
+      "Bash(git checkout:*)",
+      "Bash(ipconfig getifaddr:*)",
+      "Skill(code:issue)",
+      "Bash(PORT=3001 npm run dev:*)",
+      "Bash(git diff:*)",
+      "Bash(npx prettier:*)",
+      "WebFetch(domain:api.scryfall.com)",
+      "Bash(lsof:*)",
+      "Bash(grep:*)",
+      "Bash(git commit:*)",
+      "Bash(git -C /Users/dstur/code/hanabijd worktree remove:*)"
     ]
   }
 }
