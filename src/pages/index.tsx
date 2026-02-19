@@ -8,80 +8,98 @@ import LanguageSelector, { Languages } from "~/components/languageSelector";
 import Button, { ButtonSize } from "~/components/ui/button";
 import { TextInput } from "~/components/ui/forms";
 import Txt, { TxtSize } from "~/components/ui/txt";
-import { addGameToRoom, createRoom, joinRoom as joinRoomDb, loadRoom, IRoomMember } from "~/lib/firebase";
+import { getPlayerName } from "~/hooks/magic/game";
+import {
+  addGameToRoom,
+  createRoom,
+  IPlayerRoomEntry,
+  joinRoom as joinRoomDb,
+  loadPlayerRooms,
+  loadRoom,
+  IRoomMember,
+} from "~/lib/firebase";
 import { readableRoomId, readableUniqueId } from "~/lib/id";
 import { newMagicLobby } from "~/lib/magic/actions";
 import { updateMagicGame } from "~/lib/magic/firebase";
 import { GameMode, RoomGameType } from "~/lib/state";
 
 const NAME_KEY = "name";
-const ROOM_KEY = "currentRoom";
+const FIREBASE_KEY_INVALID = /[.$#[\]/]/;
 
 export default function Home() {
   const router = useRouter();
   const { t } = useTranslation();
-  const [currentRoom, setCurrentRoom] = useState<string | null>(null);
   const [joinCode, setJoinCode] = useState("");
   const [playerName, setPlayerName] = useState("");
-  const [needsName, setNeedsName] = useState(false);
-  const [pendingAction, setPendingAction] = useState<"create" | "join" | null>(null);
+  const [hasName, setHasName] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showJoinForm, setShowJoinForm] = useState(false);
   const [showGameTypeSelect, setShowGameTypeSelect] = useState(false);
+  const [myRooms, setMyRooms] = useState<IPlayerRoomEntry[]>([]);
+  const [loadingRooms, setLoadingRooms] = useState(false);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    const storedRoom = localStorage.getItem(ROOM_KEY);
-    if (storedRoom) {
-      try {
-        const room = JSON.parse(storedRoom);
-        if (room) {
-          setCurrentRoom(room);
-          router.replace(`/rooms/${room}`);
-        }
-      } catch {
-        // invalid stored value, ignore
-      }
+    const name = getPlayerName();
+    if (name) {
+      setPlayerName(name);
+      setHasName(true);
     }
-    const storedName = localStorage.getItem(NAME_KEY);
-    if (storedName) {
-      try {
-        setPlayerName(JSON.parse(storedName));
-      } catch {
-        setPlayerName(storedName);
-      }
-    }
-  }, [router]);
+  }, []);
 
-  function ensureName(action: "create" | "join") {
-    if (!playerName.trim()) {
-      setNeedsName(true);
-      setPendingAction(action);
-      return false;
+  useEffect(() => {
+    if (!hasName || !playerName.trim()) return;
+    setLoadingRooms(true);
+    loadPlayerRooms(playerName.trim())
+      .then((rooms) => {
+        setMyRooms(rooms.sort((a, b) => b.joinedAt - a.joinedAt));
+      })
+      .catch((err) => {
+        console.error("Failed to load player rooms:", err);
+      })
+      .finally(() => setLoadingRooms(false));
+  }, [hasName, playerName]);
+
+  function handleNameSubmit(e: FormEvent) {
+    e.preventDefault();
+    const name = playerName.trim();
+    if (!name) return;
+    if (FIREBASE_KEY_INVALID.test(name)) {
+      setError(t("invalidName", "Name cannot contain . $ # [ ] /"));
+      return;
     }
-    return true;
+    setError(null);
+    localStorage.setItem(NAME_KEY, JSON.stringify(name));
+    setHasName(true);
   }
 
-  function handleCreateRoomClick() {
-    if (!ensureName("create")) return;
-    setShowGameTypeSelect(true);
+  function makeMember(): IRoomMember {
+    return { name: playerName.trim(), joinedAt: Date.now() };
   }
 
   async function handleCreateRoom(gameType: RoomGameType) {
-    const roomId = readableRoomId();
-    const member: IRoomMember = {
-      name: playerName.trim(),
-      joinedAt: Date.now(),
-    };
-    await createRoom(roomId, member, gameType);
-    localStorage.setItem(NAME_KEY, JSON.stringify(playerName.trim()));
-    localStorage.setItem(ROOM_KEY, JSON.stringify(roomId));
-    router.push(`/rooms/${roomId}`);
+    try {
+      const roomId = readableRoomId();
+      const member = makeMember();
+      await createRoom(roomId, member, gameType);
+
+      if (gameType === RoomGameType.MAGIC) {
+        const gameId = readableUniqueId();
+        const lobby = newMagicLobby(gameId, 2, 20, GameMode.NETWORK);
+        await updateMagicGame(lobby);
+        await addGameToRoom(roomId, gameId);
+        router.push(`/magic/${gameId}`);
+      } else {
+        router.push(`/rooms/${roomId}`);
+      }
+    } catch (err) {
+      console.error("Failed to create room:", err);
+      setError(t("createRoomFailed", "Could not create room. Please try again."));
+      setShowGameTypeSelect(false);
+    }
   }
 
   async function handleJoinRoom(e?: FormEvent) {
     if (e) e.preventDefault();
-    if (!ensureName("join")) return;
 
     const code = joinCode.trim();
     if (!code) {
@@ -89,35 +107,20 @@ export default function Home() {
       return;
     }
 
-    const room = await loadRoom(code);
-    if (!room) {
-      setError(t("roomNotFound", "Room not found"));
-      return;
+    try {
+      const room = await loadRoom(code);
+      if (!room) {
+        setError(t("roomNotFound", "Room not found"));
+        return;
+      }
+
+      const member = makeMember();
+      await joinRoomDb(code, member, room.gameType);
+      router.push(`/rooms/${code}`);
+    } catch (err) {
+      console.error("Failed to join room:", err);
+      setError(t("joinRoomFailed", "Could not join room. Please try again."));
     }
-
-    const member: IRoomMember = {
-      name: playerName.trim(),
-      joinedAt: Date.now(),
-    };
-    await joinRoomDb(code, member);
-    localStorage.setItem(NAME_KEY, JSON.stringify(playerName.trim()));
-    localStorage.setItem(ROOM_KEY, JSON.stringify(code));
-    router.push(`/rooms/${code}`);
-  }
-
-  function handleNameSubmit(e: FormEvent) {
-    e.preventDefault();
-    if (!playerName.trim()) return;
-    setNeedsName(false);
-    if (pendingAction === "create") {
-      setShowGameTypeSelect(true);
-    } else if (pendingAction === "join") {
-      handleJoinRoom();
-    }
-  }
-
-  if (currentRoom) {
-    return null;
   }
 
   return (
@@ -153,7 +156,7 @@ export default function Home() {
         </div>
         <span className="tc lavender mt2">{t("tagline", "Play the Hanab game online with friends!")}</span>
 
-        {needsName ? (
+        {!hasName ? (
           <form className="flex flex-column items-center mt5" onSubmit={handleNameSubmit}>
             <Txt className="mb3" size={TxtSize.MEDIUM} value={t("choosePlayerName", "Choose your player name")} />
             <div className="flex items-center">
@@ -162,10 +165,14 @@ export default function Home() {
                 className="mr2"
                 style={{ width: "12rem" }}
                 value={playerName}
-                onChange={(e) => setPlayerName(e.target.value)}
+                onChange={(e) => {
+                  setPlayerName(e.target.value);
+                  setError(null);
+                }}
               />
               <Button primary disabled={!playerName.trim()} text={t("confirm", "OK")} />
             </div>
+            {error && <Txt className="red mt2" size={TxtSize.SMALL} value={error} />}
           </form>
         ) : showGameTypeSelect ? (
           <div className="flex flex-column items-center mt5">
@@ -178,7 +185,7 @@ export default function Home() {
                 )}
                 onClick={() => handleCreateRoom(RoomGameType.HANABI)}
               >
-                <span className="f2 mb2">🎆</span>
+                <span className="f2 mb2">{"\uD83C\uDF86"}</span>
                 <Txt size={TxtSize.MEDIUM} value="Hanab" />
                 <span className="f7 mt1 o-80">{t("cooperative", "Cooperative card game")}</span>
               </button>
@@ -187,47 +194,58 @@ export default function Home() {
                   "pointer br3 pa3 ph4 shadow-2 bn flex flex-column items-center grow",
                   "bg-cta main-dark"
                 )}
-                onClick={async () => {
-                  const roomId = readableRoomId();
-                  const gameId = readableUniqueId();
-                  const member: IRoomMember = {
-                    name: playerName.trim(),
-                    joinedAt: Date.now(),
-                  };
-
-                  // Create room, game lobby, and link them
-                  await createRoom(roomId, member, RoomGameType.MAGIC);
-                  const lobby = newMagicLobby(gameId, 2, 20, GameMode.NETWORK);
-                  await updateMagicGame(lobby);
-                  await addGameToRoom(roomId, gameId);
-
-                  localStorage.setItem(NAME_KEY, JSON.stringify(playerName.trim()));
-                  localStorage.setItem(ROOM_KEY, JSON.stringify(roomId));
-                  router.push(`/magic/${gameId}`);
-                }}
+                onClick={() => handleCreateRoom(RoomGameType.MAGIC)}
               >
-                <span className="f2 mb2">🧙</span>
+                <span className="f2 mb2">{"\uD83E\uDDD9"}</span>
                 <Txt size={TxtSize.MEDIUM} value="Magic" />
                 <span className="f7 mt1 o-80">{t("magicSubtitle", "The Gathering")}</span>
               </button>
             </div>
+            {error && <Txt className="red mt3" size={TxtSize.SMALL} value={error} />}
             <Button
               void
               className="mt4"
               size={ButtonSize.SMALL}
               text={`< ${t("back", "Back")}`}
-              onClick={() => setShowGameTypeSelect(false)}
+              onClick={() => {
+                setShowGameTypeSelect(false);
+                setError(null);
+              }}
             />
           </div>
         ) : (
-          <main className="flex flex-column mt5 items-center">
+          <main className="flex flex-column mt4 items-center w-100" style={{ maxWidth: "24rem" }}>
+            {loadingRooms ? (
+              <Txt className="lavender mb4" size={TxtSize.SMALL} value={t("loading", "Loading...")} />
+            ) : myRooms.length > 0 ? (
+              <div className="w-100 mb4">
+                <Txt className="ttu mb2 db" size={TxtSize.SMALL} value={t("myRooms", "My rooms")} />
+                {myRooms.map((entry) => (
+                  <div
+                    key={entry.roomId}
+                    className="flex justify-between items-center mb2 pa2 ph3 br2 pointer hover-bg-white-10"
+                    style={{ background: "rgba(255,255,255,0.05)" }}
+                    onClick={() => router.push(`/rooms/${entry.roomId}`)}
+                  >
+                    <div className="flex items-center">
+                      <span className="mr2">
+                        {entry.gameType === RoomGameType.MAGIC ? "\uD83E\uDDD9" : "\uD83C\uDF86"}
+                      </span>
+                      <Txt size={TxtSize.SMALL} value={entry.roomId} />
+                    </div>
+                    <Txt className="lavender" size={TxtSize.XSMALL} value={t("enter", "Enter")} />
+                  </div>
+                ))}
+              </div>
+            ) : null}
+
             {!showJoinForm && (
               <Button
                 primary
                 className="mb4"
                 size={ButtonSize.LARGE}
                 text={t("createRoom", "Create a room")}
-                onClick={handleCreateRoomClick}
+                onClick={() => setShowGameTypeSelect(true)}
               />
             )}
 

@@ -10,6 +10,7 @@ import {
   IRoom,
   IRoomMember,
   addGameToRoom,
+  leaveRoom,
   subscribeToRoom,
   subscribeToRoomGames,
   joinRoom as joinRoomDb,
@@ -187,18 +188,16 @@ export default function RoomPage() {
       setRoom(roomData);
       setLoading(false);
 
-      // Auto-join room if not already a member
       if (roomData) {
+        // Auto-join room if not already a member
         const name = getPlayerName();
         const members = roomData.members || {};
         if (name && !members[name]) {
-          const member: IRoomMember = {
-            name,
-            joinedAt: Date.now(),
-          };
-          joinRoomDb(roomId, member);
+          const member: IRoomMember = { name, joinedAt: Date.now() };
+          joinRoomDb(roomId, member, roomData.gameType).catch((err) => {
+            console.error(`Failed to auto-join room ${roomId}:`, err);
+          });
         }
-        // Store room in localStorage
         localStorage.setItem(ROOM_KEY, JSON.stringify(roomId));
       }
     });
@@ -304,7 +303,11 @@ export default function RoomPage() {
           void
           size={ButtonSize.TINY}
           text={t("leaveRoom", "Leave")}
-          onClick={() => {
+          onClick={async () => {
+            const name = getPlayerName();
+            if (name && typeof roomId === "string") {
+              await leaveRoom(roomId, name).catch((err) => console.error("Failed to leave room:", err));
+            }
             localStorage.removeItem(ROOM_KEY);
             router.push("/");
           }}

@@ -105,7 +105,13 @@ export async function createRoom(roomId: string, member: IRoomMember, gameType: 
     members: { [member.name]: member },
     gameIds: [],
   };
-  await database().ref(`/rooms/${roomId}`).set(room);
+  const entry: IPlayerRoomEntry = { roomId, joinedAt: Date.now(), gameType };
+  await database()
+    .ref()
+    .update({
+      [`/rooms/${roomId}`]: room,
+      [`/playerRooms/${member.name}/${roomId}`]: entry,
+    });
   return room;
 }
 
@@ -128,12 +134,19 @@ export function subscribeToRoom(roomId: string, callback: (room: IRoom | null) =
   return () => ref.off();
 }
 
-export async function joinRoom(roomId: string, member: IRoomMember) {
-  await database().ref(`/rooms/${roomId}/members/${member.name}`).set(member);
+export async function joinRoom(roomId: string, member: IRoomMember, gameType: RoomGameType) {
+  const entry: IPlayerRoomEntry = { roomId, joinedAt: Date.now(), gameType };
+  await database()
+    .ref()
+    .update({
+      [`/rooms/${roomId}/members/${member.name}`]: member,
+      [`/playerRooms/${member.name}/${roomId}`]: entry,
+    });
 }
 
 export async function leaveRoom(roomId: string, memberId: string) {
   await database().ref(`/rooms/${roomId}/members/${memberId}`).remove();
+  await removePlayerRoomIndex(memberId, roomId);
 }
 
 export async function addGameToRoom(roomId: string, gameId: string) {
@@ -177,6 +190,36 @@ export function subscribeToRoomGames(gameIds: string[], callback: (games: IGameS
 
   return () => unsubscribers.forEach((unsub) => unsub());
 }
+
+// --- Player-Room Index ---
+
+export interface IPlayerRoomEntry {
+  roomId: string;
+  joinedAt: number;
+  gameType: RoomGameType;
+}
+
+export async function addPlayerRoomIndex(playerName: string, roomId: string, gameType: RoomGameType) {
+  const entry: IPlayerRoomEntry = { roomId, joinedAt: Date.now(), gameType };
+  await database().ref(`/playerRooms/${playerName}/${roomId}`).set(entry);
+}
+
+export async function removePlayerRoomIndex(playerName: string, roomId: string) {
+  await database().ref(`/playerRooms/${playerName}/${roomId}`).remove();
+}
+
+export async function loadPlayerRooms(playerName: string): Promise<IPlayerRoomEntry[]> {
+  if (!playerName.trim()) return [];
+  const ref = database().ref(`/playerRooms/${playerName}`);
+  const snapshot = await ref.once("value");
+  const data = snapshot.val();
+  if (!data) return [];
+  return (Object.values(data) as IPlayerRoomEntry[]).filter(
+    (entry) => entry && typeof entry.roomId === "string" && typeof entry.joinedAt === "number"
+  );
+}
+
+// --- Room Config ---
 
 export async function saveRoomGameConfig(roomId: string, config: IRoomGameConfig) {
   try {
