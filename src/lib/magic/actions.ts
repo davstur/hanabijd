@@ -12,6 +12,7 @@ import {
   IMagicPlayer,
   IMagicToken,
   MagicGameStatus,
+  MagicPhase,
   MagicZone,
 } from "~/lib/magic/state";
 import { GameMode } from "~/lib/state";
@@ -86,6 +87,7 @@ export function newMagicGame(args: NewMagicGameArgs): IMagicGameState {
     status: MagicGameStatus.ONGOING,
     players,
     currentPlayer: 0,
+    currentPhase: MagicPhase.BEGINNING,
     options: {
       playersCount: args.playersCount,
       startingLife: args.startingLife,
@@ -113,6 +115,7 @@ export function newMagicLobby(
     status: MagicGameStatus.LOBBY,
     players: [],
     currentPlayer: 0,
+    currentPhase: MagicPhase.BEGINNING,
     options: {
       playersCount,
       startingLife,
@@ -438,6 +441,7 @@ export function restartGame(state: IMagicGameState): IMagicGameState {
     s.players[i].life = s.options.startingLife;
   }
   s.currentPlayer = 0;
+  s.currentPhase = MagicPhase.BEGINNING;
   s.status = MagicGameStatus.ONGOING;
   s.startedAt = Date.now();
   s.log = [{ timestamp: Date.now(), playerIndex: -1, description: "Game restarted" }];
@@ -457,12 +461,38 @@ export function concedeGame(state: IMagicGameState, playerIndex: number): IMagic
 }
 
 // ---------------------------------------------------------------------------
-// Pass turn (informational only)
+// Phase progression
 // ---------------------------------------------------------------------------
 
-export function passTurn(state: IMagicGameState): IMagicGameState {
+export const PHASE_ORDER = [
+  MagicPhase.BEGINNING,
+  MagicPhase.MAIN_1,
+  MagicPhase.COMBAT,
+  MagicPhase.MAIN_2,
+  MagicPhase.END,
+];
+
+export const PHASE_LABELS: Record<MagicPhase, string> = {
+  [MagicPhase.BEGINNING]: "Beginning",
+  [MagicPhase.MAIN_1]: "Main 1",
+  [MagicPhase.COMBAT]: "Combat",
+  [MagicPhase.MAIN_2]: "Main 2",
+  [MagicPhase.END]: "End",
+};
+
+export function nextPhase(state: IMagicGameState): IMagicGameState {
   const s = clone(state);
-  s.currentPlayer = (s.currentPlayer + 1) % s.players.length;
-  addLog(s, s.currentPlayer, "Turn started");
+  const current = s.currentPhase;
+  const idx = PHASE_ORDER.indexOf(current);
+
+  if (idx === PHASE_ORDER.length - 1) {
+    // End phase → next player's Beginning
+    s.currentPlayer = (s.currentPlayer + 1) % s.players.length;
+    s.currentPhase = MagicPhase.BEGINNING;
+    addLog(s, s.currentPlayer, "Turn started");
+  } else {
+    s.currentPhase = PHASE_ORDER[idx + 1];
+    addLog(s, s.currentPlayer, `→ ${PHASE_LABELS[s.currentPhase]}`);
+  }
   return s;
 }

@@ -11,7 +11,7 @@
 import firebase from "firebase/app";
 import "firebase/database";
 import { cloneDeep } from "lodash";
-import { IMagicGameState, IMagicSavedDeck } from "~/lib/magic/state";
+import { IMagicGameState, IMagicSavedDeck, MagicPhase } from "~/lib/magic/state";
 
 // ---------------------------------------------------------------------------
 // Firebase reference
@@ -56,6 +56,7 @@ function fillEmpty(state: IMagicGameState | null): IMagicGameState | null {
     tokens: p.tokens || [],
   }));
   state.originalDecks = state.originalDecks || [];
+  state.currentPhase = state.currentPhase || MagicPhase.BEGINNING;
 
   return state;
 }
