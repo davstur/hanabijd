@@ -16,7 +16,7 @@ import {
   mulligan,
   restartGame,
   concedeGame,
-  passTurn,
+  nextPhase,
   createToken,
   removeToken,
   flipCard,
@@ -348,10 +348,11 @@ let pt = newMagicGame({
   ],
 });
 assert(pt.currentPlayer === 0, "Starts with player 0");
-pt = passTurn(pt);
-assert(pt.currentPlayer === 1, "After pass, player 1");
-pt = passTurn(pt);
-assert(pt.currentPlayer === 0, "After pass again, player 0");
+// Advance through all 5 phases: Beginning → Main1 → Combat → Main2 → End → next player
+for (let i = 0; i < 5; i++) pt = nextPhase(pt);
+assert(pt.currentPlayer === 1, "After full turn, player 1");
+for (let i = 0; i < 5; i++) pt = nextPhase(pt);
+assert(pt.currentPlayer === 0, "After full turn again, player 0");
 
 // ---------------------------------------------------------------------------
 // Concede
