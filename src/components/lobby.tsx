@@ -100,7 +100,9 @@ export default function Lobby(props: Props) {
   function onJoinGameSubmit(e: FormEvent) {
     e.preventDefault();
     onJoinGame({ name, bot });
-    localStorage.setItem(NAME_KEY, JSON.stringify(name));
+    if (game.options.gameMode !== GameMode.PASS_AND_PLAY) {
+      localStorage.setItem(NAME_KEY, JSON.stringify(name));
+    }
   }
 
   return (
